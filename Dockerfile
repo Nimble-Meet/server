@@ -1,0 +1,15 @@
+FROM node:16-alpine
+
+WORKDIR /usr/src/app
+
+COPY ./package.json ./
+
+# kt의 npm 관련 에러 존재, mirror를 이용해서 설치하도록 임시로 설정
+RUN npm config set registry https://registry.npmjs.cf/
+RUN yarn
+
+COPY . .
+
+RUN yarn build
+
+CMD [ "yarn", "start:prod" ]
