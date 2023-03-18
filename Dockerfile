@@ -1,15 +1,35 @@
-FROM node:16-alpine
+FROM node:18-alpine AS base
 
+# INSTALL DEPENDENCIES FOR DEVELOPMENT (FOR NEST)
+FROM base AS deps
 WORKDIR /usr/src/app
 
-COPY ./package.json ./
-
-# kt의 npm 관련 에러 존재, mirror를 이용해서 설치하도록 임시로 설정
+COPY --chown=node:node package.json yarn.lock ./
 RUN npm config set registry https://registry.npmjs.cf/
-RUN yarn
+RUN yarn --frozen-lockfile;
 
-COPY . .
+USER node
+
+# INSTALL DEPENDENCIES & BUILD FOR PRODUCTION
+FROM base AS build
+WORKDIR /usr/src/app
+
+COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node . .
 
 RUN yarn build
 
-CMD [ "yarn", "start:prod" ]
+ENV NODE_ENV production
+RUN npm config set registry https://registry.npmjs.cf/
+RUN yarn --frozen-lockfile --production;
+RUN rm -rf ./.next/cache
+
+USER node
+
+# PRODUCTION IMAGE
+FROM base AS production
+
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
+CMD [ "node", "dist/main.js" ]

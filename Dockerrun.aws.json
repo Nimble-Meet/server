@@ -1,0 +1,13 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "Image": {
+    "Name": "jadenkim5179/nimble-server",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 3001,
+      "HostPort": 5000
+    }
+  ]
+}
