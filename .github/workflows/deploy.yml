@@ -23,7 +23,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nimble-client:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nimble-server:latest
 
       - name: Get timestamp
         uses: gerred/actions/current-time@master
