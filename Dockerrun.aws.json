@@ -4,6 +4,12 @@
     "Name": "jadenkim5179/nimble-server",
     "Update": "true"
   },
+  "Environment": {
+    "DATABASE_HOST": "$DATABASE_HOST",
+    "DATABASE_USER": "$DATABASE_USER",
+    "DATABASE_PASSWORD": "$DATABASE_PASSWORD",
+    "DATABASE_NAME": "$DATABASE_NAME"
+  },
   "Ports": [
     {
       "ContainerPort": 3001,
