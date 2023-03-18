@@ -22,7 +22,6 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/arm64/v8
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nimble-client:latest
 
