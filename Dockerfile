@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64/v8 node:18-alpine AS base
+FROM --platform=linux/amd64 node:18-alpine AS base
 
 # INSTALL DEPENDENCIES FOR DEVELOPMENT (FOR NEST)
 FROM base AS deps
