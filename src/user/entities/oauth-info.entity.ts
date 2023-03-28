@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 
-import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 import { IsNotEmpty } from 'class-validator';
 import { User } from './user.entity';
 
@@ -8,10 +7,6 @@ import { User } from './user.entity';
 export class OauthInfo {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ type: 'enum', enum: OauthProvider })
-  @IsNotEmpty()
-  provider: string;
 
   @Column()
   @IsNotEmpty()

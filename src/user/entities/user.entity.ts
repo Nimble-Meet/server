@@ -7,9 +7,15 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { IsEmail, IsNotEmpty, Length, MaxLength } from 'class-validator';
+
+import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 
 import { OauthInfo } from './oauth-info.entity';
+import {
+  IsUserEmail,
+  IsUserNickname,
+  IsBcryptEncrypted,
+} from '../user.validator';
 
 @Entity()
 export class User {
@@ -23,18 +29,19 @@ export class User {
   updatedAt: Date;
 
   @Column({ unique: true })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsUserEmail()
   email: string;
 
   @Column()
-  @Length(8, 20)
+  @IsBcryptEncrypted()
   password: string;
 
   @Column({ unique: true })
-  @IsNotEmpty()
-  @MaxLength(15)
+  @IsUserNickname()
   nickname: string;
+
+  @Column({ type: 'enum', enum: OauthProvider, default: OauthProvider.LOCAL })
+  provider: string;
 
   @OneToOne(() => OauthInfo, (oauthInfo) => oauthInfo.user, {
     cascade: true,
