@@ -34,13 +34,13 @@ export class UserResponseDto {
     description: 'oauth provider',
     enum: OauthProvider,
   })
-  provider: string;
+  providerType: string;
 
   private constructor(user: User) {
     this.email = user.email;
     this.nickname = user.nickname;
     this.createdAt = user.createdAt;
-    this.provider = user.provider;
+    this.providerType = user.providerType;
   }
 
   static from(user: User) {

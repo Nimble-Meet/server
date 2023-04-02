@@ -1,3 +1,6 @@
+import { IsString } from 'class-validator';
+import { JwtToken } from 'src/auth/entity/jwt-token.entity';
+import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 import {
   Entity,
   Column,
@@ -8,9 +11,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
-
-import { OauthInfo } from './oauth-info.entity';
 import {
   IsUserEmail,
   IsUserNickname,
@@ -41,12 +41,13 @@ export class User {
   nickname: string;
 
   @Column({ type: 'enum', enum: OauthProvider, default: OauthProvider.LOCAL })
-  provider: string;
+  providerType: string;
 
-  @OneToOne(() => OauthInfo, (oauthInfo) => oauthInfo.user, {
-    cascade: true,
-    nullable: true,
-  })
-  @JoinColumn({ name: 'oauthInfoId', referencedColumnName: 'id' })
-  oauthInfo: OauthInfo;
+  @Column()
+  @IsString()
+  providerId: string;
+
+  @OneToOne(() => JwtToken, (jwtToken) => jwtToken.user)
+  @JoinColumn()
+  jwtToken: JwtToken;
 }

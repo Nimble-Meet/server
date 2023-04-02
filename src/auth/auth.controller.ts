@@ -1,6 +1,16 @@
-import { LoginResponseDto } from './dto/response/login-response.dto';
+import { ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
+
+import { AuthService } from './auth.service';
+import { JwtSignResult } from './types/jwt-sign-result.interface';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
-import { ConfigService } from '@nestjs/config';
+import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
+import { LoginResponseDto } from './dto/response/login-response.dto';
+import { Request } from 'express';
+import { RequestUser } from '../common/decorators/req-user.decorator';
+import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
+import { UserPayloadDto } from './dto/user-payload.dto';
+import { UserResponseDto } from './dto/response/user-response.dto';
 
 import {
   Controller,
@@ -8,6 +18,8 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -17,14 +29,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { RequestUser } from '../common/decorators/req-user.decorator';
-import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
-import { AuthService } from './auth.service';
-import { UserResponseDto } from './dto/response/user-response.dto';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserPayloadDto } from './dto/user-payload.dto';
-import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
-import { JwtSignResult } from './types/jwt-sign-result.interface';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -60,7 +64,37 @@ export class AuthController {
   @ApiBadRequestResponse({ description: '적절하지 않은 이메일/비밀번호' })
   @UseGuards(LocalAuthGuard)
   @UseInterceptors(SetRTCookieInterceptor)
-  public login(@RequestUser() userPayload: UserPayloadDto): JwtSignResult {
-    return this.authService.jwtSign(userPayload);
+  async login(
+    @RequestUser() userPayload: UserPayloadDto,
+  ): Promise<JwtSignResult> {
+    return await this.authService.jwtSign(userPayload);
+  }
+
+  @Post('refresh')
+  @ApiOperation({
+    description:
+      'refesh 토큰을 사용하여 access 토큰을 재발급하고, refresh 토큰도 재발급',
+  })
+  @ApiCreatedResponse({
+    description: 'access token & refresh token 재발급 성공',
+    type: LoginResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'access token 재발급에 실패했습니다.',
+  })
+  @ApiBadRequestResponse({ description: '유효하지 않은 요청입니다.' })
+  @UseInterceptors(SetRTCookieInterceptor)
+  @ApiBearerAuth('access-token')
+  async refresh(@Req() req: Request): Promise<JwtSignResult> {
+    const prevRefreshToken = req.cookies['refresh_token'];
+    const prevAccessToken = req.headers.authorization?.split(' ')[1];
+    if (!prevRefreshToken || !prevAccessToken) {
+      throw new BadRequestException('유효하지 않은 요청입니다');
+    }
+
+    return await this.authService.rotateRefreshToken(
+      prevRefreshToken,
+      prevAccessToken,
+    );
   }
 }
