@@ -5,5 +5,7 @@ export const createJwtOptions = (
   configService: ConfigService,
 ): JwtModuleOptions => ({
   secret: configService.get('JWT_SECRET'),
-  signOptions: { expiresIn: '60s' },
+  signOptions: {
+    expiresIn: configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+  },
 });
