@@ -1,14 +1,17 @@
+import { AuthModule } from './auth/auth.module';
 import { LoggerModule } from 'nestjs-pino';
 
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { createTypeOrmOptions } from './config/typeorm.config';
 import { loggerOptions } from './config/logger.config';
+import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -19,12 +22,22 @@ import { loggerOptions } from './config/logger.config';
       useFactory: createTypeOrmOptions,
       inject: [ConfigService],
     }),
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, AuthController],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    },
+  ],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ValidationPipe).forRoutes('*');
-  }
-}
+export class AppModule {}
