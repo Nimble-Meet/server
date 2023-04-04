@@ -50,4 +50,9 @@ export class User {
   @OneToOne(() => JwtToken, (jwtToken) => jwtToken.user)
   @JoinColumn()
   jwtToken: JwtToken;
+
+  private constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
+  static from = (partial: Partial<User>) => new User(partial);
 }

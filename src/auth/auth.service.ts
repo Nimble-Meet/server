@@ -1,3 +1,4 @@
+import { EncryptedUser } from './EncryptedUser';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
 import { Repository } from 'typeorm';
@@ -11,7 +12,6 @@ import { ConfigService } from '@nestjs/config';
 import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
-import { UserService } from '../user/user.service';
 import { JwtSubjectType } from './enums/jwt-subject-type.enum';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
@@ -19,19 +19,21 @@ import { JwtPayloadDto } from './dto/jwt-payload.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(JwtToken)
     private readonly jwtTokenRepository: Repository<JwtToken>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
-    const hashedPassword = await bcrypt.hash(localSignupDto.password, 10);
-    const user = await this.userService.create({
-      ...localSignupDto,
-      password: hashedPassword,
-    });
+    const encryptedUser = await EncryptedUser.of(localSignupDto);
+
+    const user = User.from(encryptedUser);
+
+    await this.userRepository.save(user);
+
     return user;
   }
 
