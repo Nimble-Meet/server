@@ -1,9 +1,8 @@
-import { EncryptedUser } from './EncryptedUser';
+import { EncryptedPassword } from './EncryptedPassword';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
 import { Repository } from 'typeorm';
 import { JwtSignResult } from './types/jwt-sign-result.interface';
-import * as bcrypt from 'bcrypt';
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,12 +14,14 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { JwtSubjectType } from './enums/jwt-subject-type.enum';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly userService: UserService,
     @InjectRepository(JwtToken)
     private readonly jwtTokenRepository: Repository<JwtToken>,
     @InjectRepository(User)
@@ -28,9 +29,14 @@ export class AuthService {
   ) {}
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
-    const encryptedUser = await EncryptedUser.of(localSignupDto);
+    const encryptedPassword = await EncryptedPassword.encryptFrom(
+      localSignupDto.password,
+    );
 
-    const user = User.from(encryptedUser);
+    const user = User.from({
+      ...localSignupDto,
+      password: encryptedPassword.valueOf(),
+    });
 
     await this.userRepository.save(user);
 
@@ -39,9 +45,11 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findOneByEmail(email);
-    if (bcrypt.compareSync(password, user.password)) {
+    const encryptedPassword = new EncryptedPassword(user.password);
+    if (encryptedPassword.equals(password)) {
       return user;
     }
+
     return null;
   }
 
