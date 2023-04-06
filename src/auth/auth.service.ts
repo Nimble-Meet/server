@@ -11,13 +11,15 @@ import { ConfigService } from '@nestjs/config';
 import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
-import { JwtSubjectType } from './enums/jwt-subject-type.enum';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { UserService } from 'src/user/user.service';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
+  private readonly tokenService: TokenService;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -26,7 +28,9 @@ export class AuthService {
     private readonly jwtTokenRepository: Repository<JwtToken>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) {
+    this.tokenService = new TokenService(this.jwtService, this.configService);
+  }
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
     const encryptedPassword = await EncryptedPassword.encryptFrom(
@@ -55,8 +59,9 @@ export class AuthService {
 
   async jwtSign(userPayload: UserPayloadDto): Promise<JwtSignResult> {
     const userId = userPayload.id;
-    const accessToken = this.generateAccessToken(userId);
-    const refreshToken = this.generateRefreshToken(userId);
+
+    const accessToken = this.tokenService.generateAccessToken(userId);
+    const refreshToken = this.tokenService.generateRefreshToken(userId);
 
     await this.upsertJwtTokenData(userId, accessToken, refreshToken);
 
@@ -67,41 +72,26 @@ export class AuthService {
     };
   }
 
-  private generateAccessToken(userId: number): string {
-    const payloadToSign: JwtPayloadDto = { userId };
-    return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.ACCESS,
-      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
-      expiresIn: +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
-    });
-  }
-
-  private generateRefreshToken(userId: number): string {
-    const payloadToSign: JwtPayloadDto = { userId };
-    return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.REFRESH,
-      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-    });
-  }
-
   private async upsertJwtTokenData(
     userId: number,
     accessToken: string,
     refreshToken: string,
   ): Promise<void> {
-    await this.jwtTokenRepository.upsert(
-      {
-        userId,
-        accessToken,
-        refreshToken,
-        expiresAt: new Date(
-          Date.now() +
-            +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-        ),
-      },
-      ['userId'],
-    );
+    const { id: findedTokenId } = await this.jwtTokenRepository.findOne({
+      where: { userId },
+      select: ['id'],
+    });
+    const newToken = JwtToken.from({
+      ...(findedTokenId && { id: findedTokenId }),
+      userId,
+      accessToken,
+      refreshToken,
+      expiresAt: new Date(
+        Date.now() +
+          +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+      ),
+    });
+    await this.jwtTokenRepository.save(newToken);
   }
 
   async rotateRefreshToken(
@@ -113,8 +103,8 @@ export class AuthService {
       prevAccessToken,
     );
 
-    const newAccessToken = this.generateAccessToken(userId);
-    const newRefreshToken = this.generateRefreshToken(userId);
+    const newAccessToken = this.tokenService.generateAccessToken(userId);
+    const newRefreshToken = this.tokenService.generateRefreshToken(userId);
 
     await this.updateJwtTokenData(userId, newAccessToken, newRefreshToken);
 
@@ -143,9 +133,7 @@ export class AuthService {
 
     let payload: JwtPayloadDto;
     try {
-      payload = await this.jwtService.verifyAsync(prevRefreshToken, {
-        secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
-      });
+      payload = await this.tokenService.verifyRefreshToken(prevRefreshToken);
     } catch {
       throw new UnauthorizedException('토큰이 만료되었습니다.');
     }

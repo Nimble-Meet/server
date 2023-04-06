@@ -32,7 +32,15 @@ export class JwtToken {
   @JoinColumn()
   user: User;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   @IsNumber()
   userId: number;
+
+  private constructor(partial: Partial<JwtToken>) {
+    Object.assign(this, partial);
+  }
+
+  static from(partial: Partial<JwtToken>): JwtToken {
+    return new JwtToken(partial);
+  }
 }
