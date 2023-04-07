@@ -43,4 +43,8 @@ export class JwtToken {
   static from(partial: Partial<JwtToken>): JwtToken {
     return new JwtToken(partial);
   }
+
+  equalsAccessToken(accessToken: string): boolean {
+    return this.accessToken === accessToken;
+  }
 }

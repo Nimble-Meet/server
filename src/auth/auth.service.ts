@@ -80,15 +80,26 @@ export class AuthService {
     prevRefreshToken: string,
     prevAccessToken: string,
   ): Promise<JwtSignResultDto> {
-    const { userId } = await this.verifyToken(
+    const jwtToken = await this.jwtTokenRepository.findOneByRefreshToken(
       prevRefreshToken,
-      prevAccessToken,
     );
+    if (!jwtToken?.equalsAccessToken(prevAccessToken)) {
+      throw new UnauthorizedException('유효하지 않은 요청입니다.');
+    }
+
+    let userId: number;
+    try {
+      const jwtPayload = await this.tokenService.verifyRefreshToken(
+        prevRefreshToken,
+      );
+      userId = jwtPayload.userId;
+    } catch {
+      throw new UnauthorizedException('리프레시 토큰이 만료되었습니다.');
+    }
 
     const newAccessToken = this.tokenService.generateAccessToken(userId);
     const newRefreshToken = this.tokenService.generateRefreshToken(userId);
 
-    const jwtToken = await this.jwtTokenRepository.findOneBy({ userId });
     const newJwtToken = Object.assign(jwtToken, {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
@@ -97,28 +108,5 @@ export class AuthService {
     await this.jwtTokenRepository.save(newJwtToken);
 
     return JwtSignResultDto.fromJwtToken(newJwtToken);
-  }
-
-  private async verifyToken(
-    prevRefreshToken: string,
-    prevAccessToken: string,
-  ): Promise<JwtPayloadDto> {
-    try {
-      const { accessToken } = await this.jwtTokenRepository.findOneOrFail({
-        where: { refreshToken: prevRefreshToken },
-        select: ['accessToken'],
-      });
-      if (accessToken !== prevAccessToken) {
-        throw Error();
-      }
-    } catch {
-      throw new UnauthorizedException('유효하지 않은 요청입니다.');
-    }
-
-    try {
-      return await this.tokenService.verifyRefreshToken(prevRefreshToken);
-    } catch {
-      throw new UnauthorizedException('토큰이 만료되었습니다.');
-    }
   }
 }
