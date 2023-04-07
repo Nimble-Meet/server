@@ -1,7 +1,7 @@
+import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 import { ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
-import { JwtSignResult } from './types/jwt-sign-result.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
@@ -66,7 +66,7 @@ export class AuthController {
   @UseInterceptors(SetRTCookieInterceptor)
   async login(
     @RequestUser() userPayload: UserPayloadDto,
-  ): Promise<JwtSignResult> {
+  ): Promise<JwtSignResultDto> {
     return await this.authService.jwtSign(userPayload);
   }
 
@@ -85,7 +85,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: '유효하지 않은 요청입니다.' })
   @UseInterceptors(SetRTCookieInterceptor)
   @ApiBearerAuth('access-token')
-  async refresh(@Req() req: Request): Promise<JwtSignResult> {
+  async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
     const prevAccessToken = req.headers.authorization?.split(' ')[1];
     if (!prevRefreshToken || !prevAccessToken) {

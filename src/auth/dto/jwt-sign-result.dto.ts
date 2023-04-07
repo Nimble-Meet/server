@@ -1,9 +1,9 @@
 import { JwtToken } from '../entity/jwt-token.entity';
 
 export class JwtSignResultDto {
-  private readonly userId: number;
-  private readonly accessToken: string;
-  private readonly refreshToken: string;
+  readonly userId: number;
+  readonly accessToken: string;
+  readonly refreshToken: string;
 
   private constructor(partial: Partial<JwtSignResultDto>) {
     Object.assign(this, partial);
