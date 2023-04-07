@@ -3,8 +3,12 @@ import * as bcrypt from 'bcrypt';
 export class EncryptedPassword {
   private readonly password: string;
 
-  constructor(password: string) {
+  private constructor(password: string) {
     this.password = password;
+  }
+
+  static from(hashedPassword: string) {
+    return new EncryptedPassword(hashedPassword);
   }
 
   static async encryptFrom(plainPassword: string) {

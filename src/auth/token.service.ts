@@ -32,4 +32,10 @@ export class TokenService {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
   }
+
+  getRefreshTokenExpiresAt(): Date {
+    return new Date(
+      Date.now() + +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+    );
+  }
 }

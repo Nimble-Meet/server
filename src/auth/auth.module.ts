@@ -10,6 +10,7 @@ import { LocalStrategy } from './strategy/local.strategy';
 import { AuthService } from './auth.service';
 import { createJwtOptions } from './auth.config';
 import { User } from 'src/user/entities/user.entity';
+import { JwtTokenRepository } from './jwt-token.repository';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { User } from 'src/user/entities/user.entity';
     TypeOrmModule.forFeature([JwtToken, User]),
     UserModule,
   ],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtTokenRepository],
   exports: [AuthService],
 })
 export class AuthModule {}

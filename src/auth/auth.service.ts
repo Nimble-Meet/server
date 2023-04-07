@@ -2,7 +2,6 @@ import { EncryptedPassword } from './EncryptedPassword';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
 import { Repository } from 'typeorm';
-import { JwtSignResult } from './types/jwt-sign-result.interface';
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +14,8 @@ import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { UserService } from 'src/user/user.service';
 import { TokenService } from './token.service';
+import { JwtTokenRepository } from './jwt-token.repository';
+import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly userService: UserService,
     @InjectRepository(JwtToken)
-    private readonly jwtTokenRepository: Repository<JwtToken>,
+    private readonly jwtTokenRepository: JwtTokenRepository,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {
@@ -49,55 +50,36 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findOneByEmail(email);
-    const encryptedPassword = new EncryptedPassword(user.password);
-    if (encryptedPassword.equals(password)) {
-      return user;
-    }
-
-    return null;
+    const encryptedPassword = EncryptedPassword.from(user.password);
+    return encryptedPassword.equals(password) ? user : null;
   }
 
-  async jwtSign(userPayload: UserPayloadDto): Promise<JwtSignResult> {
+  async jwtSign(userPayload: UserPayloadDto): Promise<JwtSignResultDto> {
     const userId = userPayload.id;
 
     const accessToken = this.tokenService.generateAccessToken(userId);
     const refreshToken = this.tokenService.generateRefreshToken(userId);
 
-    await this.upsertJwtTokenData(userId, accessToken, refreshToken);
+    const tokenId = await this.jwtTokenRepository.findTokenIdByUserId(userId);
+    const existsToken = !!tokenId;
 
-    return {
-      userId,
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  private async upsertJwtTokenData(
-    userId: number,
-    accessToken: string,
-    refreshToken: string,
-  ): Promise<void> {
-    const { id: findedTokenId } = await this.jwtTokenRepository.findOne({
-      where: { userId },
-      select: ['id'],
-    });
     const newToken = JwtToken.from({
-      ...(findedTokenId && { id: findedTokenId }),
+      ...(existsToken && { id: tokenId }),
       userId,
       accessToken,
       refreshToken,
-      expiresAt: new Date(
-        Date.now() +
-          +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-      ),
+      expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
     });
+
     await this.jwtTokenRepository.save(newToken);
+
+    return JwtSignResultDto.fromJwtToken(newToken);
   }
 
   async rotateRefreshToken(
     prevRefreshToken: string,
     prevAccessToken: string,
-  ): Promise<JwtSignResult> {
+  ): Promise<JwtSignResultDto> {
     const { userId } = await this.verifyToken(
       prevRefreshToken,
       prevAccessToken,
@@ -106,13 +88,15 @@ export class AuthService {
     const newAccessToken = this.tokenService.generateAccessToken(userId);
     const newRefreshToken = this.tokenService.generateRefreshToken(userId);
 
-    await this.updateJwtTokenData(userId, newAccessToken, newRefreshToken);
-
-    return {
-      userId,
+    const jwtToken = await this.jwtTokenRepository.findOneBy({ userId });
+    const newJwtToken = Object.assign(jwtToken, {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-    };
+      expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
+    });
+    await this.jwtTokenRepository.save(newJwtToken);
+
+    return JwtSignResultDto.fromJwtToken(newJwtToken);
   }
 
   private async verifyToken(
@@ -131,29 +115,10 @@ export class AuthService {
       throw new UnauthorizedException('유효하지 않은 요청입니다.');
     }
 
-    let payload: JwtPayloadDto;
     try {
-      payload = await this.tokenService.verifyRefreshToken(prevRefreshToken);
+      return await this.tokenService.verifyRefreshToken(prevRefreshToken);
     } catch {
       throw new UnauthorizedException('토큰이 만료되었습니다.');
     }
-    return payload;
-  }
-
-  private updateJwtTokenData(
-    userId: number,
-    newAccessToken: string,
-    newRefreshToken: string,
-  ): Promise<any> {
-    return this.jwtTokenRepository.update(
-      { userId },
-      {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-        expiresAt:
-          new Date() +
-          this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-      },
-    );
   }
 }
