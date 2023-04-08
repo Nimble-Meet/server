@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
-import { JwtToken } from 'src/auth/entity/jwt-token.entity';
-import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
+import { JwtToken } from '../../auth/entity/jwt-token.entity';
+import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 import {
   Entity,
   Column,
