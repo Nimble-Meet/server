@@ -11,7 +11,6 @@ import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
-import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { UserService } from 'src/user/user.service';
 import { TokenService } from './token.service';
 import { JwtTokenRepository } from './jwt-token.repository';

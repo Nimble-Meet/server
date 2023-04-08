@@ -7,10 +7,10 @@ export class JwtTokenRepository extends Repository<JwtToken> {
   }
 
   async findTokenIdByUserId(userId: number): Promise<number> {
-    const { id: tokenId } = await this.findOne({
+    const findedToken = await this.findOne({
       where: { userId },
       select: ['id'],
     });
-    return tokenId;
+    return findedToken?.id;
   }
 }
