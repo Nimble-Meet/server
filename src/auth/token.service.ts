@@ -27,8 +27,14 @@ export class TokenService {
     });
   }
 
-  async verifyRefreshToken(refreshToken: string): Promise<JwtPayloadDto> {
-    return this.jwtService.verifyAsync(refreshToken, {
+  verifyAccessToken(accessToken: string): JwtPayloadDto {
+    return this.jwtService.verify(accessToken, {
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+    });
+  }
+
+  verifyRefreshToken(refreshToken: string): JwtPayloadDto {
+    return this.jwtService.verify(refreshToken, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
   }

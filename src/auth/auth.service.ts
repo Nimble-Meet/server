@@ -88,9 +88,7 @@ export class AuthService {
 
     let userId: number;
     try {
-      const jwtPayload = await this.tokenService.verifyRefreshToken(
-        prevRefreshToken,
-      );
+      const jwtPayload = this.tokenService.verifyRefreshToken(prevRefreshToken);
       userId = jwtPayload.userId;
     } catch {
       throw new UnauthorizedException('리프레시 토큰이 만료되었습니다.');
