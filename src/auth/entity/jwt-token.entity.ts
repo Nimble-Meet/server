@@ -36,7 +36,7 @@ export class JwtToken {
   @IsNumber()
   userId: number;
 
-  private constructor(partial: Partial<JwtToken>) {
+  constructor(partial: Partial<JwtToken>) {
     Object.assign(this, partial);
   }
 

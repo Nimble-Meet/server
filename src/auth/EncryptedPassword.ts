@@ -11,12 +11,12 @@ export class EncryptedPassword {
     return new EncryptedPassword(hashedPassword);
   }
 
-  static async encryptFrom(plainPassword: string) {
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+  static encryptFrom(plainPassword: string) {
+    const hashedPassword = bcrypt.hashSync(plainPassword, 10);
     return new EncryptedPassword(hashedPassword);
   }
 
-  valueOf() {
+  getPassword() {
     return this.password;
   }
 

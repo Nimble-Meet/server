@@ -1,7 +1,7 @@
+import { UserRepository } from './../user/user.repository';
 import { EncryptedPassword } from './EncryptedPassword';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
-import { Repository } from 'typeorm';
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -11,7 +11,6 @@ import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
-import { UserService } from 'src/user/user.service';
 import { TokenService } from './token.service';
 import { JwtTokenRepository } from './jwt-token.repository';
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
@@ -23,23 +22,22 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: UserRepository,
     @InjectRepository(JwtToken)
     private readonly jwtTokenRepository: JwtTokenRepository,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
   ) {
     this.tokenService = new TokenService(this.jwtService, this.configService);
   }
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
-    const encryptedPassword = await EncryptedPassword.encryptFrom(
+    const encryptedPassword = EncryptedPassword.encryptFrom(
       localSignupDto.password,
     );
 
     const user = User.from({
       ...localSignupDto,
-      password: encryptedPassword.valueOf(),
+      password: encryptedPassword.getPassword(),
     });
 
     await this.userRepository.save(user);
@@ -48,7 +46,7 @@ export class AuthService {
   }
 
   async validateLocalUser(email: string, password: string): Promise<any> {
-    const user = await this.userService.findOneByEmail(email);
+    const user = await this.userRepository.findOneByEmail(email);
     const encryptedPassword = EncryptedPassword.from(user.password);
     return encryptedPassword.equals(password) ? user : null;
   }

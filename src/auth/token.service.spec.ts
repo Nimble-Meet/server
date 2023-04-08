@@ -13,7 +13,7 @@ describe('TokenService', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        ConfigModule,
+        ConfigModule.forRoot(),
         JwtModule.registerAsync({
           imports: [ConfigModule],
           useFactory: createJwtOptions,
