@@ -1,6 +1,5 @@
-import { UserRepository } from './../user/user.repository';
+import { UserRepository } from 'src/user/user.repository';
 import { EncryptedPassword } from './EncryptedPassword';
-import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
@@ -22,9 +21,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    @InjectRepository(User)
     private readonly userRepository: UserRepository,
-    @InjectRepository(JwtToken)
     private readonly jwtTokenRepository: JwtTokenRepository,
   ) {
     this.tokenService = new TokenService(this.jwtService, this.configService);

@@ -21,7 +21,7 @@ import { JwtTokenRepository } from './jwt-token.repository';
       useFactory: createJwtOptions,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([JwtToken, User]),
+    TypeOrmModule.forFeature([JwtToken]),
     UserModule,
   ],
   providers: [AuthService, LocalStrategy, JwtTokenRepository],
