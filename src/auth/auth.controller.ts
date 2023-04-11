@@ -67,7 +67,8 @@ export class AuthController {
   async login(
     @RequestUser() userPayload: UserPayloadDto,
   ): Promise<JwtSignResultDto> {
-    return await this.authService.jwtSign(userPayload);
+    const jwtToken = await this.authService.jwtSign(userPayload);
+    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
   @Post('refresh')

@@ -48,7 +48,7 @@ export class AuthService {
     return encryptedPassword.equals(password) ? user : null;
   }
 
-  async jwtSign(userPayload: UserPayloadDto): Promise<JwtSignResultDto> {
+  async jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
     const userId = userPayload.id;
 
     const accessToken = this.tokenService.generateAccessToken(userId);
@@ -65,9 +65,7 @@ export class AuthService {
       expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
     });
 
-    await this.jwtTokenRepository.save(newToken);
-
-    return JwtSignResultDto.fromJwtToken(newToken);
+    return await this.jwtTokenRepository.save(newToken);
   }
 
   async rotateRefreshToken(
