@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { JwtToken } from './entity/jwt-token.entity';
+import { JwtToken } from '../entity/jwt-token.entity';
+import { JwtTokenRepository } from './jwt-token.repository.interface';
 
 @Injectable()
-export class JwtTokenRepository extends Repository<JwtToken> {
+export class JwtTokenRepositoryImpl
+  extends Repository<JwtToken>
+  implements JwtTokenRepository
+{
   constructor(private readonly dataSource: DataSource) {
     super(
       JwtToken,

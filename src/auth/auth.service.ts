@@ -1,8 +1,7 @@
-import { UserRepository } from 'src/user/user.repository';
 import { EncryptedPassword } from './EncryptedPassword';
 import { JwtToken } from './entity/jwt-token.entity';
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
@@ -11,8 +10,9 @@ import { User } from 'src/user/entities/user.entity';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
-import { JwtTokenRepository } from './jwt-token.repository';
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
+import { UserRepository } from 'src/user/repository/user.repository.interface';
+import { JwtTokenRepository } from './repository/jwt-token.repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -21,13 +21,22 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject('UserRepository')
     private readonly userRepository: UserRepository,
+    @Inject('JwtTokenRepository')
     private readonly jwtTokenRepository: JwtTokenRepository,
   ) {
     this.tokenService = new TokenService(this.jwtService, this.configService);
   }
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
+    const isEmailAlreadyExists = this.userRepository.existsByEmail(
+      localSignupDto.email,
+    );
+    if (isEmailAlreadyExists) {
+      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
+    }
+
     const encryptedPassword = EncryptedPassword.encryptFrom(
       localSignupDto.password,
     );
@@ -37,9 +46,7 @@ export class AuthService {
       password: encryptedPassword.getPassword(),
     });
 
-    await this.userRepository.save(user);
-
-    return user;
+    return await this.userRepository.save(user);
   }
 
   async validateLocalUser(email: string, password: string): Promise<any> {
