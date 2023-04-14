@@ -1,12 +1,12 @@
 import { JwtToken } from 'src/auth/entity/jwt-token.entity';
 import { USER_ID } from '../dummies/user.dummy';
 import { EXISTING_TOKEN_ID } from '../dummies/jwt-token.dummy';
-import { JwtTokenRepository } from 'src/auth/repository/jwt-token.repository.interface';
+import { IJwtTokenRepository } from 'src/auth/repository/jwt-token.repository.interface';
 
 const isTokenExists = (tokenId: number) => tokenId === EXISTING_TOKEN_ID;
 const isUserHasToken = (userId: number) => userId === USER_ID;
 
-export class JwtTokenRepositoryStub implements JwtTokenRepository {
+export class JwtTokenRepositoryStub implements IJwtTokenRepository {
   async findTokenIdByUserId(userId: number): Promise<number> {
     return Promise.resolve(isUserHasToken(userId) ? EXISTING_TOKEN_ID : null);
   }

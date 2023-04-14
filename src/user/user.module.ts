@@ -4,19 +4,20 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { UserRepositoryImpl } from './repository/user.repository';
+import { IUserRepository } from './repository/user.repository.interface';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   providers: [
     UserService,
     {
-      provide: 'UserRepository',
+      provide: IUserRepository,
       useClass: UserRepositoryImpl,
     },
   ],
   exports: [
     {
-      provide: 'UserRepository',
+      provide: IUserRepository,
       useClass: UserRepositoryImpl,
     },
   ],

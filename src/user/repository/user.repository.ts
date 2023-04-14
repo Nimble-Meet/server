@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { UserRepository } from './user.repository.interface';
+import { IUserRepository } from './user.repository.interface';
 
 @Injectable()
 export class UserRepositoryImpl
   extends Repository<User>
-  implements UserRepository
+  implements IUserRepository
 {
   constructor(private readonly dataSource: DataSource) {
     super(

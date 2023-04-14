@@ -11,8 +11,8 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
-import { UserRepository } from 'src/user/repository/user.repository.interface';
-import { JwtTokenRepository } from './repository/jwt-token.repository.interface';
+import { IUserRepository } from 'src/user/repository/user.repository.interface';
+import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 
 @Injectable()
 export class AuthService {
@@ -21,10 +21,10 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    @Inject('UserRepository')
-    private readonly userRepository: UserRepository,
-    @Inject('JwtTokenRepository')
-    private readonly jwtTokenRepository: JwtTokenRepository,
+    @Inject(IUserRepository)
+    private readonly userRepository: IUserRepository,
+    @Inject(IJwtTokenRepository)
+    private readonly jwtTokenRepository: IJwtTokenRepository,
   ) {
     this.tokenService = new TokenService(this.jwtService, this.configService);
   }

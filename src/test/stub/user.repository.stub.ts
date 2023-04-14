@@ -1,5 +1,5 @@
 import { User } from 'src/user/entities/user.entity';
-import { UserRepository } from 'src/user/repository/user.repository.interface';
+import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { EMAIL, ENCRYPTED_PASSWORD, NICKNAME } from '../dummies/user.dummy';
 
 const isUserExists = (email: string) => email === EMAIL;
@@ -12,7 +12,7 @@ const DUMMY_USER = Object.freeze(
   }),
 );
 
-export class UserRepositoryStub implements UserRepository {
+export class UserRepositoryStub implements IUserRepository {
   async findOneByEmail(email: string): Promise<User> {
     return Promise.resolve(isUserExists(email) ? DUMMY_USER : null);
   }
