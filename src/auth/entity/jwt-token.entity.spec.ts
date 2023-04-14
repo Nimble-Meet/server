@@ -6,7 +6,7 @@ describe('JwtToken entity', () => {
       // given
       const accessToken = 'test-access-token';
       // when
-      const jwtToken = JwtToken.from({
+      const jwtToken = JwtToken.create({
         accessToken,
         refreshToken: 'test-refresh-token',
         expiresAt: new Date(),
@@ -19,7 +19,7 @@ describe('JwtToken entity', () => {
       // given
       const accessToken = 'test-access-token';
       // when
-      const jwtToken = JwtToken.from({
+      const jwtToken = JwtToken.create({
         accessToken,
         refreshToken: 'test-refresh-token',
         expiresAt: new Date(),

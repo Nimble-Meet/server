@@ -30,7 +30,7 @@ export class AuthService {
   }
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
-    const isEmailAlreadyExists = this.userRepository.existsByEmail(
+    const isEmailAlreadyExists = await this.userRepository.existsByEmail(
       localSignupDto.email,
     );
     if (isEmailAlreadyExists) {
@@ -41,7 +41,7 @@ export class AuthService {
       localSignupDto.password,
     );
 
-    const user = User.from({
+    const user = User.create({
       ...localSignupDto,
       password: encryptedPassword.getPassword(),
     });
@@ -49,7 +49,7 @@ export class AuthService {
     return await this.userRepository.save(user);
   }
 
-  async validateLocalUser(email: string, password: string): Promise<any> {
+  async validateLocalUser(email: string, password: string): Promise<User> {
     const user = await this.userRepository.findOneByEmail(email);
     const encryptedPassword = EncryptedPassword.from(user.password);
     return encryptedPassword.equals(password) ? user : null;
@@ -64,7 +64,7 @@ export class AuthService {
     const tokenId = await this.jwtTokenRepository.findTokenIdByUserId(userId);
     const existsToken = !!tokenId;
 
-    const newToken = JwtToken.from({
+    const newToken = JwtToken.create({
       ...(existsToken && { id: tokenId }),
       userId,
       accessToken,

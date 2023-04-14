@@ -36,14 +36,13 @@ export class JwtToken {
   @IsNumber()
   userId: number;
 
-  constructor(partial: Partial<JwtToken>) {
+  private constructor(partial: Partial<JwtToken>) {
     Object.assign(this, partial);
   }
 
-  static from(partial: Partial<JwtToken>): JwtToken {
+  static create(partial: Partial<JwtToken>): JwtToken {
     return new JwtToken(partial);
   }
-
   equalsAccessToken(accessToken: string): boolean {
     return this.accessToken === accessToken;
   }
