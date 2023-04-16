@@ -1,27 +1,32 @@
 import { User } from 'src/user/entities/user.entity';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
-import { EMAIL, ENCRYPTED_PASSWORD, NICKNAME } from '../dummies/user.dummy';
-
-const isUserExists = (email: string) => email === EMAIL;
-
-const DUMMY_USER = Object.freeze(
-  User.create({
-    email: EMAIL,
-    nickname: NICKNAME,
-    password: ENCRYPTED_PASSWORD.getPassword(),
-  }),
-);
 
 export class UserRepositoryStub implements IUserRepository {
+  private readonly userList: User[];
+
+  constructor(userList: readonly User[]) {
+    this.userList = userList.map((user) => User.create(user));
+  }
+
   async findOneByEmail(email: string): Promise<User> {
-    return Promise.resolve(isUserExists(email) ? DUMMY_USER : null);
+    const isEmailEquals = (user: User) => user.email === email;
+    return Promise.resolve(this.userList.find(isEmailEquals));
   }
 
   async existsByEmail(email: string): Promise<boolean> {
-    return Promise.resolve(isUserExists(email));
+    const isEmailEquals = (user: User) => user.email === email;
+    return Promise.resolve(this.userList.some(isEmailEquals));
   }
 
   async save(user: User): Promise<User> {
+    const findedUserIndex = this.userList.findIndex(
+      (token) => token.id === user.id,
+    );
+    if (findedUserIndex > 0) {
+      this.userList.splice(findedUserIndex, 1);
+    }
+
+    this.userList.push(user);
     return Promise.resolve(User.create(user));
   }
 }
