@@ -2,8 +2,6 @@ import { EncryptedPassword } from './EncryptedPassword';
 import { JwtToken } from './entity/jwt-token.entity';
 
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 import { User } from 'src/user/entities/user.entity';
 
@@ -16,18 +14,13 @@ import { IJwtTokenRepository } from './repository/jwt-token.repository.interface
 
 @Injectable()
 export class AuthService {
-  private readonly tokenService: TokenService;
-
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly tokenService: TokenService,
     @Inject(IUserRepository)
     private readonly userRepository: IUserRepository,
     @Inject(IJwtTokenRepository)
     private readonly jwtTokenRepository: IJwtTokenRepository,
-  ) {
-    this.tokenService = new TokenService(this.jwtService, this.configService);
-  }
+  ) {}
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
     const isEmailAlreadyExists = await this.userRepository.existsByEmail(

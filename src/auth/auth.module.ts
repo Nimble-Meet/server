@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { createJwtOptions } from './auth.config';
 import { JwtTokenRepositoryImpl } from './repository/jwt-token.repository';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
+import { TokenService } from './token.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { IJwtTokenRepository } from './repository/jwt-token.repository.interface
       provide: IJwtTokenRepository,
       useClass: JwtTokenRepositoryImpl,
     },
+    TokenService,
   ],
   exports: [AuthService],
 })
