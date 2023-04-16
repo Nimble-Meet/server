@@ -8,7 +8,6 @@ import { User } from 'src/user/entities/user.entity';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
-import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 
@@ -71,7 +70,7 @@ export class AuthService {
   async rotateRefreshToken(
     prevRefreshToken: string,
     prevAccessToken: string,
-  ): Promise<JwtSignResultDto> {
+  ): Promise<JwtToken> {
     const jwtToken = await this.jwtTokenRepository.findOneByRefreshToken(
       prevRefreshToken,
     );
@@ -95,8 +94,6 @@ export class AuthService {
       refreshToken: newRefreshToken,
       expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
     });
-    await this.jwtTokenRepository.save(newJwtToken);
-
-    return JwtSignResultDto.fromJwtToken(newJwtToken);
+    return await this.jwtTokenRepository.save(newJwtToken);
   }
 }

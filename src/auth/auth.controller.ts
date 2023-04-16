@@ -93,9 +93,10 @@ export class AuthController {
       throw new BadRequestException('유효하지 않은 요청입니다');
     }
 
-    return await this.authService.rotateRefreshToken(
+    const jwtToken = await this.authService.rotateRefreshToken(
       prevRefreshToken,
       prevAccessToken,
     );
+    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }
