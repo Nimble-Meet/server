@@ -1,4 +1,3 @@
-import { JWT_TOKEN } from './../test/dummies/jwt-token.dummy';
 import { Test } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
@@ -48,6 +47,12 @@ describe('AuthService', () => {
     const configService = moduleRef.get<ConfigService>(ConfigService);
 
     tokenService = new TokenService(jwtService, configService);
+
+    jest.useFakeTimers();
+  });
+
+  afterAll(() => {
+    jest.runAllTimers();
   });
 
   describe('signup', () => {
@@ -297,8 +302,6 @@ describe('AuthService', () => {
       const refreshToken = REFRESH_TOKEN;
       const accessToken = ACCESS_TOKEN;
 
-      jest.useFakeTimers();
-
       // 딜레이 없이 토큰을 재발급할 경우 이전과 동일한 토큰을 발급하기 때문에, 딜레이를 두고 메서드 호출.
       setTimeout(async () => {
         // when
@@ -316,8 +319,6 @@ describe('AuthService', () => {
           new Date().getTime(),
         );
       }, 1000);
-
-      jest.runAllTimers();
     });
 
     it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않는 경우 에러', async () => {
