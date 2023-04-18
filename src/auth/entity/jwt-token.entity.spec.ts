@@ -1,31 +1,39 @@
 import { JwtToken } from './jwt-token.entity';
 
-describe('JwtToken entity', () => {
+describe('JwtToken', () => {
   describe('equalsAccessToken', () => {
-    it('should return true if the access token matches', () => {
-      // given
-      const accessToken = 'test-access-token';
-      // when
-      const jwtToken = JwtToken.create({
+    const createJwtToken = ({
+      accessToken = '',
+      refreshToken = '',
+      expiresAt = new Date(),
+      userId = 1,
+    }) =>
+      JwtToken.create({
         accessToken,
-        refreshToken: 'test-refresh-token',
-        expiresAt: new Date(),
+        refreshToken,
+        expiresAt,
+        userId,
       });
+    it('동일한 access token으로 호출하면 true를 반환', () => {
+      // given
+      const accessToken = 'valid access token';
+
+      // when
+      const jwtToken = createJwtToken({ accessToken });
+
       // then
-      expect(jwtToken.equalsAccessToken(accessToken)).toBe(true);
+      expect(jwtToken.equalsAccessToken('valid access token')).toBe(true);
     });
 
-    it('should return false if the access token does not match', () => {
+    it('다른 access token으로 호출하면 false를 반환', () => {
       // given
-      const accessToken = 'test-access-token';
+      const accessToken = 'valid access token';
+
       // when
-      const jwtToken = JwtToken.create({
-        accessToken,
-        refreshToken: 'test-refresh-token',
-        expiresAt: new Date(),
-      });
+      const jwtToken = createJwtToken({ accessToken });
+
       // then
-      expect(jwtToken.equalsAccessToken('invalid-access-token')).toBe(false);
+      expect(jwtToken.equalsAccessToken('-----')).toBe(false);
     });
   });
 });

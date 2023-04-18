@@ -40,9 +40,20 @@ export class JwtToken {
     Object.assign(this, partial);
   }
 
-  static create(partial: Partial<JwtToken>): JwtToken {
-    return new JwtToken(partial);
+  static create(createJwtTokenInfo: {
+    id?: number;
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: Date;
+    userId: number;
+  }): JwtToken {
+    return new JwtToken(createJwtTokenInfo);
   }
+
+  static clone(jwtToken: JwtToken): JwtToken {
+    return new JwtToken(jwtToken);
+  }
+
   equalsAccessToken(accessToken: string): boolean {
     return this.accessToken === accessToken;
   }
