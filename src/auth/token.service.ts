@@ -2,7 +2,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { JwtSubjectType } from './enums/jwt-subject-type.enum';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class TokenService {
   constructor(
     private readonly jwtService: JwtService,

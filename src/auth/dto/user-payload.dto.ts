@@ -1,17 +1,13 @@
 import { User } from 'src/user/entities/user.entity';
 
 export class UserPayloadDto {
-  id: number;
-  email: string;
-  nickname: string;
-
-  private constructor(user: User) {
-    this.email = user.email;
-    this.nickname = user.nickname;
-    this.id = user.id;
-  }
+  constructor(
+    readonly id: number,
+    readonly email: string,
+    readonly nickname: string,
+  ) {}
 
   static from(user: User) {
-    return new UserPayloadDto(user);
+    return new UserPayloadDto(user.id, user.email, user.nickname);
   }
 }

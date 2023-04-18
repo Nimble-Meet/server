@@ -30,7 +30,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('auth')
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -67,7 +67,8 @@ export class AuthController {
   async login(
     @RequestUser() userPayload: UserPayloadDto,
   ): Promise<JwtSignResultDto> {
-    return await this.authService.jwtSign(userPayload);
+    const jwtToken = await this.authService.jwtSign(userPayload);
+    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
   @Post('refresh')
@@ -92,9 +93,10 @@ export class AuthController {
       throw new BadRequestException('유효하지 않은 요청입니다');
     }
 
-    return await this.authService.rotateRefreshToken(
+    const jwtToken = await this.authService.rotateRefreshToken(
       prevRefreshToken,
       prevAccessToken,
     );
+    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }

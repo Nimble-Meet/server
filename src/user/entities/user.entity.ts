@@ -54,5 +54,7 @@ export class User {
   private constructor(partial: Partial<User>) {
     Object.assign(this, partial);
   }
-  static from = (partial: Partial<User>) => new User(partial);
+  static create(partial: Partial<User>): User {
+    return new User(partial);
+  }
 }

@@ -9,8 +9,9 @@ import { UserModule } from '../user/user.module';
 import { LocalStrategy } from './strategy/local.strategy';
 import { AuthService } from './auth.service';
 import { createJwtOptions } from './auth.config';
-import { User } from 'src/user/entities/user.entity';
-import { JwtTokenRepository } from './jwt-token.repository';
+import { JwtTokenRepositoryImpl } from './repository/jwt-token.repository';
+import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
+import { TokenService } from './token.service';
 
 @Module({
   imports: [
@@ -21,10 +22,18 @@ import { JwtTokenRepository } from './jwt-token.repository';
       useFactory: createJwtOptions,
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([JwtToken, User]),
+    TypeOrmModule.forFeature([JwtToken]),
     UserModule,
   ],
-  providers: [AuthService, LocalStrategy, JwtTokenRepository],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    {
+      provide: IJwtTokenRepository,
+      useClass: JwtTokenRepositoryImpl,
+    },
+    TokenService,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

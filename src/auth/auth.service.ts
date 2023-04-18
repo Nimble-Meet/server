@@ -1,59 +1,53 @@
 import { EncryptedPassword } from './EncryptedPassword';
-import { InjectRepository } from '@nestjs/typeorm';
 import { JwtToken } from './entity/jwt-token.entity';
-import { Repository } from 'typeorm';
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { UserPayloadDto } from './dto/user-payload.dto';
-import { UserService } from 'src/user/user.service';
 import { TokenService } from './token.service';
-import { JwtTokenRepository } from './jwt-token.repository';
-import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
+import { IUserRepository } from 'src/user/repository/user.repository.interface';
+import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 
 @Injectable()
 export class AuthService {
-  private readonly tokenService: TokenService;
-
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-    private readonly userService: UserService,
-    @InjectRepository(JwtToken)
-    private readonly jwtTokenRepository: JwtTokenRepository,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {
-    this.tokenService = new TokenService(this.jwtService, this.configService);
-  }
+    private readonly tokenService: TokenService,
+    @Inject(IUserRepository)
+    private readonly userRepository: IUserRepository,
+    @Inject(IJwtTokenRepository)
+    private readonly jwtTokenRepository: IJwtTokenRepository,
+  ) {}
 
   async signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
-    const encryptedPassword = await EncryptedPassword.encryptFrom(
+    const isEmailAlreadyExists = await this.userRepository.existsByEmail(
+      localSignupDto.email,
+    );
+    if (isEmailAlreadyExists) {
+      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
+    }
+
+    const encryptedPassword = EncryptedPassword.encryptFrom(
       localSignupDto.password,
     );
 
-    const user = User.from({
+    const user = User.create({
       ...localSignupDto,
-      password: encryptedPassword.valueOf(),
+      password: encryptedPassword.getPassword(),
     });
 
-    await this.userRepository.save(user);
-
-    return user;
+    return await this.userRepository.save(user);
   }
 
-  async validateLocalUser(email: string, password: string): Promise<any> {
-    const user = await this.userService.findOneByEmail(email);
+  async validateLocalUser(email: string, password: string): Promise<User> {
+    const user = await this.userRepository.findOneByEmail(email);
     const encryptedPassword = EncryptedPassword.from(user.password);
     return encryptedPassword.equals(password) ? user : null;
   }
 
-  async jwtSign(userPayload: UserPayloadDto): Promise<JwtSignResultDto> {
+  async jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
     const userId = userPayload.id;
 
     const accessToken = this.tokenService.generateAccessToken(userId);
@@ -62,7 +56,7 @@ export class AuthService {
     const tokenId = await this.jwtTokenRepository.findTokenIdByUserId(userId);
     const existsToken = !!tokenId;
 
-    const newToken = JwtToken.from({
+    const newToken = JwtToken.create({
       ...(existsToken && { id: tokenId }),
       userId,
       accessToken,
@@ -70,15 +64,13 @@ export class AuthService {
       expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
     });
 
-    await this.jwtTokenRepository.save(newToken);
-
-    return JwtSignResultDto.fromJwtToken(newToken);
+    return await this.jwtTokenRepository.save(newToken);
   }
 
   async rotateRefreshToken(
     prevRefreshToken: string,
     prevAccessToken: string,
-  ): Promise<JwtSignResultDto> {
+  ): Promise<JwtToken> {
     const jwtToken = await this.jwtTokenRepository.findOneByRefreshToken(
       prevRefreshToken,
     );
@@ -102,8 +94,6 @@ export class AuthService {
       refreshToken: newRefreshToken,
       expiresAt: this.tokenService.getRefreshTokenExpiresAt(),
     });
-    await this.jwtTokenRepository.save(newJwtToken);
-
-    return JwtSignResultDto.fromJwtToken(newJwtToken);
+    return await this.jwtTokenRepository.save(newJwtToken);
   }
 }
