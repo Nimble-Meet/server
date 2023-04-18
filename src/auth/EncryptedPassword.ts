@@ -3,6 +3,10 @@ import * as bcrypt from 'bcrypt';
 export class EncryptedPassword {
   private readonly password: string;
 
+  getPassword() {
+    return this.password;
+  }
+
   private constructor(password: string) {
     this.password = password;
   }
@@ -14,10 +18,6 @@ export class EncryptedPassword {
   static encryptFrom(plainPassword: string) {
     const hashedPassword = bcrypt.hashSync(plainPassword, 10);
     return new EncryptedPassword(hashedPassword);
-  }
-
-  getPassword() {
-    return this.password;
   }
 
   equals(plainPassword: string) {

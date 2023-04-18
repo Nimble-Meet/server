@@ -1,31 +1,53 @@
-import { EncryptedPassword } from './EncryptedPassword';
+import { EncryptedPassword } from 'src/auth/EncryptedPassword';
 
 describe('EncryptedPassword', () => {
-  const plainPassword = 'password123';
-  let encryptedPassword: EncryptedPassword;
+  describe('encryptFrom', () => {
+    it('원본 비밀번호를 암호화해서 객체를 생성한다.', () => {
+      // given
+      const plainPassword = 'password123';
 
-  beforeEach(() => {
-    encryptedPassword = EncryptedPassword.encryptFrom(plainPassword);
+      // when
+      const encryptedPassword = EncryptedPassword.encryptFrom(plainPassword);
+
+      // then
+      expect(encryptedPassword.getPassword()).not.toEqual(plainPassword);
+    });
   });
 
-  it('encryptFrom: 원본 비밀번호가 암호화된 상태로 생성되어야 함', () => {
-    expect(encryptedPassword.getPassword()).not.toEqual(plainPassword);
+  describe('from', () => {
+    it('암호화된 비밀번호를 받아서 그대로 객체를 생성한다.', () => {
+      // given
+      const plainPassword = 'password123';
+      const encryptedPassword =
+        EncryptedPassword.encryptFrom(plainPassword).getPassword();
+
+      // when
+      const resultPassword = EncryptedPassword.from(encryptedPassword);
+
+      // then
+      expect(resultPassword.getPassword()).toEqual(encryptedPassword);
+    });
   });
 
-  it('from: 암호화된 비밀번호로부터 생성', () => {
-    const hashedPassword = encryptedPassword.getPassword();
-    const result = EncryptedPassword.from(hashedPassword);
-    expect(result).toEqual(encryptedPassword);
-  });
+  describe('equals', () => {
+    it('원본 비밀번호가 주어지면 true를 반환', () => {
+      // given
+      const plainPassword = 'password123';
+      const encryptedPassword = EncryptedPassword.encryptFrom(plainPassword);
 
-  it('equals: 적절한 원본 비밀번호가 주어지면 true', () => {
-    const result = encryptedPassword.equals(plainPassword);
-    expect(result).toBe(true);
-  });
+      // when
+      // then
+      expect(encryptedPassword.equals('password123')).toBe(true);
+    });
 
-  it('equals: 일치하지 않는 원본 비밀번호가 주어지면 false', () => {
-    const incorrectPassword = 'invalid-password123';
-    const result = encryptedPassword.equals(incorrectPassword);
-    expect(result).toBe(false);
+    it('원본 비밀번호가 아닌 값이 주어지면 false를 반환', () => {
+      // given
+      const plainPassword = 'password123';
+      const encryptedPassword = EncryptedPassword.encryptFrom(plainPassword);
+
+      // when
+      // then
+      expect(encryptedPassword.equals('-----')).toBe(false);
+    });
   });
 });
