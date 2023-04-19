@@ -14,7 +14,6 @@ export class TokenService {
   generateAccessToken(userId: number): string {
     const payloadToSign: JwtPayloadDto = { userId };
     return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.ACCESS,
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
     });
@@ -23,7 +22,6 @@ export class TokenService {
   generateRefreshToken(userId: number): string {
     const payloadToSign: JwtPayloadDto = { userId };
     return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.REFRESH,
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
     });

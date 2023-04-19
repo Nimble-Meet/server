@@ -91,14 +91,11 @@ describe('TokenService', () => {
 
       // when
       // then
-
       setTimeout(() => {
         expect(() => {
           tokenService.verifyAccessToken(accessToken);
         }).toThrow(Error);
       }, configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') + 100);
-
-      jest.runAllTimers();
     });
   });
 
@@ -122,22 +119,26 @@ describe('TokenService', () => {
       // when
       // then
       expect(() => {
-        tokenService.verifyAccessToken(refreshToken);
+        tokenService.verifyRefreshToken(refreshToken);
       }).toThrow(Error);
     });
 
     it('만료된 Refresh Token으로 검증하면 에러가 발생', () => {
       // given
       const userId = 1;
-      const accessToken = tokenService.generateAccessToken(userId);
+      const refreshToken = tokenService.generateRefreshToken(userId);
 
+      console.log(
+        'delay time: ',
+        configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+      );
       // when
       // then
       setTimeout(() => {
         expect(() => {
-          tokenService.verifyAccessToken(accessToken);
+          tokenService.verifyRefreshToken(refreshToken);
         }).toThrow(Error);
-      }, configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') + 100);
+      }, configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') + 100);
     });
   });
 
