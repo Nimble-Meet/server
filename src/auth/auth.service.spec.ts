@@ -26,6 +26,7 @@ import { TokenService } from './token.service';
 
 describe('AuthService', () => {
   let tokenService: TokenService;
+  let configService: ConfigService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,34 +45,29 @@ describe('AuthService', () => {
     }).compile();
 
     const jwtService = moduleRef.get<JwtService>(JwtService);
-    const configService = moduleRef.get<ConfigService>(ConfigService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
 
     tokenService = new TokenService(jwtService, configService);
-
-    jest.useFakeTimers();
   });
 
-  afterAll(() => {
-    jest.runAllTimers();
-  });
+  const createUser = ({
+    id = USER_ID,
+    email = EMAIL,
+    nickname = NICKNAME,
+    password = ENCRYPTED_PASSWORD.getPassword(),
+  }) => User.create({ id, email, nickname, password });
+
+  const createJwtToken = ({
+    id = TOKEN_ID,
+    userId = USER_ID,
+    accessToken = ACCESS_TOKEN,
+    refreshToken = REFRESH_TOKEN,
+    expiresAt = new Date(),
+  }) => JwtToken.create({ id, userId, accessToken, refreshToken, expiresAt });
 
   describe('signup', () => {
-    const userList = Object.freeze([
-      User.create({
-        id: USER_ID,
-        email: EMAIL,
-        nickname: NICKNAME,
-        password: ENCRYPTED_PASSWORD.getPassword(),
-      }),
-    ]);
-    const jwtTokenList = Object.freeze([
-      JwtToken.create({
-        id: TOKEN_ID,
-        userId: USER_ID,
-        accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN,
-      }),
-    ]);
+    const userList = Object.freeze([createUser({})]);
+    const jwtTokenList = Object.freeze([createJwtToken({})]);
 
     it('새로운 유저 생성, 비밀번호는 암호화', async () => {
       // given
@@ -122,23 +118,9 @@ describe('AuthService', () => {
   });
 
   describe('validateLocalUser', () => {
-    const RESULT_USER = Object.freeze(
-      User.create({
-        id: USER_ID,
-        email: EMAIL,
-        nickname: NICKNAME,
-        password: ENCRYPTED_PASSWORD.getPassword(),
-      }),
-    );
+    const RESULT_USER = Object.freeze(createUser({}));
     const userList = Object.freeze([RESULT_USER]);
-    const jwtTokenList = Object.freeze([
-      JwtToken.create({
-        id: TOKEN_ID,
-        userId: USER_ID,
-        accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN,
-      }),
-    ]);
+    const jwtTokenList = Object.freeze([createJwtToken({})]);
 
     it('이메일과 비밀번호가 맞다면 user를 반환', async () => {
       // given
@@ -186,14 +168,7 @@ describe('AuthService', () => {
         password: ENCRYPTED_PASSWORD.getPassword(),
       }),
     ]);
-    const JWT_TOKEN = Object.freeze(
-      JwtToken.create({
-        id: TOKEN_ID,
-        userId: USER_ID,
-        accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN,
-      }),
-    );
+    const JWT_TOKEN = Object.freeze(createJwtToken({}));
     const jwtTokenList = Object.freeze([JWT_TOKEN]);
 
     it('이미 로그인했던 user가 다시 요청한 경우, 기존의 JwtToken 데이터를 수정한다.', async () => {
@@ -282,15 +257,13 @@ describe('AuthService', () => {
 
     it('적절한 accessToken과 refreshToken을 사용한 경우 새로운 토큰을 담은 JwtToken 객체 반환', async () => {
       // given
-      const ACCESS_TOKEN = tokenService.generateAccessToken(USER_ID);
-      const REFRESH_TOKEN = tokenService.generateRefreshToken(USER_ID);
+      const prevAccessToken = tokenService.generateAccessToken(USER_ID);
+      const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
 
       const jwtTokenList = Object.freeze([
-        JwtToken.create({
-          id: TOKEN_ID,
-          userId: USER_ID,
-          accessToken: ACCESS_TOKEN,
-          refreshToken: REFRESH_TOKEN,
+        createJwtToken({
+          accessToken: prevAccessToken,
+          refreshToken: prevRefreshToken,
         }),
       ]);
       const authService = new AuthService(
@@ -299,39 +272,43 @@ describe('AuthService', () => {
         new JwtTokenRepositoryStub(jwtTokenList),
       );
 
-      const refreshToken = REFRESH_TOKEN;
-      const accessToken = ACCESS_TOKEN;
+      const refreshToken = prevRefreshToken;
+      const accessToken = prevAccessToken;
 
       // 딜레이 없이 토큰을 재발급할 경우 이전과 동일한 토큰을 발급하기 때문에, 딜레이를 두고 메서드 호출.
-      setTimeout(async () => {
-        // when
-        const jwtToken = await authService.rotateRefreshToken(
-          refreshToken,
-          accessToken,
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(new Date().getTime() + 1000).valueOf(),
         );
 
-        // then
-        expect(jwtToken).toBeInstanceOf(JwtToken);
-        expect(jwtToken.id).toBe(TOKEN_ID);
-        expect(jwtToken.accessToken).not.toBe(ACCESS_TOKEN);
-        expect(jwtToken.refreshToken).not.toBe(REFRESH_TOKEN);
-        expect(jwtToken.expiresAt.getTime()).toBeGreaterThan(
-          new Date().getTime(),
-        );
-      }, 1000);
+      // when
+      const jwtToken = await authService.rotateRefreshToken(
+        refreshToken,
+        accessToken,
+      );
+
+      // then
+      expect(jwtToken).toBeInstanceOf(JwtToken);
+      expect(jwtToken.id).toBe(TOKEN_ID);
+      expect(jwtToken.accessToken).not.toBe(prevAccessToken);
+      expect(jwtToken.refreshToken).not.toBe(prevRefreshToken);
+      expect(jwtToken.expiresAt.getTime()).toBeGreaterThan(
+        new Date().getTime(),
+      );
+
+      mockDateNow.mockRestore();
     });
 
     it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않는 경우 에러', async () => {
       // given
-      const ACCESS_TOKEN = tokenService.generateAccessToken(USER_ID);
-      const REFRESH_TOKEN = tokenService.generateRefreshToken(USER_ID);
+      const prevAccessToken = tokenService.generateAccessToken(USER_ID);
+      const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
 
       const jwtTokenList = Object.freeze([
-        JwtToken.create({
-          id: TOKEN_ID,
-          userId: USER_ID,
-          accessToken: ACCESS_TOKEN,
-          refreshToken: REFRESH_TOKEN,
+        createJwtToken({
+          accessToken: prevAccessToken,
+          refreshToken: prevRefreshToken,
         }),
       ]);
       const authService = new AuthService(
@@ -340,7 +317,7 @@ describe('AuthService', () => {
         new JwtTokenRepositoryStub(jwtTokenList),
       );
 
-      const refreshToken = REFRESH_TOKEN;
+      const refreshToken = prevRefreshToken;
       const accessToken = 'invalid_access_token';
 
       // when
@@ -350,17 +327,15 @@ describe('AuthService', () => {
       }).rejects.toThrow(UnauthorizedException);
     });
 
-    it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않는 경우 에러', async () => {
+    it('refresh token이 만료된 후 재발급 요청하면 에러 발생', async () => {
       // given
-      const ACCESS_TOKEN = tokenService.generateAccessToken(USER_ID);
-      const EXPIRED_REFRESH_TOKEN = 'expired_refresh_token';
+      const prevAccessToken = tokenService.generateAccessToken(USER_ID);
+      const expiredRefreshToken = tokenService.generateRefreshToken(USER_ID);
 
       const jwtTokenList = Object.freeze([
-        JwtToken.create({
-          id: TOKEN_ID,
-          userId: USER_ID,
-          accessToken: ACCESS_TOKEN,
-          refreshToken: EXPIRED_REFRESH_TOKEN,
+        createJwtToken({
+          accessToken: prevAccessToken,
+          refreshToken: expiredRefreshToken,
         }),
       ]);
       const authService = new AuthService(
@@ -369,16 +344,27 @@ describe('AuthService', () => {
         new JwtTokenRepositoryStub(jwtTokenList),
       );
 
-      const refreshToken = EXPIRED_REFRESH_TOKEN;
-      const accessToken = ACCESS_TOKEN;
+      const refreshToken = expiredRefreshToken;
+      const accessToken = prevAccessToken;
 
       // when
       // then
+      // 만료 시간이 지난 시점으로 설정
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 +
+              10000,
+          ).valueOf(),
+        );
+
       await expect(async () => {
         await authService.rotateRefreshToken(refreshToken, accessToken);
-      }).rejects.toThrow(
-        new UnauthorizedException('리프레시 토큰이 만료되었습니다.'),
-      );
+      }).rejects.toThrow(UnauthorizedException);
+
+      mockDateNow.mockRestore();
     });
   });
 });

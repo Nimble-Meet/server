@@ -24,12 +24,6 @@ describe('TokenService', () => {
     const jwtService = moduleRef.get<JwtService>(JwtService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     tokenService = new TokenService(jwtService, configService);
-
-    jest.useFakeTimers();
-  });
-
-  afterAll(() => {
-    jest.runAllTimers();
   });
 
   describe('generateAccessToken', () => {
@@ -91,11 +85,21 @@ describe('TokenService', () => {
 
       // when
       // then
-      setTimeout(() => {
-        expect(() => {
-          tokenService.verifyAccessToken(accessToken);
-        }).toThrow(Error);
-      }, configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') + 100);
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      expect(() => {
+        tokenService.verifyAccessToken(accessToken);
+      }).toThrow(Error);
+
+      mockDateNow.mockRestore();
     });
   });
 
@@ -128,17 +132,23 @@ describe('TokenService', () => {
       const userId = 1;
       const refreshToken = tokenService.generateRefreshToken(userId);
 
-      console.log(
-        'delay time: ',
-        configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
-      );
       // when
       // then
-      setTimeout(() => {
-        expect(() => {
-          tokenService.verifyRefreshToken(refreshToken);
-        }).toThrow(Error);
-      }, configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') + 100);
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      expect(() => {
+        tokenService.verifyRefreshToken(refreshToken);
+      }).toThrow(Error);
+
+      mockDateNow.mockRestore();
     });
   });
 
