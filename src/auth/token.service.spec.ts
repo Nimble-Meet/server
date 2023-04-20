@@ -24,12 +24,6 @@ describe('TokenService', () => {
     const jwtService = moduleRef.get<JwtService>(JwtService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     tokenService = new TokenService(jwtService, configService);
-
-    jest.useFakeTimers();
-  });
-
-  afterAll(() => {
-    jest.runAllTimers();
   });
 
   describe('generateAccessToken', () => {
@@ -91,14 +85,21 @@ describe('TokenService', () => {
 
       // when
       // then
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
 
-      setTimeout(() => {
-        expect(() => {
-          tokenService.verifyAccessToken(accessToken);
-        }).toThrow(Error);
-      }, configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') + 100);
+      expect(() => {
+        tokenService.verifyAccessToken(accessToken);
+      }).toThrow(Error);
 
-      jest.runAllTimers();
+      mockDateNow.mockRestore();
     });
   });
 
@@ -122,22 +123,32 @@ describe('TokenService', () => {
       // when
       // then
       expect(() => {
-        tokenService.verifyAccessToken(refreshToken);
+        tokenService.verifyRefreshToken(refreshToken);
       }).toThrow(Error);
     });
 
     it('만료된 Refresh Token으로 검증하면 에러가 발생', () => {
       // given
       const userId = 1;
-      const accessToken = tokenService.generateAccessToken(userId);
+      const refreshToken = tokenService.generateRefreshToken(userId);
 
       // when
       // then
-      setTimeout(() => {
-        expect(() => {
-          tokenService.verifyAccessToken(accessToken);
-        }).toThrow(Error);
-      }, configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') + 100);
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      expect(() => {
+        tokenService.verifyRefreshToken(refreshToken);
+      }).toThrow(Error);
+
+      mockDateNow.mockRestore();
     });
   });
 

@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
-import { JwtSubjectType } from './enums/jwt-subject-type.enum';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class TokenService {
   generateAccessToken(userId: number): string {
     const payloadToSign: JwtPayloadDto = { userId };
     return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.ACCESS,
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
     });
@@ -23,7 +21,6 @@ export class TokenService {
   generateRefreshToken(userId: number): string {
     const payloadToSign: JwtPayloadDto = { userId };
     return this.jwtService.sign(payloadToSign, {
-      subject: JwtSubjectType.REFRESH,
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
     });
