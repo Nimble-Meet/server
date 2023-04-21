@@ -12,7 +12,7 @@ export class UserResponseDto {
     example: 'user@google.com',
     description: '사용자의 이메일',
   })
-  email: string;
+  private readonly email: string;
 
   @IsString()
   @IsUserNickname()
@@ -20,7 +20,7 @@ export class UserResponseDto {
     example: 'username',
     description: '사용자의 닉네임',
   })
-  nickname: string;
+  private readonly nickname: string;
 
   @IsEnum(OauthProvider)
   @ApiProperty({
@@ -28,7 +28,7 @@ export class UserResponseDto {
     description: 'oauth provider',
     enum: OauthProvider,
   })
-  providerType: string;
+  private readonly providerType: string;
 
   private constructor(email: string, nickname: string, providerType: string) {
     this.email = email;

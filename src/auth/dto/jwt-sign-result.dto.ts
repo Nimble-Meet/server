@@ -7,11 +7,19 @@ export class JwtSignResultDto {
     readonly refreshToken: string,
   ) {}
 
-  static fromJwtToken(jwtToken: JwtToken) {
+  static create(createInfo: {
+    userId: number;
+    accessToken: string;
+    refreshToken: string;
+  }) {
     return new JwtSignResultDto(
-      jwtToken.userId,
-      jwtToken.accessToken,
-      jwtToken.refreshToken,
+      createInfo.userId,
+      createInfo.accessToken,
+      createInfo.refreshToken,
     );
+  }
+
+  static fromJwtToken(jwtToken: JwtToken) {
+    return JwtSignResultDto.create(jwtToken);
   }
 }
