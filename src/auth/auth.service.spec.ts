@@ -23,6 +23,7 @@ import {
 } from 'src/test/dummies/jwt-token.dummy';
 import { UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
+import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 
 describe('AuthService', () => {
   let tokenService: TokenService;
@@ -182,8 +183,14 @@ describe('AuthService', () => {
       const userId = USER_ID;
       const email = EMAIL;
       const nickname = NICKNAME;
+      const providerType = OauthProvider.LOCAL;
 
-      const userPayload = new UserPayloadDto(userId, email, nickname);
+      const userPayload = UserPayloadDto.create({
+        id: userId,
+        email,
+        nickname,
+        providerType,
+      });
 
       // when
       const jwtToken = await authService.jwtSign(userPayload);
@@ -218,8 +225,14 @@ describe('AuthService', () => {
       const userId = 9999;
       const email = EMAIL;
       const nickname = NICKNAME;
+      const providerType = OauthProvider.LOCAL;
 
-      const userPayload = new UserPayloadDto(userId, email, nickname);
+      const userPayload = UserPayloadDto.create({
+        id: userId,
+        email,
+        nickname,
+        providerType,
+      });
 
       // when
       const jwtToken = await authService.jwtSign(userPayload);

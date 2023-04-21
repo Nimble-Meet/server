@@ -1,5 +1,9 @@
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
-import { ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiUnauthorizedResponse,
+  ApiBearerAuth,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -20,6 +24,7 @@ import {
   UseInterceptors,
   Req,
   BadRequestException,
+  Get,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -28,6 +33,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { NeedLogin } from './decorators/need-login.decorator';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -48,7 +54,7 @@ export class AuthController {
     @Body() localSignupDto: LocalSignupRequestDto,
   ): Promise<UserResponseDto> {
     const user = await this.authService.signup(localSignupDto);
-    return UserResponseDto.from(user);
+    return UserResponseDto.fromUser(user);
   }
 
   @Post('login/local')
@@ -98,5 +104,24 @@ export class AuthController {
       prevAccessToken,
     );
     return JwtSignResultDto.fromJwtToken(jwtToken);
+  }
+
+  @Get('whoami')
+  @ApiOperation({
+    description:
+      'refesh 토큰을 사용하여 access 토큰을 재발급하고, refresh 토큰도 재발급',
+  })
+  @ApiOkResponse({
+    description: '인증 성공',
+    type: UserResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: '로그인하지 않은 사용자입니다.',
+  })
+  @NeedLogin()
+  async whoami(
+    @RequestUser() userPayload: UserPayloadDto,
+  ): Promise<UserResponseDto> {
+    return UserResponseDto.fromUserPayload(userPayload);
   }
 }
