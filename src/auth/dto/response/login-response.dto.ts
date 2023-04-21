@@ -6,22 +6,24 @@ export class LoginResponseDto {
     example: 1,
     description: '사용자의 id',
   })
-  userId: number;
+  private readonly userId: number;
 
   @ApiProperty({
     example: 'sample-access-token',
     description: 'access token',
   })
-  accessToken: string;
+  private readonly accessToken: string;
 
-  private constructor(partial: Partial<LoginResponseDto>) {
-    Object.assign(this, partial);
+  private constructor(userId: number, accessToken: string) {
+    this.userId = userId;
+    this.accessToken = accessToken;
+  }
+
+  static create(createInfo: { userId: number; accessToken: string }) {
+    return new LoginResponseDto(createInfo.userId, createInfo.accessToken);
   }
 
   static fromJwtSignResult(jwtSignResult: JwtSignResultDto) {
-    return new LoginResponseDto({
-      userId: jwtSignResult.userId,
-      accessToken: jwtSignResult.accessToken,
-    });
+    return LoginResponseDto.create(jwtSignResult);
   }
 }

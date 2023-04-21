@@ -1,13 +1,28 @@
 import { User } from 'src/user/entities/user.entity';
 
 export class UserPayloadDto {
-  constructor(
+  private constructor(
     readonly id: number,
     readonly email: string,
     readonly nickname: string,
+    readonly providerType: string,
   ) {}
 
+  static create(createInfo: {
+    id: number;
+    email: string;
+    nickname: string;
+    providerType: string;
+  }) {
+    return new UserPayloadDto(
+      createInfo.id,
+      createInfo.email,
+      createInfo.nickname,
+      createInfo.providerType,
+    );
+  }
+
   static from(user: User) {
-    return new UserPayloadDto(user.id, user.email, user.nickname);
+    return UserPayloadDto.create(user);
   }
 }
