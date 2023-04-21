@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 
 import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 import { User } from 'src/user/entities/user.entity';
 import { IsUserEmail, IsUserNickname } from 'src/user/user.validator';
+import { UserPayloadDto } from '../user-payload.dto';
 
 export class UserResponseDto {
   @IsUserEmail()
@@ -21,13 +22,6 @@ export class UserResponseDto {
   })
   nickname: string;
 
-  @IsDate()
-  @ApiProperty({
-    example: '2023-02-01T00:00:00.000Z',
-    description: '가입날짜',
-  })
-  createdAt: Date;
-
   @IsEnum(OauthProvider)
   @ApiProperty({
     example: 'GOOGLE',
@@ -36,14 +30,29 @@ export class UserResponseDto {
   })
   providerType: string;
 
-  private constructor(user: User) {
-    this.email = user.email;
-    this.nickname = user.nickname;
-    this.createdAt = user.createdAt;
-    this.providerType = user.providerType;
+  private constructor(email: string, nickname: string, providerType: string) {
+    this.email = email;
+    this.nickname = nickname;
+    this.providerType = providerType;
   }
 
-  static from(user: User) {
-    return new UserResponseDto(user);
+  static create(createInfo: {
+    email: string;
+    nickname: string;
+    providerType: string;
+  }) {
+    return new UserResponseDto(
+      createInfo.email,
+      createInfo.nickname,
+      createInfo.providerType,
+    );
+  }
+
+  static fromUser(user: User) {
+    return UserResponseDto.create(user);
+  }
+
+  static fromUserPayload(userPayload: UserPayloadDto) {
+    return UserResponseDto.create(userPayload);
   }
 }
