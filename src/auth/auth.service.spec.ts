@@ -21,7 +21,7 @@ import {
   REFRESH_TOKEN,
   TOKEN_ID,
 } from 'src/test/dummies/jwt-token.dummy';
-import { UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 
@@ -80,7 +80,7 @@ describe('AuthService', () => {
 
       const localSignupDto = {
         email: 'new-email@test.com',
-        nickname: NICKNAME,
+        nickname: 'new-nickname',
         password: PASSWORD,
       };
 
@@ -90,7 +90,7 @@ describe('AuthService', () => {
       // then
       expect(user).toBeInstanceOf(User);
       expect(user.email).toBe('new-email@test.com');
-      expect(user.nickname).toBe(NICKNAME);
+      expect(user.nickname).toBe('new-nickname');
       expect(user.password).not.toBe(PASSWORD);
     });
 
@@ -104,6 +104,27 @@ describe('AuthService', () => {
 
       const localSignupDto = {
         email: EMAIL,
+        nickname: 'new-nickname',
+        password: PASSWORD,
+      };
+
+      // when
+      // then
+      await expect(async () => {
+        await authService.signup(localSignupDto);
+      }).rejects.toThrow(ConflictException);
+    });
+
+    it('이미 존재하는 닉네임으로 가입하려고 하면 에러', async () => {
+      // given
+      const authService = new AuthService(
+        tokenService,
+        new UserRepositoryStub(userList),
+        new JwtTokenRepositoryStub(jwtTokenList),
+      );
+
+      const localSignupDto = {
+        email: 'new-email@test.com',
         nickname: NICKNAME,
         password: PASSWORD,
       };
@@ -112,10 +133,8 @@ describe('AuthService', () => {
       // then
       await expect(async () => {
         await authService.signup(localSignupDto);
-      }).rejects.toThrow(UnauthorizedException);
+      }).rejects.toThrow(ConflictException);
     });
-
-    // TODO: 닉네임이 중복될 경우 에러
   });
 
   describe('validateLocalUser', () => {

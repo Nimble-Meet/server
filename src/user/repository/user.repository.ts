@@ -23,4 +23,8 @@ export class UserRepositoryImpl
   async existsByEmail(email: string): Promise<boolean> {
     return (await this.count({ where: { email } })) > 0;
   }
+
+  async existsByNickname(nickname: string): Promise<boolean> {
+    return (await this.count({ where: { nickname } })) > 0;
+  }
 }

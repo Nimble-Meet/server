@@ -94,9 +94,13 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
+    if (!prevRefreshToken) {
+      throw new BadRequestException('리프레시 토큰이 존재하지 않습니다.');
+    }
+
     const prevAccessToken = req.headers.authorization?.split(' ')[1];
-    if (!prevRefreshToken || !prevAccessToken) {
-      throw new BadRequestException('유효하지 않은 요청입니다');
+    if (!prevAccessToken) {
+      throw new BadRequestException('엑세스 토큰이 존재하지 않습니다.');
     }
 
     const jwtToken = await this.authService.rotateRefreshToken(

@@ -1,7 +1,12 @@
 import { EncryptedPassword } from './EncryptedPassword';
 import { JwtToken } from './entity/jwt-token.entity';
 
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import { User } from 'src/user/entities/user.entity';
 
@@ -26,7 +31,14 @@ export class AuthService {
       localSignupDto.email,
     );
     if (isEmailAlreadyExists) {
-      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
+
+    const isNicknameAlreadyExists = await this.userRepository.existsByNickname(
+      localSignupDto.nickname,
+    );
+    if (isNicknameAlreadyExists) {
+      throw new ConflictException('이미 존재하는 닉네임입니다.');
     }
 
     const encryptedPassword = EncryptedPassword.encryptFrom(
@@ -75,7 +87,7 @@ export class AuthService {
       prevRefreshToken,
     );
     if (!jwtToken?.equalsAccessToken(prevAccessToken)) {
-      throw new UnauthorizedException('유효하지 않은 요청입니다.');
+      throw new UnauthorizedException('이전에 발급한 엑세스 토큰이 아닙니다.');
     }
 
     let userId: number;
