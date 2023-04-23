@@ -3,6 +3,7 @@ import {
   ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiOkResponse,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -34,6 +35,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { NeedLogin } from './decorators/need-login.decorator';
+import { SignupConflictResponseDto } from './dto/error/signup-conflict-response.dto';
+import { LoginUnauthorizedResponseDto } from './dto/error/login-unauthorized-response.dto';
+import { RefreshBadrequestResponseDto } from './dto/error/refresh-badrequest-response.dto';
+import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized-response.dto';
+import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
+import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
+import { ErrorMessage } from './enum/error-message.enum';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -49,6 +57,14 @@ export class AuthController {
   @ApiCreatedResponse({
     description: '회원가입 성공',
     type: UserResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: '이메일/닉네임 형식이 잘못됨',
+    type: SignupBadrequestResponseDto,
+  })
+  @ApiConflictResponse({
+    description: '이미 존재하는 이메일/닉네임',
+    type: SignupConflictResponseDto,
   })
   async signup(
     @Body() localSignupDto: LocalSignupRequestDto,
@@ -67,7 +83,10 @@ export class AuthController {
     description: '로그인 성공',
     type: LoginResponseDto,
   })
-  @ApiBadRequestResponse({ description: '적절하지 않은 이메일/비밀번호' })
+  @ApiUnauthorizedResponse({
+    description: '로그인 실패',
+    type: LoginUnauthorizedResponseDto,
+  })
   @UseGuards(LocalAuthGuard)
   @UseInterceptors(SetRTCookieInterceptor)
   async login(
@@ -86,21 +105,25 @@ export class AuthController {
     description: 'access token & refresh token 재발급 성공',
     type: LoginResponseDto,
   })
-  @ApiUnauthorizedResponse({
-    description: 'access token 재발급에 실패했습니다.',
+  @ApiBadRequestResponse({
+    description: 'access token/refresh token이 요청에 존재하지 않음',
+    type: RefreshBadrequestResponseDto,
   })
-  @ApiBadRequestResponse({ description: '유효하지 않은 요청입니다.' })
+  @ApiUnauthorizedResponse({
+    description: '적절하지 않은 access token/refresh token',
+    type: RefreshUnauthorizedResponseDto,
+  })
   @UseInterceptors(SetRTCookieInterceptor)
   @ApiBearerAuth('access-token')
   async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
     if (!prevRefreshToken) {
-      throw new BadRequestException('리프레시 토큰이 존재하지 않습니다.');
+      throw new BadRequestException(ErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST);
     }
 
     const prevAccessToken = req.headers.authorization?.split(' ')[1];
     if (!prevAccessToken) {
-      throw new BadRequestException('엑세스 토큰이 존재하지 않습니다.');
+      throw new BadRequestException(ErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST);
     }
 
     const jwtToken = await this.authService.rotateRefreshToken(
@@ -120,7 +143,8 @@ export class AuthController {
     type: UserResponseDto,
   })
   @ApiUnauthorizedResponse({
-    description: '로그인하지 않은 사용자입니다.',
+    description: '인증 실패',
+    type: WhoamiUnauthorizedResponseDto,
   })
   @NeedLogin()
   async whoami(
