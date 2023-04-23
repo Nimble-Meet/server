@@ -1,7 +1,12 @@
 import { EncryptedPassword } from './EncryptedPassword';
 import { JwtToken } from './entity/jwt-token.entity';
 
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 import { User } from 'src/user/entities/user.entity';
 
@@ -10,6 +15,7 @@ import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
+import { ErrorMessage } from './enum/error-message.enum';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +32,14 @@ export class AuthService {
       localSignupDto.email,
     );
     if (isEmailAlreadyExists) {
-      throw new UnauthorizedException('이미 존재하는 이메일입니다.');
+      throw new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS);
+    }
+
+    const isNicknameAlreadyExists = await this.userRepository.existsByNickname(
+      localSignupDto.nickname,
+    );
+    if (isNicknameAlreadyExists) {
+      throw new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS);
     }
 
     const encryptedPassword = EncryptedPassword.encryptFrom(
@@ -75,7 +88,7 @@ export class AuthService {
       prevRefreshToken,
     );
     if (!jwtToken?.equalsAccessToken(prevAccessToken)) {
-      throw new UnauthorizedException('유효하지 않은 요청입니다.');
+      throw new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN);
     }
 
     let userId: number;
@@ -83,7 +96,7 @@ export class AuthService {
       const jwtPayload = this.tokenService.verifyRefreshToken(prevRefreshToken);
       userId = jwtPayload.userId;
     } catch {
-      throw new UnauthorizedException('리프레시 토큰이 만료되었습니다.');
+      throw new UnauthorizedException(ErrorMessage.EXPIRED_REFRESH_TOKEN);
     }
 
     const newAccessToken = this.tokenService.generateAccessToken(userId);
