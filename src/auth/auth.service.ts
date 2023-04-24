@@ -109,4 +109,9 @@ export class AuthService {
     });
     return await this.jwtTokenRepository.save(newJwtToken);
   }
+
+  async logout(accessToken: string): Promise<void> {
+    this.jwtTokenRepository.deleteByAccessToken(accessToken);
+    this.tokenService.blacklistAccessToken(accessToken);
+  }
 }

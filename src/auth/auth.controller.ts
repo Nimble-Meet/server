@@ -4,6 +4,7 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiConflictResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -11,7 +12,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { RequestUser } from '../common/decorators/req-user.decorator';
 import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
 import { UserPayloadDto } from './dto/user-payload.dto';
@@ -26,6 +27,7 @@ import {
   Req,
   BadRequestException,
   Get,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -42,6 +44,7 @@ import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized
 import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
 import { ErrorMessage } from './enum/error-message.enum';
+import { LogoutUnauthorizedResponseDto } from './dto/error/logout-unauthorized-response.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -151,5 +154,26 @@ export class AuthController {
     @RequestUser() userPayload: UserPayloadDto,
   ): Promise<UserResponseDto> {
     return UserResponseDto.fromUserPayload(userPayload);
+  }
+
+  @Post('logout')
+  @ApiOperation({
+    description: 'access token, refresh token 만료 처리',
+  })
+  @ApiNoContentResponse({
+    description: '로그아웃 성공',
+  })
+  @ApiUnauthorizedResponse({
+    description: '사용자 인증 실패',
+    type: LogoutUnauthorizedResponseDto,
+  })
+  @NeedLogin()
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const accessToken = req.headers.authorization.split(' ')[1];
+    await this.authService.logout(accessToken);
+    res.clearCookie('refresh_token');
   }
 }
