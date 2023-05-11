@@ -56,8 +56,16 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string): Promise<User> {
     const user = await this.userRepository.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
+    }
+
     const encryptedPassword = EncryptedPassword.from(user.password);
-    return encryptedPassword.equals(password) ? user : null;
+    if (!encryptedPassword.equals(password)) {
+      throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
+    }
+
+    return user;
   }
 
   async jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
