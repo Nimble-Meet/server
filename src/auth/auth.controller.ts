@@ -6,7 +6,6 @@ import {
   ApiConflictResponse,
 } from '@nestjs/swagger';
 
-import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
@@ -26,6 +25,7 @@ import {
   Req,
   BadRequestException,
   Get,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -42,11 +42,15 @@ import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized
 import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
 import { ErrorMessage } from './enum/error-message.enum';
+import { IAuthService } from './auth.service.interface';
 
 @ApiTags('auth')
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    @Inject(IAuthService)
+    private readonly authService: IAuthService,
+  ) {}
 
   @Post('signup')
   @ApiOperation({ description: 'email & pw 회원가입' })

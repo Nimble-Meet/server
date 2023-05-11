@@ -16,9 +16,10 @@ import { TokenService } from './token.service';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 import { ErrorMessage } from './enum/error-message.enum';
+import { IAuthService } from './auth.service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthServiceImpl implements IAuthService {
   constructor(
     private readonly tokenService: TokenService,
     @Inject(IUserRepository)
