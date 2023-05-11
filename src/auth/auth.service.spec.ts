@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { AuthServiceImpl } from './auth.service';
 
 import { User } from 'src/user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -24,13 +24,16 @@ import {
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
+import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
+import { IAuthService } from './auth.service.interface';
+import { IUserRepository } from 'src/user/repository/user.repository.interface';
 
 describe('AuthService', () => {
-  let tokenService: TokenService;
-  let configService: ConfigService;
-
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+  const getTestingModule = (
+    userRepository: IUserRepository,
+    jwtTokenRepository: IJwtTokenRepository,
+  ) =>
+    Test.createTestingModule({
       imports: [
         JwtModule.registerAsync({
           imports: [ConfigModule],
@@ -42,14 +45,24 @@ describe('AuthService', () => {
           envFilePath: '.env',
         }),
       ],
-      providers: [JwtService, ConfigService],
+      providers: [
+        {
+          provide: IUserRepository,
+          useValue: userRepository,
+        },
+        {
+          provide: IJwtTokenRepository,
+          useValue: jwtTokenRepository,
+        },
+        {
+          provide: IAuthService,
+          useClass: AuthServiceImpl,
+        },
+        JwtService,
+        ConfigService,
+        TokenService,
+      ],
     }).compile();
-
-    const jwtService = moduleRef.get<JwtService>(JwtService);
-    configService = moduleRef.get<ConfigService>(ConfigService);
-
-    tokenService = new TokenService(jwtService, configService);
-  });
 
   const createUser = ({
     id = USER_ID,
@@ -70,14 +83,18 @@ describe('AuthService', () => {
     const userList = Object.freeze([createUser({})]);
     const jwtTokenList = Object.freeze([createJwtToken({})]);
 
-    it('새로운 유저 생성, 비밀번호는 암호화', async () => {
-      // given
-      const authService = new AuthService(
-        tokenService,
+    let authService: IAuthService;
+
+    beforeEach(async () => {
+      const module = await getTestingModule(
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
       );
+      authService = module.get<IAuthService>(IAuthService);
+    });
 
+    it('새로운 유저 생성, 비밀번호는 암호화', async () => {
+      // given
       const localSignupDto = {
         email: 'new-email@test.com',
         nickname: 'new-nickname',
@@ -96,12 +113,6 @@ describe('AuthService', () => {
 
     it('이미 존재하는 이메일로 가입하려고 하면 에러', async () => {
       // given
-      const authService = new AuthService(
-        tokenService,
-        new UserRepositoryStub(userList),
-        new JwtTokenRepositoryStub(jwtTokenList),
-      );
-
       const localSignupDto = {
         email: EMAIL,
         nickname: 'new-nickname',
@@ -117,12 +128,6 @@ describe('AuthService', () => {
 
     it('이미 존재하는 닉네임으로 가입하려고 하면 에러', async () => {
       // given
-      const authService = new AuthService(
-        tokenService,
-        new UserRepositoryStub(userList),
-        new JwtTokenRepositoryStub(jwtTokenList),
-      );
-
       const localSignupDto = {
         email: 'new-email@test.com',
         nickname: NICKNAME,
@@ -142,14 +147,18 @@ describe('AuthService', () => {
     const userList = Object.freeze([RESULT_USER]);
     const jwtTokenList = Object.freeze([createJwtToken({})]);
 
-    it('이메일과 비밀번호가 맞다면 user를 반환', async () => {
-      // given
-      const authService = new AuthService(
-        tokenService,
+    let authService: IAuthService;
+
+    beforeEach(async () => {
+      const module = await getTestingModule(
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
       );
+      authService = module.get<IAuthService>(IAuthService);
+    });
 
+    it('이메일과 비밀번호가 맞다면 user를 반환', async () => {
+      // given
       const email = EMAIL;
       const password = PASSWORD;
 
@@ -162,12 +171,6 @@ describe('AuthService', () => {
 
     it('이메일 비밀번호가 맞지 않다면 null 반환', async () => {
       // given
-      const authService = new AuthService(
-        tokenService,
-        new UserRepositoryStub(userList),
-        new JwtTokenRepositoryStub(jwtTokenList),
-      );
-
       const email = EMAIL;
       const password = 'invalid password';
 
@@ -191,14 +194,20 @@ describe('AuthService', () => {
     const JWT_TOKEN = Object.freeze(createJwtToken({}));
     const jwtTokenList = Object.freeze([JWT_TOKEN]);
 
-    it('이미 로그인했던 user가 다시 요청한 경우, 기존의 JwtToken 데이터를 수정한다.', async () => {
-      // given
-      const authService = new AuthService(
-        tokenService,
+    let authService: IAuthService;
+    let tokenService: TokenService;
+
+    beforeEach(async () => {
+      const module = await getTestingModule(
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
       );
+      authService = module.get<IAuthService>(IAuthService);
+      tokenService = module.get<TokenService>(TokenService);
+    });
 
+    it('이미 로그인했던 user가 다시 요청한 경우, 기존의 JwtToken 데이터를 수정한다.', async () => {
+      // given
       const userId = USER_ID;
       const email = EMAIL;
       const nickname = NICKNAME;
@@ -236,11 +245,6 @@ describe('AuthService', () => {
 
     it('user가 처음으로 로그인 요청한 경우, 새롭게 JwtToken 데이터를 생성한다.', async () => {
       // given
-      const authService = new AuthService(
-        tokenService,
-        new UserRepositoryStub(userList),
-        new JwtTokenRepositoryStub(jwtTokenList),
-      );
       const userId = 9999;
       const email = EMAIL;
       const nickname = NICKNAME;
@@ -287,6 +291,27 @@ describe('AuthService', () => {
       }),
     ]);
 
+    let tokenService: TokenService;
+    let configService: ConfigService;
+    beforeAll(async () => {
+      const module = await Test.createTestingModule({
+        imports: [
+          JwtModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: createJwtOptions,
+            inject: [ConfigService],
+          }),
+          ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: '.env',
+          }),
+        ],
+        providers: [JwtService, ConfigService, TokenService],
+      }).compile();
+
+      tokenService = module.get<TokenService>(TokenService);
+    });
+
     it('적절한 accessToken과 refreshToken을 사용한 경우 새로운 토큰을 담은 JwtToken 객체 반환', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
@@ -298,7 +323,7 @@ describe('AuthService', () => {
           refreshToken: prevRefreshToken,
         }),
       ]);
-      const authService = new AuthService(
+      const authService = new AuthServiceImpl(
         tokenService,
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
@@ -343,7 +368,7 @@ describe('AuthService', () => {
           refreshToken: prevRefreshToken,
         }),
       ]);
-      const authService = new AuthService(
+      const authService = new AuthServiceImpl(
         tokenService,
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
@@ -370,7 +395,7 @@ describe('AuthService', () => {
           refreshToken: expiredRefreshToken,
         }),
       ]);
-      const authService = new AuthService(
+      const authService = new AuthServiceImpl(
         tokenService,
         new UserRepositoryStub(userList),
         new JwtTokenRepositoryStub(jwtTokenList),
