@@ -169,16 +169,34 @@ describe('AuthService', () => {
       expect(user).toEqual(RESULT_USER);
     });
 
-    it('이메일 비밀번호가 맞지 않다면 null 반환', async () => {
+    it('존재하지 않는 이메일이면 UnauthorizedException 발생', async () => {
+      // given
+      const authService = new AuthService(
+        tokenService,
+        new UserRepositoryStub(userList),
+        new JwtTokenRepositoryStub(jwtTokenList),
+      );
+
+      const email = 'invalid@email.com';
+      const password = 'invalid password';
+
+      // when
+      // then
+      await expect(
+        authService.validateLocalUser(email, password),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('비밀번호가 맞지 않다면 UnauthorizedException 발생', async () => {
       // given
       const email = EMAIL;
       const password = 'invalid password';
 
       // when
-      const result = await authService.validateLocalUser(email, password);
-
       // then
-      expect(result).toBeNull();
+      await expect(
+        authService.validateLocalUser(email, password),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
