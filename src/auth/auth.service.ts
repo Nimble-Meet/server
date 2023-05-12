@@ -96,7 +96,10 @@ export class AuthServiceImpl implements IAuthService {
     const jwtToken = await this.jwtTokenRepository.findOneByRefreshToken(
       prevRefreshToken,
     );
-    if (!jwtToken?.equalsAccessToken(prevAccessToken)) {
+    if (!jwtToken) {
+      throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+    }
+    if (!jwtToken.equalsAccessToken(prevAccessToken)) {
       throw new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN);
     }
 

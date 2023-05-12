@@ -94,7 +94,7 @@ describe('AuthService', () => {
       authService = module.get<IAuthService>(IAuthService);
     });
 
-    it('적절한 데이터로 회원가입 요청 시 새로운 사용자를 생성하여 반환 (비밀번호는 암호화)', async () => {
+    it('적절한 데이터로 회원가입을 요청하면 새로운 사용자를 생성하여 반환 (비밀번호는 암호화)', async () => {
       // given
       const localSignupDto = {
         email: 'new-email@test.com',
@@ -182,7 +182,7 @@ describe('AuthService', () => {
       ).rejects.toThrow(new UnauthorizedException(ErrorMessage.LOGIN_FAILED));
     });
 
-    it('비밀번호가 맞지 않다면 UnauthorizedException 발생', async () => {
+    it('비밀번호가 맞지 않으면 UnauthorizedException 발생', async () => {
       // given
       const email = EMAIL;
       const password = 'invalid password';
@@ -256,7 +256,7 @@ describe('AuthService', () => {
       expect(jwtPayloadByRT.userId).toBe(USER_ID);
     });
 
-    it('새로운 사용자가 토큰 발급을 요청한 경우, 새롭게 JwtToken 데이터를 생성', async () => {
+    it('새로운 사용자가 토큰 발급을 요청하면 새롭게 JwtToken 데이터를 생성', async () => {
       // given
       const userId = 9999;
       const email = EMAIL;
@@ -370,10 +370,42 @@ describe('AuthService', () => {
       mockDateNow.mockRestore();
     });
 
-    it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않으면 UnauthorizedException 발생', async () => {
+    it('발급한 적이 없는 refreshToken 이면 UnauthorizedException 발생', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
+
+      const jwtTokenList = Object.freeze([
+        createJwtToken({
+          accessToken: prevAccessToken,
+          refreshToken: prevRefreshToken,
+        }),
+      ]);
+      const authService = new AuthServiceImpl(
+        tokenService,
+        new UserRepositoryStub(userList),
+        new JwtTokenRepositoryStub(jwtTokenList),
+      );
+
+      const refreshToken = 'invalidRefreshToken';
+      const accessToken = prevAccessToken;
+
+      // when
+      // then
+      await expect(
+        authService.rotateRefreshToken(refreshToken, accessToken),
+      ).rejects.toThrow(
+        new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN),
+      );
+    });
+
+    it('accessToken 이 refreshToken 과 매칭되지 않으면 UnauthorizedException 발생', async () => {
+      // given
+      const prevAccessToken = tokenService.generateAccessToken(USER_ID);
+      const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
+
+      const otherAccessToken = tokenService.generateAccessToken(9999);
+      const otherRefreshToken = tokenService.generateRefreshToken(9999);
 
       const jwtTokenList = Object.freeze([
         createJwtToken({
@@ -399,7 +431,7 @@ describe('AuthService', () => {
       );
     });
 
-    it('refresh token이 만료된 후 토큰 갱신을 요청하면 UnauthorizedException 발생', async () => {
+    it('refresh token 이 만료되었다면 UnauthorizedException 발생', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const expiredRefreshToken = tokenService.generateRefreshToken(USER_ID);
