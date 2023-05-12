@@ -27,6 +27,7 @@ import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 import { IAuthService } from './auth.service.interface';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
+import { ErrorMessage } from './enum/error-message.enum';
 
 describe('AuthService', () => {
   const getTestingModule = (
@@ -93,7 +94,7 @@ describe('AuthService', () => {
       authService = module.get<IAuthService>(IAuthService);
     });
 
-    it('새로운 유저 생성, 비밀번호는 암호화', async () => {
+    it('적절한 데이터로 회원가입 요청 시 새로운 사용자를 생성하여 반환 (비밀번호는 암호화)', async () => {
       // given
       const localSignupDto = {
         email: 'new-email@test.com',
@@ -111,7 +112,7 @@ describe('AuthService', () => {
       expect(user.password).not.toBe(PASSWORD);
     });
 
-    it('이미 존재하는 이메일로 가입하려고 하면 에러', async () => {
+    it('이미 존재하는 이메일이면 ConflictException 발생', async () => {
       // given
       const localSignupDto = {
         email: EMAIL,
@@ -121,12 +122,12 @@ describe('AuthService', () => {
 
       // when
       // then
-      await expect(async () => {
-        await authService.signup(localSignupDto);
-      }).rejects.toThrow(ConflictException);
+      await expect(authService.signup(localSignupDto)).rejects.toThrow(
+        new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS),
+      );
     });
 
-    it('이미 존재하는 닉네임으로 가입하려고 하면 에러', async () => {
+    it('이미 존재하는 닉네임이면 ConflictException 발생', async () => {
       // given
       const localSignupDto = {
         email: 'new-email@test.com',
@@ -136,9 +137,9 @@ describe('AuthService', () => {
 
       // when
       // then
-      await expect(async () => {
-        await authService.signup(localSignupDto);
-      }).rejects.toThrow(ConflictException);
+      await expect(authService.signup(localSignupDto)).rejects.toThrow(
+        new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS),
+      );
     });
   });
 
@@ -157,7 +158,7 @@ describe('AuthService', () => {
       authService = module.get<IAuthService>(IAuthService);
     });
 
-    it('이메일과 비밀번호가 맞다면 user를 반환', async () => {
+    it('유효한 이메일과 비밀번호로 사용자 인증을 요청하면 user를 반환', async () => {
       // given
       const email = EMAIL;
       const password = PASSWORD;
@@ -171,12 +172,6 @@ describe('AuthService', () => {
 
     it('존재하지 않는 이메일이면 UnauthorizedException 발생', async () => {
       // given
-      const authService = new AuthService(
-        tokenService,
-        new UserRepositoryStub(userList),
-        new JwtTokenRepositoryStub(jwtTokenList),
-      );
-
       const email = 'invalid@email.com';
       const password = 'invalid password';
 
@@ -184,7 +179,7 @@ describe('AuthService', () => {
       // then
       await expect(
         authService.validateLocalUser(email, password),
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow(new UnauthorizedException(ErrorMessage.LOGIN_FAILED));
     });
 
     it('비밀번호가 맞지 않다면 UnauthorizedException 발생', async () => {
@@ -196,7 +191,7 @@ describe('AuthService', () => {
       // then
       await expect(
         authService.validateLocalUser(email, password),
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow(new UnauthorizedException(ErrorMessage.LOGIN_FAILED));
     });
   });
 
@@ -224,7 +219,7 @@ describe('AuthService', () => {
       tokenService = module.get<TokenService>(TokenService);
     });
 
-    it('이미 로그인했던 user가 다시 요청한 경우, 기존의 JwtToken 데이터를 수정한다.', async () => {
+    it('이미 로그인했던 user가 토큰 발급을 요청하면 기존의 JwtToken 데이터를 수정', async () => {
       // given
       const userId = USER_ID;
       const email = EMAIL;
@@ -261,7 +256,7 @@ describe('AuthService', () => {
       expect(jwtPayloadByRT.userId).toBe(USER_ID);
     });
 
-    it('user가 처음으로 로그인 요청한 경우, 새롭게 JwtToken 데이터를 생성한다.', async () => {
+    it('새로운 사용자가 토큰 발급을 요청한 경우, 새롭게 JwtToken 데이터를 생성', async () => {
       // given
       const userId = 9999;
       const email = EMAIL;
@@ -330,7 +325,7 @@ describe('AuthService', () => {
       tokenService = module.get<TokenService>(TokenService);
     });
 
-    it('적절한 accessToken과 refreshToken을 사용한 경우 새로운 토큰을 담은 JwtToken 객체 반환', async () => {
+    it('유효한 accessToken과 refreshToken을 사용하여 토큰 갱신을 요청하면, 새로운 토큰을 담은 JwtToken 객체 반환', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
@@ -375,7 +370,7 @@ describe('AuthService', () => {
       mockDateNow.mockRestore();
     });
 
-    it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않는 경우 에러', async () => {
+    it('accessToken이 JwtToken에 저장된 refreshToken과 매칭되는 데이터와 일치하지 않으면 UnauthorizedException 발생', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
@@ -397,12 +392,14 @@ describe('AuthService', () => {
 
       // when
       // then
-      await expect(async () => {
-        await authService.rotateRefreshToken(refreshToken, accessToken);
-      }).rejects.toThrow(UnauthorizedException);
+      await expect(
+        authService.rotateRefreshToken(refreshToken, accessToken),
+      ).rejects.toThrow(
+        new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN),
+      );
     });
 
-    it('refresh token이 만료된 후 재발급 요청하면 에러 발생', async () => {
+    it('refresh token이 만료된 후 토큰 갱신을 요청하면 UnauthorizedException 발생', async () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const expiredRefreshToken = tokenService.generateRefreshToken(USER_ID);
@@ -435,9 +432,11 @@ describe('AuthService', () => {
           ).valueOf(),
         );
 
-      await expect(async () => {
-        await authService.rotateRefreshToken(refreshToken, accessToken);
-      }).rejects.toThrow(UnauthorizedException);
+      await expect(
+        authService.rotateRefreshToken(refreshToken, accessToken),
+      ).rejects.toThrow(
+        new UnauthorizedException(ErrorMessage.EXPIRED_REFRESH_TOKEN),
+      );
 
       mockDateNow.mockRestore();
     });
