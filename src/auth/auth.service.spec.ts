@@ -29,7 +29,7 @@ import { OauthProvider } from 'src/common/enums/oauth-provider.enum';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 import { IAuthService } from './auth.service.interface';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 
 describe('AuthService', () => {
   const getTestingModule = (
@@ -110,7 +110,7 @@ describe('AuthService', () => {
       // when
       // then
       await expect(authService.signup(localSignupDto)).rejects.toThrow(
-        new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS),
+        new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS),
       );
     });
 
@@ -125,7 +125,7 @@ describe('AuthService', () => {
       // when
       // then
       await expect(authService.signup(localSignupDto)).rejects.toThrow(
-        new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS),
+        new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS),
       );
     });
   });
@@ -166,7 +166,9 @@ describe('AuthService', () => {
       // then
       await expect(
         authService.validateLocalUser(email, password),
-      ).rejects.toThrow(new UnauthorizedException(ErrorMessage.LOGIN_FAILED));
+      ).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
+      );
     });
 
     it('비밀번호가 맞지 않으면 UnauthorizedException 발생', async () => {
@@ -178,7 +180,9 @@ describe('AuthService', () => {
       // then
       await expect(
         authService.validateLocalUser(email, password),
-      ).rejects.toThrow(new UnauthorizedException(ErrorMessage.LOGIN_FAILED));
+      ).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
+      );
     });
   });
 
@@ -382,7 +386,7 @@ describe('AuthService', () => {
       await expect(
         authService.rotateRefreshToken(refreshToken, accessToken),
       ).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN),
+        new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN),
       );
     });
 
@@ -411,7 +415,7 @@ describe('AuthService', () => {
       await expect(
         authService.rotateRefreshToken(refreshToken, accessToken),
       ).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN),
+        new UnauthorizedException(AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN),
       );
     });
 
@@ -451,7 +455,7 @@ describe('AuthService', () => {
       await expect(
         authService.rotateRefreshToken(refreshToken, accessToken),
       ).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.EXPIRED_REFRESH_TOKEN),
+        new UnauthorizedException(AuthErrorMessage.EXPIRED_REFRESH_TOKEN),
       );
 
       mockDateNow.mockRestore();

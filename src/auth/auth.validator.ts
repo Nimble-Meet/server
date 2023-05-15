@@ -4,7 +4,7 @@ import {
   registerDecorator,
   ValidationOptions,
 } from 'class-validator';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 
 @ValidatorConstraint({ name: 'isSha256Encrypted', async: false })
 export class IsSha256EncryptedConstraint
@@ -16,7 +16,7 @@ export class IsSha256EncryptedConstraint
   }
 
   defaultMessage() {
-    return ErrorMessage.NOT_SHA256_ENCRYPTED;
+    return AuthErrorMessage.NOT_SHA256_ENCRYPTED;
   }
 }
 

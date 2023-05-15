@@ -6,7 +6,7 @@ import { JwtToken } from '../../auth/entity/jwt-token.entity';
 import { LocalSignupRequestDto } from '../../auth/dto/request/local-signup-request.dto';
 import { User } from '../../user/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
-import { ErrorMessage } from '../../auth/enum/error-message.enum';
+import { AuthErrorMessage } from '../../auth/auth.error-message';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 
 export class AuthServiceStub implements IAuthService {
@@ -20,10 +20,10 @@ export class AuthServiceStub implements IAuthService {
 
   signup(localSignupDto: LocalSignupRequestDto): Promise<User> {
     if (this.existingUser.email === localSignupDto.email) {
-      throw new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS);
+      throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
     }
     if (this.existingUser.nickname === localSignupDto.nickname) {
-      throw new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS);
+      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
     }
 
     return Promise.resolve(
@@ -39,7 +39,7 @@ export class AuthServiceStub implements IAuthService {
       this.existingUser.email !== email ||
       this.existingUser.password !== password
     ) {
-      throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
+      throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
 
     return Promise.resolve(
@@ -63,10 +63,12 @@ export class AuthServiceStub implements IAuthService {
     prevAccessToken: string,
   ): Promise<JwtToken> {
     if (this.existingJwtToken.accessToken !== prevAccessToken) {
-      throw new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN);
+      throw new UnauthorizedException(
+        AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN,
+      );
     }
     if (this.existingJwtToken.refreshToken !== prevRefreshToken) {
-      throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN);
     }
 
     return Promise.resolve(

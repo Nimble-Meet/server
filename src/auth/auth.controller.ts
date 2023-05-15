@@ -41,7 +41,7 @@ import { RefreshBadrequestResponseDto } from './dto/error/refresh-badrequest-res
 import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized-response.dto';
 import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 
 @ApiTags('auth')
@@ -122,12 +122,16 @@ export class AuthController {
   async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
     if (!prevRefreshToken) {
-      throw new BadRequestException(ErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST);
+      throw new BadRequestException(
+        AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST,
+      );
     }
 
     const prevAccessToken = req.headers.authorization?.split(' ')[1];
     if (!prevAccessToken) {
-      throw new BadRequestException(ErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST);
+      throw new BadRequestException(
+        AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST,
+      );
     }
 
     const jwtToken = await this.authService.rotateRefreshToken(

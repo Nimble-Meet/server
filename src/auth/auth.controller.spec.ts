@@ -8,7 +8,7 @@ import * as crypto from 'crypto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 import { Request } from 'express';
 import {
   imock,
@@ -97,7 +97,7 @@ describe('AuthController', () => {
       await expect(
         authController.signup(localSignupRequestDto),
       ).rejects.toThrow(
-        new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS),
+        new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS),
       );
     });
 
@@ -114,7 +114,7 @@ describe('AuthController', () => {
       await expect(
         authController.signup(localSignupRequestDto),
       ).rejects.toThrow(
-        new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS),
+        new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS),
       );
     });
   });
@@ -181,7 +181,7 @@ describe('AuthController', () => {
       // when
       // then
       await expect(authController.refresh(request)).rejects.toThrow(
-        new BadRequestException(ErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST),
+        new BadRequestException(AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST),
       );
     });
 
@@ -195,7 +195,7 @@ describe('AuthController', () => {
       // when
       // then
       await expect(authController.refresh(request)).rejects.toThrow(
-        new BadRequestException(ErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST),
+        new BadRequestException(AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST),
       );
     });
   });

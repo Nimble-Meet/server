@@ -15,7 +15,7 @@ import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 
 @Injectable()
@@ -33,14 +33,14 @@ export class AuthServiceImpl implements IAuthService {
       localSignupDto.email,
     );
     if (isEmailAlreadyExists) {
-      throw new ConflictException(ErrorMessage.EMAIL_ALREADY_EXISTS);
+      throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
     }
 
     const isNicknameAlreadyExists = await this.userRepository.existsByNickname(
       localSignupDto.nickname,
     );
     if (isNicknameAlreadyExists) {
-      throw new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS);
+      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
     }
 
     const encryptedPassword = EncryptedPassword.encryptFrom(
@@ -58,12 +58,12 @@ export class AuthServiceImpl implements IAuthService {
   async validateLocalUser(email: string, password: string): Promise<User> {
     const user = await this.userRepository.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
+      throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
 
     const encryptedPassword = EncryptedPassword.from(user.password);
     if (!encryptedPassword.equals(password)) {
-      throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
+      throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
 
     return user;
@@ -97,10 +97,12 @@ export class AuthServiceImpl implements IAuthService {
       prevRefreshToken,
     );
     if (!jwtToken) {
-      throw new UnauthorizedException(ErrorMessage.INVALID_REFRESH_TOKEN);
+      throw new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN);
     }
     if (!jwtToken.equalsAccessToken(prevAccessToken)) {
-      throw new UnauthorizedException(ErrorMessage.INCONSISTENT_ACCESS_TOKEN);
+      throw new UnauthorizedException(
+        AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN,
+      );
     }
 
     let userId: number;
@@ -108,7 +110,7 @@ export class AuthServiceImpl implements IAuthService {
       const jwtPayload = this.tokenService.verifyRefreshToken(prevRefreshToken);
       userId = jwtPayload.userId;
     } catch {
-      throw new UnauthorizedException(ErrorMessage.EXPIRED_REFRESH_TOKEN);
+      throw new UnauthorizedException(AuthErrorMessage.EXPIRED_REFRESH_TOKEN);
     }
 
     const newAccessToken = this.tokenService.generateAccessToken(userId);

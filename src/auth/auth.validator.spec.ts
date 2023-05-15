@@ -1,6 +1,8 @@
 import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
+
 import { IsSha256EncryptedConstraint } from './auth.validator';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
 
 describe('AuthValidator', () => {
   const sha256EncryptedValidator = new IsSha256EncryptedConstraint();
@@ -23,6 +25,7 @@ describe('AuthValidator', () => {
     it('SHA-256으로 인코딩된 문자열이 아니면 false를 반환', () => {
       // given
       const strListToTest = ['1234', 'abcd', '가나다라', '1234abcd', '', null];
+      strListToTest.push(bcrypt.hashSync('password', 10));
 
       strListToTest.forEach((invalidString) => {
         // when
@@ -40,7 +43,7 @@ describe('AuthValidator', () => {
       const result = sha256EncryptedValidator.defaultMessage();
 
       // then
-      expect(result).toBe(ErrorMessage.NOT_SHA256_ENCRYPTED);
+      expect(result).toBe(AuthErrorMessage.NOT_SHA256_ENCRYPTED);
     });
   });
 });

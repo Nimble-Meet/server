@@ -7,7 +7,7 @@ import { createUser, USER_ID } from '../../test/dummies/user.dummy';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { UserPayloadDto } from '../dto/user-payload.dto';
 import { UnauthorizedException } from '@nestjs/common';
-import { ErrorMessage } from '../enum/error-message.enum';
+import { AuthErrorMessage } from '../auth.error-message';
 
 describe('JwtStrategy', () => {
   let jwtStrategy: JwtStrategy;
@@ -56,7 +56,7 @@ describe('JwtStrategy', () => {
       // when
       // then
       await expect(jwtStrategy.validate(jwtPayloadDto)).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.USER_NOT_FOUND),
+        new UnauthorizedException(AuthErrorMessage.USER_NOT_FOUND),
       );
     });
   });

@@ -13,7 +13,7 @@ import {
 import { UserPayloadDto } from '../dto/user-payload.dto';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 import { UnauthorizedException } from '@nestjs/common';
-import { ErrorMessage } from '../enum/error-message.enum';
+import { AuthErrorMessage } from '../auth.error-message';
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
@@ -60,7 +60,7 @@ describe('LocalStrategy', () => {
       // when
       // then
       await expect(localStrategy.validate(email, password)).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.LOGIN_FAILED),
+        new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
       );
     });
 
@@ -72,7 +72,7 @@ describe('LocalStrategy', () => {
       // when
       // then
       await expect(localStrategy.validate(email, password)).rejects.toThrow(
-        new UnauthorizedException(ErrorMessage.LOGIN_FAILED),
+        new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
       );
     });
   });

@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { ErrorMessage } from 'src/auth/enum/error-message.enum';
+import { AuthErrorMessage } from 'src/auth/auth.error-message';
 import { IErrorResponseBody } from 'src/common/interface/error-response-body.interface';
 
 export class LoginUnauthorizedResponseDto implements IErrorResponseBody {
@@ -11,7 +11,7 @@ export class LoginUnauthorizedResponseDto implements IErrorResponseBody {
   statusCode: number;
 
   @ApiProperty({
-    example: ErrorMessage.LOGIN_FAILED,
+    example: AuthErrorMessage.LOGIN_FAILED,
     description: '에러 메시지',
   })
   message: string;
