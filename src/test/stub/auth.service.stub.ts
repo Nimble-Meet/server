@@ -42,7 +42,9 @@ export class AuthServiceStub implements IAuthService {
       throw new UnauthorizedException(ErrorMessage.LOGIN_FAILED);
     }
 
-    return Promise.resolve(User.create(this.existingUser));
+    return Promise.resolve(
+      User.create({ ...this.existingUser, providerType: OauthProvider.LOCAL }),
+    );
   }
 
   jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
