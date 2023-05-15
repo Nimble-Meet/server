@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { ErrorMessage } from 'src/auth/enum/error-message.enum';
+import { AuthErrorMessage } from 'src/auth/auth.error-message';
 import { IErrorResponseBody } from 'src/common/interface/error-response-body.interface';
 
 export class RefreshBadrequestResponseDto implements IErrorResponseBody {
@@ -11,7 +11,7 @@ export class RefreshBadrequestResponseDto implements IErrorResponseBody {
   statusCode: number;
 
   @ApiProperty({
-    example: ErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST,
+    example: AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST,
     description: '에러 메시지',
   })
   message: string;

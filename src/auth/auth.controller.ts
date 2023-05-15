@@ -6,7 +6,6 @@ import {
   ApiConflictResponse,
 } from '@nestjs/swagger';
 
-import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
@@ -26,6 +25,7 @@ import {
   Req,
   BadRequestException,
   Get,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -41,12 +41,16 @@ import { RefreshBadrequestResponseDto } from './dto/error/refresh-badrequest-res
 import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized-response.dto';
 import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
-import { ErrorMessage } from './enum/error-message.enum';
+import { AuthErrorMessage } from './auth.error-message';
+import { IAuthService } from './auth.service.interface';
 
 @ApiTags('auth')
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    @Inject(IAuthService)
+    private readonly authService: IAuthService,
+  ) {}
 
   @Post('signup')
   @ApiOperation({ description: 'email & pw 회원가입' })
@@ -118,12 +122,16 @@ export class AuthController {
   async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
     if (!prevRefreshToken) {
-      throw new BadRequestException(ErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST);
+      throw new BadRequestException(
+        AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST,
+      );
     }
 
     const prevAccessToken = req.headers.authorization?.split(' ')[1];
     if (!prevAccessToken) {
-      throw new BadRequestException(ErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST);
+      throw new BadRequestException(
+        AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST,
+      );
     }
 
     const jwtToken = await this.authService.rotateRefreshToken(

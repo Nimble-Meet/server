@@ -21,4 +21,9 @@ export class LocalLoginRequestDto {
     description: 'SHA256으로 암호화된 비밀번호',
   })
   password: string;
+
+  protected constructor(email: string, password: string) {
+    this.email = email;
+    this.password = password;
+  }
 }

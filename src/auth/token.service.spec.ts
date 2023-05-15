@@ -18,12 +18,11 @@ describe('TokenService', () => {
           inject: [ConfigService],
         }),
       ],
-      providers: [JwtService, ConfigService],
+      providers: [JwtService, ConfigService, TokenService],
     }).compile();
 
-    const jwtService = moduleRef.get<JwtService>(JwtService);
     configService = moduleRef.get<ConfigService>(ConfigService);
-    tokenService = new TokenService(jwtService, configService);
+    tokenService = moduleRef.get<TokenService>(TokenService);
   });
 
   describe('generateAccessToken', () => {

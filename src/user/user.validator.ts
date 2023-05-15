@@ -9,16 +9,19 @@ import {
 } from 'class-validator';
 
 import { applyDecorators } from '@nestjs/common';
+import { UserErrorMessage } from './user.error-message';
 
 @ValidatorConstraint({ name: 'isBcryptEncrypted', async: false })
-class IsBcryptEncryptedConstraint implements ValidatorConstraintInterface {
+export class IsBcryptEncryptedConstraint
+  implements ValidatorConstraintInterface
+{
   validate(stringToTest: string) {
     const regexExp = /^[a-zA-Z0-9\$\.\/]{60}$/gi;
     return regexExp.test(stringToTest);
   }
 
   defaultMessage() {
-    return 'Bcrypt로 인코딩된 문자열이 아닙니다.';
+    return UserErrorMessage.NOT_BCRYPT_ENCRYPTED;
   }
 }
 

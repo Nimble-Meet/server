@@ -7,12 +7,13 @@ import { PassportModule } from '@nestjs/passport';
 
 import { UserModule } from '../user/user.module';
 import { LocalStrategy } from './strategy/local.strategy';
-import { AuthService } from './auth.service';
+import { AuthServiceImpl } from './auth.service';
 import { createJwtOptions } from './auth.config';
 import { JwtTokenRepositoryImpl } from './repository/jwt-token.repository';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 import { TokenService } from './token.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { IAuthService } from './auth.service.interface';
 
 @Module({
   imports: [
@@ -27,7 +28,10 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     UserModule,
   ],
   providers: [
-    AuthService,
+    {
+      provide: IAuthService,
+      useClass: AuthServiceImpl,
+    },
     LocalStrategy,
     JwtStrategy,
     {
@@ -36,6 +40,11 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     },
     TokenService,
   ],
-  exports: [AuthService],
+  exports: [
+    {
+      provide: IAuthService,
+      useClass: AuthServiceImpl,
+    },
+  ],
 })
 export class AuthModule {}

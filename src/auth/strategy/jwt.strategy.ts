@@ -5,6 +5,7 @@ import { UserPayloadDto } from '../dto/user-payload.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
+import { AuthErrorMessage } from '../auth.error-message';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayloadDto): Promise<UserPayloadDto> {
     const user = await this.userRepository.findOneById(payload.userId);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(AuthErrorMessage.USER_NOT_FOUND);
     }
 
     return UserPayloadDto.from(user);

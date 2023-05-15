@@ -4,16 +4,19 @@ import {
   registerDecorator,
   ValidationOptions,
 } from 'class-validator';
+import { AuthErrorMessage } from './auth.error-message';
 
 @ValidatorConstraint({ name: 'isSha256Encrypted', async: false })
-class IsSha256EncryptedConstraint implements ValidatorConstraintInterface {
+export class IsSha256EncryptedConstraint
+  implements ValidatorConstraintInterface
+{
   validate(stringToTest: string) {
     const regexExp = /^[a-f0-9]{64}$/gi;
     return regexExp.test(stringToTest);
   }
 
   defaultMessage() {
-    return 'sha256으로 인코딩된 문자열이 아닙니다.';
+    return AuthErrorMessage.NOT_SHA256_ENCRYPTED;
   }
 }
 
