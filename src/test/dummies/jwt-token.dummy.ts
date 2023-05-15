@@ -12,4 +12,5 @@ export const createJwtToken = ({
   accessToken = ACCESS_TOKEN,
   refreshToken = REFRESH_TOKEN,
   expiresAt = new Date(),
-}) => JwtToken.create({ id, userId, accessToken, refreshToken, expiresAt });
+}: Partial<JwtToken>) =>
+  JwtToken.create({ id, userId, accessToken, refreshToken, expiresAt });

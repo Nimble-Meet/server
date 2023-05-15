@@ -7,10 +7,5 @@ export const createUserPayloadDto = ({
   email = EMAIL,
   nickname = NICKNAME,
   providerType = OauthProvider.LOCAL,
-}: {
-  id?: number;
-  email?: string;
-  nickname?: string;
-  providerType?: OauthProvider;
-} = {}): UserPayloadDto =>
+}: Partial<UserPayloadDto>): UserPayloadDto =>
   UserPayloadDto.create({ id, email, nickname, providerType });
