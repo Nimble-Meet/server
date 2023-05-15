@@ -26,8 +26,4 @@ export class LocalLoginRequestDto {
     this.email = email;
     this.password = password;
   }
-
-  static create = (createInfo: { email: string; password: string }) => {
-    return new LocalLoginRequestDto(createInfo.email, createInfo.password);
-  };
 }
