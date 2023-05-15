@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
-import { AppService } from './app.service';
 import { createTypeOrmOptions } from './config/typeorm.config';
 import { loggerOptions } from './config/logger.config';
 import { AuthController } from './auth/auth.controller';
@@ -25,7 +24,6 @@ import { AuthController } from './auth/auth.controller';
   ],
   controllers: [AuthController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
