@@ -14,10 +14,12 @@ import {
   NICKNAME,
   PASSWORD,
   USER_ID,
+  createUser,
 } from 'src/test/dummies/user.dummy';
 import { JwtTokenRepositoryStub } from 'src/test/stub/jwt-token.repository.stub';
 import {
   ACCESS_TOKEN,
+  createJwtToken,
   REFRESH_TOKEN,
   TOKEN_ID,
 } from 'src/test/dummies/jwt-token.dummy';
@@ -64,21 +66,6 @@ describe('AuthService', () => {
         TokenService,
       ],
     }).compile();
-
-  const createUser = ({
-    id = USER_ID,
-    email = EMAIL,
-    nickname = NICKNAME,
-    password = ENCRYPTED_PASSWORD.getPassword(),
-  }) => User.create({ id, email, nickname, password });
-
-  const createJwtToken = ({
-    id = TOKEN_ID,
-    userId = USER_ID,
-    accessToken = ACCESS_TOKEN,
-    refreshToken = REFRESH_TOKEN,
-    expiresAt = new Date(),
-  }) => JwtToken.create({ id, userId, accessToken, refreshToken, expiresAt });
 
   describe('signup', () => {
     const userList = Object.freeze([createUser({})]);
@@ -403,9 +390,6 @@ describe('AuthService', () => {
       // given
       const prevAccessToken = tokenService.generateAccessToken(USER_ID);
       const prevRefreshToken = tokenService.generateRefreshToken(USER_ID);
-
-      const otherAccessToken = tokenService.generateAccessToken(9999);
-      const otherRefreshToken = tokenService.generateRefreshToken(9999);
 
       const jwtTokenList = Object.freeze([
         createJwtToken({

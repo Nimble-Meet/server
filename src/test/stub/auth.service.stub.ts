@@ -7,6 +7,7 @@ import { LocalSignupRequestDto } from '../../auth/dto/request/local-signup-reque
 import { User } from '../../user/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ErrorMessage } from '../../auth/enum/error-message.enum';
+import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 
 export class AuthServiceStub implements IAuthService {
   private readonly existingUser: User;
@@ -25,7 +26,12 @@ export class AuthServiceStub implements IAuthService {
       throw new ConflictException(ErrorMessage.NICKNAME_ALREADY_EXISTS);
     }
 
-    return Promise.resolve(User.create(localSignupDto));
+    return Promise.resolve(
+      User.create({
+        ...localSignupDto,
+        providerType: OauthProvider.LOCAL,
+      }),
+    );
   }
 
   validateLocalUser(email: string, password: string): Promise<User> {
