@@ -14,7 +14,12 @@ import { AuthController } from './auth/auth.controller';
 @Module({
   imports: [
     LoggerModule.forRoot(loggerOptions),
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env${
+        process.env.NODE_ENV ? '.' + process.env.NODE_ENV : ''
+      }`,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: createTypeOrmOptions,
