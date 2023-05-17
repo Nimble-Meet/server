@@ -5,6 +5,7 @@ import { AppModule } from '../../src/app.module';
 import { OauthProvider } from '../../src/common/enums/oauth-provider.enum';
 import { DataSource } from 'typeorm';
 import { AuthErrorMessage } from '../../src/auth/auth.error-message';
+import { encryptPasswordInSha256 } from './auth-e2e.util';
 
 describe('/api/auth/signup (POST)', () => {
   let app: INestApplication;
@@ -32,8 +33,7 @@ describe('/api/auth/signup (POST)', () => {
       .post('/api/auth/signup')
       .send({
         email: 'user@google.com',
-        password:
-          '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        password: encryptPasswordInSha256('password'),
         nickname: 'username',
       })
       .expect(HttpStatus.CREATED)
@@ -49,8 +49,7 @@ describe('/api/auth/signup (POST)', () => {
       .post('/api/auth/signup')
       .send({
         email: 'abcdefg',
-        password:
-          '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        password: encryptPasswordInSha256('password'),
         nickname: 'username',
       })
       .expect(HttpStatus.BAD_REQUEST);
@@ -73,19 +72,19 @@ describe('/api/auth/signup (POST)', () => {
   });
 
   it('회원 가입 - 이미 존재하는 이메일로 가입 시 Conflict 에러', () => {
-    request(app.getHttpServer()).post('/api/auth/signup').send({
-      email: 'user@gmail.com',
-      password:
-        '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
-      nickname: 'user1',
-    });
+    request(app.getHttpServer())
+      .post('/api/auth/signup')
+      .send({
+        email: 'user@gmail.com',
+        password: encryptPasswordInSha256('password'),
+        nickname: 'user1',
+      });
 
     request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@gmail.com',
-        password:
-          '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        password: encryptPasswordInSha256('password'),
         nickname: 'user2',
       })
       .expect(HttpStatus.CONFLICT)
@@ -95,19 +94,19 @@ describe('/api/auth/signup (POST)', () => {
   });
 
   it('회원 가입 - 이미 존재하는 닉네임으로 가입 시 Conflict 에러', () => {
-    request(app.getHttpServer()).post('/api/auth/signup').send({
-      email: 'user@gmail.com',
-      password:
-        '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
-      nickname: 'username',
-    });
+    request(app.getHttpServer())
+      .post('/api/auth/signup')
+      .send({
+        email: 'user@gmail.com',
+        password: encryptPasswordInSha256('password'),
+        nickname: 'username',
+      });
 
     request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user2@gmail.com',
-        password:
-          '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        password: encryptPasswordInSha256('password'),
         nickname: 'username',
       })
       .expect(HttpStatus.CONFLICT)
