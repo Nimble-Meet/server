@@ -120,7 +120,7 @@ export class AuthController {
   @UseInterceptors(SetRTCookieInterceptor)
   @ApiBearerAuth('access-token')
   async refreshToken(@Req() req: Request): Promise<JwtSignResultDto> {
-    const prevRefreshToken = req.cookies['refresh_token'];
+    const prevRefreshToken = req.cookies?.['refresh_token'];
     if (!prevRefreshToken) {
       throw new BadRequestException(
         AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST,
