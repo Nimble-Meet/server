@@ -32,7 +32,11 @@ import { createUserPayloadDto } from '../test/dummies/user-payload.dummy';
 describe('AuthController', () => {
   const getTestingModule = (userService: IAuthService) =>
     Test.createTestingModule({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+      ],
       providers: [
         {
           provide: IAuthService,

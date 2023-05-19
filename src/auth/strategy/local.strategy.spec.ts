@@ -20,7 +20,11 @@ describe('LocalStrategy', () => {
   const user = createUser({});
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+      ],
       providers: [
         {
           provide: IAuthService,

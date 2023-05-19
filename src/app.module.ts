@@ -21,7 +21,6 @@ import { AuthController } from './auth/auth.controller';
       }`,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: createTypeOrmOptions,
       inject: [ConfigService],
     }),
