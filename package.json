@@ -52,7 +52,6 @@
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
-    "@swc-node/jest": "^1.6.5",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.13",
     "@types/jest": "29.2.4",
@@ -75,7 +74,7 @@
   },
   "jest": {
     "transform": {
-      "^.+\\.(t|j)s$": "@swc-node/jest"
+      "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleFileExtensions": [
       "js",
@@ -84,13 +83,11 @@
     ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
     "collectCoverageFrom": [
       "**/*.(t|j)s",
-      "!**/*.module.(t|j)s",
-      "!src/test/*.(t|j)s"
+      "!./main.ts",
+      "!./app.module.ts",
+      "!./config/logger.config.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

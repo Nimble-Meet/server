@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { OauthProvider } from '../src/common/enums/oauth-provider.enum';
 import { DataSource } from 'typeorm';
-import { AuthErrorMessage } from '../src/auth/auth.error-message';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { AppModule } from '../app.module';
+import { OauthProvider } from '../common/enums/oauth-provider.enum';
+import { AuthErrorMessage } from './auth.error-message';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -212,8 +212,6 @@ describe('AuthController (e2e)', () => {
     };
 
     it('토큰 재발급 - 정상 호출', async () => {
-      console.log(cookie);
-      console.log(accessToken);
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .set('Cookie', cookie)

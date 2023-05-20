@@ -821,90 +821,6 @@
   dependencies:
     uuid "8.3.2"
 
-"@node-rs/xxhash-android-arm-eabi@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-android-arm-eabi/-/xxhash-android-arm-eabi-1.4.0.tgz#55ace4d3882686d1e379aaf613e1338d78f13fc8"
-  integrity sha512-JuZNqt5/znWkIGteikQdS+HT9S0JsMYi06S4yzU/sMKLCIPvD0MnCTXlYtuDcgRIKScCaepAsSQVomnAyLFNNA==
-
-"@node-rs/xxhash-android-arm64@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-android-arm64/-/xxhash-android-arm64-1.4.0.tgz#2290c53ceabda804afb4c45679613d833a6385a0"
-  integrity sha512-BZzQO5jlgsIr9HhiqTwZjYqlfVeZiu+7PaoAdNEOq+i/SjyAqv1jGSkyek4rBSAiodyNkXcbE0eQtomeN6a55w==
-
-"@node-rs/xxhash-darwin-arm64@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-darwin-arm64/-/xxhash-darwin-arm64-1.4.0.tgz#96df4f48b13deb6899e84ed0882bdbd0a4856f13"
-  integrity sha512-JlEAzTsQaqJaWVse/JP//6QKBIhzqzTlvNY4uEbi8TaZMfvDDhW//ClXM6CkSV799GJxAYPu1LXa4+OeBQpa7Q==
-
-"@node-rs/xxhash-darwin-x64@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-darwin-x64/-/xxhash-darwin-x64-1.4.0.tgz#9df3ca3a87354dd5386aadfa20ad032a299c2b8f"
-  integrity sha512-9ycVJfzLvw1wc6Tgq0giLkMn5nGOBawTeOA17t27dQFdY/scZPz583DO7w+eznMnlzUXwoLiloanUebRhy+piQ==
-
-"@node-rs/xxhash-freebsd-x64@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-freebsd-x64/-/xxhash-freebsd-x64-1.4.0.tgz#24b0c0bfd33429303688b4af78f9d323daa0fb5b"
-  integrity sha512-vFRDr6qA0gHWQDjuSxXcdzM4Ppk+5VebEhc76zkWrRVc6RG60fxLo5B4j6QwMwXGTYaG8HMv/nQhAgbnOCWWxQ==
-
-"@node-rs/xxhash-linux-arm-gnueabihf@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-linux-arm-gnueabihf/-/xxhash-linux-arm-gnueabihf-1.4.0.tgz#4c09f70cd39429fb1a52f3567085e949603d4817"
-  integrity sha512-0KS6y1caqbtPanos9XNMekWpozCHA6QSlQzaZyn9Hn+Z+mYpR5+NoWixefhp06jt59qF9+LkkF3C9fSEHYmq/w==
-
-"@node-rs/xxhash-linux-arm64-gnu@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-linux-arm64-gnu/-/xxhash-linux-arm64-gnu-1.4.0.tgz#e92d7026614506fb4db309977127fd8589fabd7c"
-  integrity sha512-QI97JK2qiQhVgRtUBMgA1ZjPLpwnz11SE2Mw1jryejmyH9EXKKiCyt2FweO6MVP7bEuMxcdajBho4pEL7s/QsA==
-
-"@node-rs/xxhash-linux-arm64-musl@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-linux-arm64-musl/-/xxhash-linux-arm64-musl-1.4.0.tgz#a8b16233a86c116e6af32a69278248d17b2d09e7"
-  integrity sha512-dtMid4OMkNBYGJkjoT1jdkENpV8m8MGp3lliDN8C+2znZUQM8KFRTXRkfaq4lgzu3Y2XeYzsLOoBsBd3Hgf7gA==
-
-"@node-rs/xxhash-linux-x64-gnu@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-linux-x64-gnu/-/xxhash-linux-x64-gnu-1.4.0.tgz#385ec91396ebaa2b73abf419be3971ec893dcbd1"
-  integrity sha512-OeOQL10cG62wL1IVoeC74xESmefHU7r3xiZMTP2hK5Dh3FdF2sa3x/Db9BcGXlaokg/lMGDxuTuzOLC2Rv/wlQ==
-
-"@node-rs/xxhash-linux-x64-musl@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-linux-x64-musl/-/xxhash-linux-x64-musl-1.4.0.tgz#715bb962502b0ec69e1fc19db22ac035c63d30c7"
-  integrity sha512-kZ8wNi5bH9b+ZpuPlSbFd6JXk8CKbfCvCPZ0Vk0IqLkzB6PihQflnZPM9r0QZ2jtFgyfWmpbFK4YxwX9YcyLog==
-
-"@node-rs/xxhash-win32-arm64-msvc@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-win32-arm64-msvc/-/xxhash-win32-arm64-msvc-1.4.0.tgz#4a3a4ebcb50c73e4309e429b28eb44dbf8f7f71f"
-  integrity sha512-Ggv66jlhQvj4XgQqNgl2JKQ7My/97PvPZi5jKbcS7t65wJC36J6XERQwRPdupO8UH63XfPqb7HJqrgmiz8tmlA==
-
-"@node-rs/xxhash-win32-ia32-msvc@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-win32-ia32-msvc/-/xxhash-win32-ia32-msvc-1.4.0.tgz#fdfdb43e41113a8baf15779ca53bb637d2e1bc8f"
-  integrity sha512-mYpF1+7unqKKGsPn7Y8X6SqP2Bc5BU5dsHBKhAGAuvrMg9W63zM+YWM8/fpNGfFlOrjiKRvXHZ96nrZyzoxeBw==
-
-"@node-rs/xxhash-win32-x64-msvc@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash-win32-x64-msvc/-/xxhash-win32-x64-msvc-1.4.0.tgz#aee714a4ae0121f3947f94139adf13f5b6d93d12"
-  integrity sha512-rKuqWHuQNlrfjIOkQW3oCBta/GUlyVoUkKB13aVr8uixOs/eneuDaYJx2h02FAAWlWCKADFnMxgDl0LVFBy53w==
-
-"@node-rs/xxhash@^1.3.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@node-rs/xxhash/-/xxhash-1.4.0.tgz#1e75850e0e530c9224e8e5ba4056d52e8868291b"
-  integrity sha512-UpSOParhMqbQ7hsYovN2e+uqvWqHJiCDvFl8gDzMcXgBY/PkI2zo2zhdRAZdz48c6/dke+0WjCKy90wDVQxS6g==
-  optionalDependencies:
-    "@node-rs/xxhash-android-arm-eabi" "1.4.0"
-    "@node-rs/xxhash-android-arm64" "1.4.0"
-    "@node-rs/xxhash-darwin-arm64" "1.4.0"
-    "@node-rs/xxhash-darwin-x64" "1.4.0"
-    "@node-rs/xxhash-freebsd-x64" "1.4.0"
-    "@node-rs/xxhash-linux-arm-gnueabihf" "1.4.0"
-    "@node-rs/xxhash-linux-arm64-gnu" "1.4.0"
-    "@node-rs/xxhash-linux-arm64-musl" "1.4.0"
-    "@node-rs/xxhash-linux-x64-gnu" "1.4.0"
-    "@node-rs/xxhash-linux-x64-musl" "1.4.0"
-    "@node-rs/xxhash-win32-arm64-msvc" "1.4.0"
-    "@node-rs/xxhash-win32-ia32-msvc" "1.4.0"
-    "@node-rs/xxhash-win32-x64-msvc" "1.4.0"
-
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz"
@@ -958,40 +874,6 @@
   version "1.2.5"
   resolved "https://registry.npmjs.org/@sqltools/formatter/-/formatter-1.2.5.tgz"
   integrity sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==
-
-"@swc-node/core@^1.10.3":
-  version "1.10.3"
-  resolved "https://registry.yarnpkg.com/@swc-node/core/-/core-1.10.3.tgz#dbc37c6d8d28ce59bd1bc55b300fb92bd3876152"
-  integrity sha512-8rpv1DXzsQjN/C8ZXuaTSmJ4M/lRr6geUlbOQ861DLC+sKWcEEvxRjK9cXQ28GserHuEcFDA3wlF9rD1YD0x+Q==
-
-"@swc-node/jest@^1.6.5":
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/@swc-node/jest/-/jest-1.6.5.tgz#912d69565e7e621eaee345f94db2ded466e861b7"
-  integrity sha512-u6Vpp3Z7Fz2HLbXpLR5uubC2trMZuLxmEMKGirkyLLbnNRXVr4UisuJfNMFheXab9fhRbZRpbBGL/wOFgUFmBA==
-  dependencies:
-    "@node-rs/xxhash" "^1.3.0"
-    "@swc-node/core" "^1.10.3"
-    "@swc-node/register" "^1.6.5"
-
-"@swc-node/register@^1.6.5":
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/@swc-node/register/-/register-1.6.5.tgz#6ff5f98605c143e161a6712b2046ce1e6216409a"
-  integrity sha512-yMxXlzthI0aMadYYKDhx7xvtjljB1qoD8Tv0djqSJ1ttTkoDxg6MhG5A5pIahiUT2neVrkWb9lCavoUwXAe/zQ==
-  dependencies:
-    "@swc-node/core" "^1.10.3"
-    "@swc-node/sourcemap-support" "^0.3.0"
-    colorette "^2.0.19"
-    debug "^4.3.4"
-    pirates "^4.0.5"
-    tslib "^2.5.0"
-
-"@swc-node/sourcemap-support@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@swc-node/sourcemap-support/-/sourcemap-support-0.3.0.tgz#e8a0d139bd3e8db39635f63fde43dbe6c39237cc"
-  integrity sha512-gqBJSmJMWomZFxlppaKea7NeAqFrDrrS0RMt24No92M3nJWcyI9YKGEQKl+EyJqZ5gh6w1s0cTklMHMzRwA1NA==
-  dependencies:
-    source-map-support "^0.5.21"
-    tslib "^2.5.0"
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -2079,11 +1961,6 @@ color-support@^1.1.2:
   version "1.1.3"
   resolved "https://registry.npmjs.org/color-support/-/color-support-1.1.3.tgz"
   integrity sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==
-
-colorette@^2.0.19:
-  version "2.0.20"
-  resolved "https://registry.yarnpkg.com/colorette/-/colorette-2.0.20.tgz#9eb793e6833067f7235902fcd3b09917a000a95a"
-  integrity sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==
 
 colorette@^2.0.7:
   version "2.0.19"
@@ -4534,7 +4411,7 @@ pino@^8.0.0:
     sonic-boom "^3.1.0"
     thread-stream "^2.0.0"
 
-pirates@^4.0.4, pirates@^4.0.5:
+pirates@^4.0.4:
   version "4.0.5"
   resolved "https://registry.npmjs.org/pirates/-/pirates-4.0.5.tgz"
   integrity sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==
@@ -4997,7 +4874,7 @@ source-map-support@0.5.13:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
 
-source-map-support@0.5.21, source-map-support@^0.5.20, source-map-support@^0.5.21, source-map-support@~0.5.20:
+source-map-support@0.5.21, source-map-support@^0.5.20, source-map-support@~0.5.20:
   version "0.5.21"
   resolved "https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.21.tgz"
   integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
