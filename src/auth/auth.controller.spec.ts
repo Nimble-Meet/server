@@ -149,7 +149,7 @@ describe('AuthController', () => {
     });
   });
 
-  describe('refreshToken', () => {
+  describe('rotateToken', () => {
     let authController: AuthController;
     const jwtToken = createJwtToken({});
     beforeEach(async () => {
@@ -169,7 +169,7 @@ describe('AuthController', () => {
       const request = instance(MockRequest);
 
       // when
-      const jwtSignResultDto = await authController.refreshToken(request);
+      const jwtSignResultDto = await authController.rotateToken(request);
 
       // then
       expect(jwtSignResultDto.userId).toEqual(USER_ID);
@@ -188,7 +188,7 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refreshToken(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new BadRequestException(AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST),
       );
     });
@@ -202,7 +202,7 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refreshToken(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new BadRequestException(AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST),
       );
     });
@@ -218,7 +218,7 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refreshToken(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new UnauthorizedException(AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN),
       );
     });
@@ -236,7 +236,7 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refreshToken(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN),
       );
     });
