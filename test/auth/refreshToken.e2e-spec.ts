@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 describe('/api/auth/refresh (POST)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -19,7 +19,9 @@ describe('/api/auth/refresh (POST)', () => {
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
     await app.init();
+  });
 
+  beforeEach(async () => {
     await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({

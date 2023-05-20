@@ -10,7 +10,7 @@ import { encryptPasswordInSha256 } from './auth-e2e.util';
 describe('/api/auth/signup (POST)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -28,8 +28,8 @@ describe('/api/auth/signup (POST)', () => {
     await app.close();
   });
 
-  it('회원 가입 - 정상 호출', () => {
-    return request(app.getHttpServer())
+  it('회원 가입 - 정상 호출', async () => {
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@google.com',
@@ -44,8 +44,8 @@ describe('/api/auth/signup (POST)', () => {
       });
   });
 
-  it('회원 가입 - 이메일 형식 위반 시 BadRequest 에러', () => {
-    return request(app.getHttpServer())
+  it('회원 가입 - 이메일 형식 위반 시 BadRequest 에러', async () => {
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'abcdefg',
@@ -55,8 +55,8 @@ describe('/api/auth/signup (POST)', () => {
       .expect(HttpStatus.BAD_REQUEST);
   });
 
-  it('회원 가입 - 비밀번호 형식 위반 시 BadRequest 에러', () => {
-    return request(app.getHttpServer())
+  it('회원 가입 - 비밀번호 형식 위반 시 BadRequest 에러', async () => {
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@gmail.com',
@@ -71,8 +71,8 @@ describe('/api/auth/signup (POST)', () => {
       });
   });
 
-  it('회원 가입 - 이미 존재하는 이메일로 가입 시 Conflict 에러', () => {
-    request(app.getHttpServer())
+  it('회원 가입 - 이미 존재하는 이메일로 가입 시 Conflict 에러', async () => {
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@gmail.com',
@@ -80,7 +80,7 @@ describe('/api/auth/signup (POST)', () => {
         nickname: 'user1',
       });
 
-    request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@gmail.com',
@@ -93,8 +93,8 @@ describe('/api/auth/signup (POST)', () => {
       });
   });
 
-  it('회원 가입 - 이미 존재하는 닉네임으로 가입 시 Conflict 에러', () => {
-    request(app.getHttpServer())
+  it('회원 가입 - 이미 존재하는 닉네임으로 가입 시 Conflict 에러', async () => {
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user@gmail.com',
@@ -102,7 +102,7 @@ describe('/api/auth/signup (POST)', () => {
         nickname: 'username',
       });
 
-    request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
         email: 'user2@gmail.com',

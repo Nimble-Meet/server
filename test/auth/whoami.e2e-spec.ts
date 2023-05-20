@@ -10,7 +10,7 @@ import { OauthProvider } from '../../src/common/enums/oauth-provider.enum';
 describe('/api/auth/whoami (GET)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -18,7 +18,9 @@ describe('/api/auth/whoami (GET)', () => {
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
     await app.init();
+  });
 
+  beforeEach(async () => {
     await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
