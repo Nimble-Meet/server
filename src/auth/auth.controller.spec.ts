@@ -7,7 +7,11 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import * as crypto from 'crypto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthErrorMessage } from './auth.error-message';
 import { Request } from 'express';
 import {
@@ -200,6 +204,40 @@ describe('AuthController', () => {
       // then
       await expect(authController.refreshToken(request)).rejects.toThrow(
         new BadRequestException(AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST),
+      );
+    });
+
+    it('access token이 유효하지 있으면 UnauthorizedException 반환', async () => {
+      // given
+      const MockRequest: Request = imock(MockPropertyPolicy.StubAsProperty);
+      when(MockRequest.cookies).thenReturn({ refresh_token: REFRESH_TOKEN });
+      when(MockRequest.headers).thenReturn({
+        authorization: `Bearer invalid_access_token`,
+      });
+      const request = instance(MockRequest);
+
+      // when
+      // then
+      await expect(authController.refreshToken(request)).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN),
+      );
+    });
+
+    it('refresh token이 유효하지 있으면 UnauthorizedException 반환', async () => {
+      // given
+      const MockRequest: Request = imock(MockPropertyPolicy.StubAsProperty);
+      when(MockRequest.cookies).thenReturn({
+        refresh_token: 'invalid_refresh_token',
+      });
+      when(MockRequest.headers).thenReturn({
+        authorization: `Bearer ${ACCESS_TOKEN}`,
+      });
+      const request = instance(MockRequest);
+
+      // when
+      // then
+      await expect(authController.refreshToken(request)).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN),
       );
     });
   });
