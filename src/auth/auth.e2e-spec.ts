@@ -34,6 +34,36 @@ describe('AuthController (e2e)', () => {
   const encryptPasswordInSha256 = (password: string): string =>
     crypto.createHash('sha256').update(password).digest('hex');
 
+  let accessToken: string;
+  let cookie: string[];
+
+  function signup(email, password, nickname) {
+    return request(app.getHttpServer())
+      .post('/api/auth/signup')
+      .send({
+        email,
+        password: encryptPasswordInSha256(password),
+        nickname,
+      });
+  }
+
+  const login = async (email, password) => {
+    const loginResponse = await request(app.getHttpServer())
+      .post('/api/auth/login/local')
+      .send({
+        email,
+        password: encryptPasswordInSha256(password),
+      });
+
+    if (loginResponse.error) {
+      console.error(loginResponse.body);
+      throw loginResponse.error;
+    }
+
+    accessToken = loginResponse.body.accessToken;
+    cookie = loginResponse.get('Set-Cookie');
+  };
+
   describe('/api/auth/signup (POST)', () => {
     it('회원 가입 - 정상 호출', async () => {
       await request(app.getHttpServer())
@@ -78,7 +108,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('회원 가입 - 이미 존재하는 이메일로 가입 시 Conflict 에러', async () => {
+    it('회원 가입 - 이미 존재하는 이메일이면 Conflict 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/signup')
         .send({
@@ -102,7 +132,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('회원 가입 - 이미 존재하는 닉네임으로 가입 시 Conflict 에러', async () => {
+    it('회원 가입 - 이미 존재하는 닉네임이면 Conflict 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/signup')
         .send({
@@ -129,13 +159,7 @@ describe('AuthController (e2e)', () => {
 
   describe('/api/auth/login/local (POST)', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user@google.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        });
+      await signup('user@google.com', 'password', 'username');
     });
 
     it('로컬 로그인 - 정상 호출', async () => {
@@ -152,7 +176,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('로컬 로그인 - 존재하지 않는 이메일인 경우 Unauthorized 에러', async () => {
+    it('로컬 로그인 - 존재하지 않는 이메일이면 Unauthorized 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login/local')
         .send({
@@ -165,7 +189,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('로컬 로그인 - 비밀번호가 맞지 않는 경우 Unauthorized 에러', async () => {
+    it('로컬 로그인 - 비밀번호가 맞지 않으면 Unauthorized 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login/local')
         .send({
@@ -181,35 +205,9 @@ describe('AuthController (e2e)', () => {
 
   describe('/api/auth/refresh (POST)', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user@google.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        });
-      await login();
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
     });
-
-    let accessToken: string;
-    let cookie: string[];
-
-    const login = async () => {
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login/local')
-        .send({
-          email: 'user@google.com',
-          password: encryptPasswordInSha256('password'),
-        });
-
-      if (loginResponse.error) {
-        console.error(loginResponse.body);
-        throw loginResponse.error;
-      }
-
-      accessToken = loginResponse.body.accessToken;
-      cookie = loginResponse.get('Set-Cookie');
-    };
 
     it('토큰 재발급 - 정상 호출', async () => {
       await request(app.getHttpServer())
@@ -223,8 +221,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('토큰 재발급 - access token 누락', async () => {
-      await login();
+    it('토큰 재발급 - access token 누락 시 BAD_REQUEST 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .set('Cookie', cookie)
@@ -236,8 +233,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('토큰 재발급 - refresh token 누락', async () => {
-      await login();
+    it('토큰 재발급 - refresh token 누락 시 BAD_REQUEST 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -249,8 +245,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('토큰 재발급 - 잘못된 refresh token', async () => {
-      await login();
+    it('토큰 재발급 - 유효하지 않은 refresh token이면 UNAUTHORIZED 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .set('Cookie', ['refresh_token=invalidToken'])
@@ -261,8 +256,7 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('토큰 재발급 - 잘못된 access token', async () => {
-      await login();
+    it('토큰 재발급 - 유효하지 않은 access token이면 UNAUTHORIZED 에러', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/refresh')
         .set('Cookie', cookie)
@@ -274,9 +268,7 @@ describe('AuthController (e2e)', () => {
           );
         });
     });
-    it('토큰 재발급 - 만료된 refresh token', async () => {
-      await login();
-
+    it('토큰 재발급 - 만료된 refresh token이면 UNAUTHORIZED 에러', async () => {
       const configService = app.get(ConfigService);
       // 만료 시간이 지난 시점으로 설정
       const mockDateNow = jest
@@ -303,35 +295,11 @@ describe('AuthController (e2e)', () => {
 
   describe('/api/auth/whoami (GET)', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user@google.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        });
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
     });
 
-    let accessToken: string;
-
-    const login = async () => {
-      const loginResponse = await request(app.getHttpServer())
-        .post('/api/auth/login/local')
-        .send({
-          email: 'user@google.com',
-          password: encryptPasswordInSha256('password'),
-        });
-
-      if (loginResponse.error) {
-        console.error(loginResponse.body);
-        throw loginResponse.error;
-      }
-
-      accessToken = loginResponse.body.accessToken;
-    };
-
     it('사용자 정보 확인 - 정상 호출', async () => {
-      await login();
       await request(app.getHttpServer())
         .get('/api/auth/whoami')
         .set('Authorization', `Bearer ${accessToken}`)
@@ -343,15 +311,13 @@ describe('AuthController (e2e)', () => {
         });
     });
 
-    it('사용자 정보 확인 - access token 누락', async () => {
-      await login();
+    it('사용자 정보 확인 - access token 누락 시 UNAUTHORIZED 에러', async () => {
       await request(app.getHttpServer())
         .get('/api/auth/whoami')
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
-    it('사용자 정보 확인 - 유효하지 않은 access token', async () => {
-      await login();
+    it('사용자 정보 확인 - 유효하지 않은 access token이면 UNAUTHORIZED 에러', async () => {
       await request(app.getHttpServer())
         .get('/api/auth/whoami')
         .set('Authorization', `Bearer invalid-token`)
