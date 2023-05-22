@@ -14,4 +14,9 @@ export class WhoamiUnauthorizedResponseDto implements IErrorResponseBody {
     description: '에러 메시지',
   })
   message: string;
+
+  constructor(statusCode: number, message: string) {
+    this.statusCode = statusCode;
+    this.message = message;
+  }
 }
