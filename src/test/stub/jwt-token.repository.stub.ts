@@ -5,7 +5,7 @@ export class JwtTokenRepositoryStub implements IJwtTokenRepository {
   private readonly jwtTokenList: JwtToken[];
 
   constructor(jwtTokenList: readonly JwtToken[]) {
-    this.jwtTokenList = jwtTokenList.map((token) => JwtToken.clone(token));
+    this.jwtTokenList = jwtTokenList.map((token) => token.clone());
   }
 
   async findTokenIdByUserId(userId: number): Promise<number> {

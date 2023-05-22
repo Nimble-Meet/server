@@ -11,7 +11,7 @@ import {
 @Entity()
 export class JwtToken {
   @PrimaryGeneratedColumn()
-  id: number;
+  id?: number;
 
   @Column({ unique: true, nullable: false })
   @IsNotEmpty()
@@ -30,28 +30,50 @@ export class JwtToken {
     nullable: false,
   })
   @JoinColumn()
-  user: User;
+  user!: User;
 
   @Column({ nullable: false, unique: true })
   @IsNumber()
   userId: number;
 
-  private constructor(partial: Partial<JwtToken>) {
-    Object.assign(this, partial);
+  private constructor(
+    accessToken: string,
+    refreshToken: string,
+    expiresAt: Date,
+    userId: number,
+    id?: number,
+  ) {
+    this.id = id;
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.expiresAt = expiresAt;
+    this.userId = userId;
   }
 
-  static create(createJwtTokenInfo: {
+  static create({
+    id,
+    accessToken,
+    refreshToken,
+    expiresAt,
+    userId,
+  }: {
     id?: number;
     accessToken: string;
     refreshToken: string;
     expiresAt: Date;
     userId: number;
   }): JwtToken {
-    return new JwtToken(createJwtTokenInfo);
+    return new JwtToken(accessToken, refreshToken, expiresAt, userId, id);
   }
 
-  static clone(jwtToken: JwtToken): JwtToken {
-    return new JwtToken(jwtToken);
+  clone(): JwtToken {
+    return new JwtToken(
+      this.accessToken,
+      this.refreshToken,
+      this.expiresAt,
+      this.userId,
+      this.id,
+    );
   }
 
   equalsAccessToken(accessToken: string): boolean {
