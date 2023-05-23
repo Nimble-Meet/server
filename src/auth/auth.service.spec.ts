@@ -38,14 +38,13 @@ describe('AuthService', () => {
   ) =>
     Test.createTestingModule({
       imports: [
-        JwtModule.registerAsync({
-          imports: [ConfigModule],
-          useFactory: createJwtOptions,
-          inject: [ConfigService],
-        }),
         ConfigModule.forRoot({
           isGlobal: true,
-          envFilePath: '.env',
+          envFilePath: '.env.test',
+        }),
+        JwtModule.registerAsync({
+          useFactory: createJwtOptions,
+          inject: [ConfigService],
         }),
       ],
       providers: [
@@ -298,22 +297,23 @@ describe('AuthService', () => {
     let tokenService: TokenService;
     let configService: ConfigService;
     beforeAll(async () => {
+      // tokenService, configService를 생성하기 위한 테스트 모듈
       const module = await Test.createTestingModule({
         imports: [
-          JwtModule.registerAsync({
-            imports: [ConfigModule],
-            useFactory: createJwtOptions,
-            inject: [ConfigService],
-          }),
           ConfigModule.forRoot({
             isGlobal: true,
-            envFilePath: '.env',
+            envFilePath: '.env.test',
+          }),
+          JwtModule.registerAsync({
+            useFactory: createJwtOptions,
+            inject: [ConfigService],
           }),
         ],
         providers: [JwtService, ConfigService, TokenService],
       }).compile();
 
       tokenService = module.get<TokenService>(TokenService);
+      configService = module.get<ConfigService>(ConfigService);
     });
 
     it('유효한 accessToken과 refreshToken을 사용하여 토큰 갱신을 요청하면, 새로운 토큰을 담은 JwtToken 객체 반환', async () => {
@@ -447,8 +447,7 @@ describe('AuthService', () => {
         .mockImplementation(() =>
           new Date(
             new Date().getTime() +
-              configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000 +
-              10000,
+              configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000,
           ).valueOf(),
         );
 

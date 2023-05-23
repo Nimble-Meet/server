@@ -119,7 +119,7 @@ export class AuthController {
   })
   @UseInterceptors(SetRTCookieInterceptor)
   @ApiBearerAuth('access-token')
-  async refresh(@Req() req: Request): Promise<JwtSignResultDto> {
+  async rotateToken(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];
     if (!prevRefreshToken) {
       throw new BadRequestException(

@@ -29,13 +29,6 @@ export class UserRepositoryStub implements IUserRepository {
   }
 
   async save(user: User): Promise<User> {
-    const findedUserIndex = this.userList.findIndex(
-      (token) => token.id === user.id,
-    );
-    if (findedUserIndex > 0) {
-      this.userList.splice(findedUserIndex, 1);
-    }
-
     this.userList.push(user);
     return Promise.resolve(User.create(user));
   }

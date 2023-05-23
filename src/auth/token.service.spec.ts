@@ -11,9 +11,11 @@ describe('TokenService', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: '.env.test',
+        }),
         JwtModule.registerAsync({
-          imports: [ConfigModule],
           useFactory: createJwtOptions,
           inject: [ConfigService],
         }),

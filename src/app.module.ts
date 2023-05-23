@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
-import { AppService } from './app.service';
 import { createTypeOrmOptions } from './config/typeorm.config';
 import { loggerOptions } from './config/logger.config';
 import { AuthController } from './auth/auth.controller';
@@ -15,9 +14,13 @@ import { AuthController } from './auth/auth.controller';
 @Module({
   imports: [
     LoggerModule.forRoot(loggerOptions),
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env${
+        process.env.NODE_ENV ? '.' + process.env.NODE_ENV : ''
+      }`,
+    }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: createTypeOrmOptions,
       inject: [ConfigService],
     }),
@@ -25,7 +28,6 @@ import { AuthController } from './auth/auth.controller';
   ],
   controllers: [AuthController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

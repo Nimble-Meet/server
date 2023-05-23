@@ -17,8 +17,7 @@ describe('JwtStrategy', () => {
     const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: '.env',
+          envFilePath: '.env.test',
         }),
       ],
       providers: [

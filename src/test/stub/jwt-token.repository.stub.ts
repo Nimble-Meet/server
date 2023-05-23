@@ -13,19 +13,7 @@ export class JwtTokenRepositoryStub implements IJwtTokenRepository {
     return Promise.resolve(this.jwtTokenList.find(isUserIdEquals)?.id);
   }
 
-  async existsByTokenId(tokenId: number): Promise<boolean> {
-    const isIdEquals = (token: JwtToken) => token.id === tokenId;
-    return Promise.resolve(this.jwtTokenList.some(isIdEquals));
-  }
-
   async save(jwtToken: JwtToken): Promise<JwtToken> {
-    const findedJwtTokenIndex = this.jwtTokenList.findIndex(
-      (token) => token.id === jwtToken.id,
-    );
-    if (findedJwtTokenIndex > 0) {
-      this.jwtTokenList.splice(findedJwtTokenIndex, 1);
-    }
-
     this.jwtTokenList.push(jwtToken);
     return Promise.resolve(jwtToken);
   }

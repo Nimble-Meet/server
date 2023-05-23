@@ -7,7 +7,11 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import * as crypto from 'crypto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthErrorMessage } from './auth.error-message';
 import { Request } from 'express';
 import {
@@ -32,7 +36,11 @@ import { createUserPayloadDto } from '../test/dummies/user-payload.dummy';
 describe('AuthController', () => {
   const getTestingModule = (userService: IAuthService) =>
     Test.createTestingModule({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule.forRoot({
+          envFilePath: '.env.test',
+        }),
+      ],
       providers: [
         {
           provide: IAuthService,
@@ -141,7 +149,7 @@ describe('AuthController', () => {
     });
   });
 
-  describe('refresh', () => {
+  describe('rotateToken', () => {
     let authController: AuthController;
     const jwtToken = createJwtToken({});
     beforeEach(async () => {
@@ -161,7 +169,7 @@ describe('AuthController', () => {
       const request = instance(MockRequest);
 
       // when
-      const jwtSignResultDto = await authController.refresh(request);
+      const jwtSignResultDto = await authController.rotateToken(request);
 
       // then
       expect(jwtSignResultDto.userId).toEqual(USER_ID);
@@ -180,7 +188,7 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refresh(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new BadRequestException(AuthErrorMessage.REFRESH_TOKEN_DOES_NOT_EXIST),
       );
     });
@@ -194,8 +202,42 @@ describe('AuthController', () => {
 
       // when
       // then
-      await expect(authController.refresh(request)).rejects.toThrow(
+      await expect(authController.rotateToken(request)).rejects.toThrow(
         new BadRequestException(AuthErrorMessage.ACCESS_TOKEN_DOES_NOT_EXIST),
+      );
+    });
+
+    it('access token이 유효하지 있으면 UnauthorizedException 반환', async () => {
+      // given
+      const MockRequest: Request = imock(MockPropertyPolicy.StubAsProperty);
+      when(MockRequest.cookies).thenReturn({ refresh_token: REFRESH_TOKEN });
+      when(MockRequest.headers).thenReturn({
+        authorization: `Bearer invalid_access_token`,
+      });
+      const request = instance(MockRequest);
+
+      // when
+      // then
+      await expect(authController.rotateToken(request)).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.INCONSISTENT_ACCESS_TOKEN),
+      );
+    });
+
+    it('refresh token이 유효하지 있으면 UnauthorizedException 반환', async () => {
+      // given
+      const MockRequest: Request = imock(MockPropertyPolicy.StubAsProperty);
+      when(MockRequest.cookies).thenReturn({
+        refresh_token: 'invalid_refresh_token',
+      });
+      when(MockRequest.headers).thenReturn({
+        authorization: `Bearer ${ACCESS_TOKEN}`,
+      });
+      const request = instance(MockRequest);
+
+      // when
+      // then
+      await expect(authController.rotateToken(request)).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.INVALID_REFRESH_TOKEN),
       );
     });
   });
