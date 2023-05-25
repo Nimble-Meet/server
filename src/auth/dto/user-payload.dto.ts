@@ -23,6 +23,16 @@ export class UserPayloadDto {
   }
 
   static from(user: User) {
-    return UserPayloadDto.create(user);
+    if (!user.id) {
+      throw new TypeError(
+        'user id가 falsy 합니다. UserPayloadDto 생성을 위해서는 user id가 정의되어 있어야 합니다.',
+      );
+    }
+    return UserPayloadDto.create({
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      providerType: user.providerType,
+    });
   }
 }

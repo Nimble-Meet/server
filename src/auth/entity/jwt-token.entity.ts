@@ -30,7 +30,7 @@ export class JwtToken {
     nullable: false,
   })
   @JoinColumn()
-  user!: User;
+  user?: User;
 
   @Column({ nullable: false, unique: true })
   @IsNumber()

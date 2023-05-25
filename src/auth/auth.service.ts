@@ -17,6 +17,7 @@ import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
+import { OauthProvider } from '../common/enums/oauth-provider.enum';
 
 @Injectable()
 export class AuthServiceImpl implements IAuthService {
@@ -50,6 +51,7 @@ export class AuthServiceImpl implements IAuthService {
     const user = User.create({
       ...localSignupDto,
       password: encryptedPassword.getPassword(),
+      providerType: OauthProvider.LOCAL,
     });
 
     return await this.userRepository.save(user);
