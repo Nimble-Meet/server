@@ -14,10 +14,12 @@ import { UserPayloadDto } from '../dto/user-payload.dto';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from '../auth.error-message';
+import { createJwtToken } from '../../test/dummies/jwt-token.dummy';
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
   const user = createUser({});
+  const jwtToken = createJwtToken({});
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [
@@ -28,7 +30,7 @@ describe('LocalStrategy', () => {
       providers: [
         {
           provide: IAuthService,
-          useValue: new AuthServiceStub(user, null),
+          useValue: new AuthServiceStub(user, jwtToken),
         },
         LocalStrategy,
       ],
