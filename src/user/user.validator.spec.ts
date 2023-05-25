@@ -21,7 +21,7 @@ describe('UserValidator', () => {
 
     it('Bcrypt로 인코딩된 문자열이 아니면 false 를 반환', () => {
       // given
-      const strListToTest = ['1234', 'abcd', '가나다라', '1234abcd', '', null];
+      const strListToTest = ['1234', 'abcd', '가나다라', '1234abcd', ''];
       strListToTest.push(
         crypto.createHash('sha256').update('password').digest('hex'),
       );

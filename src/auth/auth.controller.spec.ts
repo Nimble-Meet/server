@@ -58,11 +58,12 @@ describe('AuthController', () => {
       email: 'existing@email.com',
       nickname: 'existing_user',
     });
+    const jwtToken = createJwtToken({});
 
     let authController: AuthController;
     beforeEach(async () => {
       const module = await getTestingModule(
-        new AuthServiceStub(existingUser, null),
+        new AuthServiceStub(existingUser, jwtToken),
       );
       authController = module.get<AuthController>(AuthController);
     });
@@ -129,9 +130,12 @@ describe('AuthController', () => {
 
   describe('login', () => {
     const user = createUser({});
+    const jwtToken = createJwtToken({});
     let authController: AuthController;
     beforeEach(async () => {
-      const module = await getTestingModule(new AuthServiceStub(user, null));
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
       authController = module.get<AuthController>(AuthController);
     });
 
@@ -151,10 +155,11 @@ describe('AuthController', () => {
 
   describe('rotateToken', () => {
     let authController: AuthController;
+    const user = createUser({});
     const jwtToken = createJwtToken({});
     beforeEach(async () => {
       const module = await getTestingModule(
-        new AuthServiceStub(null, jwtToken),
+        new AuthServiceStub(user, jwtToken),
       );
       authController = module.get<AuthController>(AuthController);
     });
@@ -244,8 +249,12 @@ describe('AuthController', () => {
 
   describe('whoami', () => {
     let authController: AuthController;
+    const user = createUser({});
+    const jwtToken = createJwtToken({});
     beforeEach(async () => {
-      const module = await getTestingModule(new AuthServiceStub(null, null));
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
       authController = module.get<AuthController>(AuthController);
     });
 
