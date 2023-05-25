@@ -323,5 +323,26 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer invalid-token`)
         .expect(HttpStatus.UNAUTHORIZED);
     });
+
+    it('사용자 정보 확인 - 만료된 access token이면 UNAUTHORIZED 에러', async () => {
+      const configService = app.get(ConfigService);
+      // 만료 시간이 지난 시점으로 설정
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      mockDateNow.mockRestore();
+    });
   });
 });
