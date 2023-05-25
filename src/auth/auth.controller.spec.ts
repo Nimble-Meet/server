@@ -82,15 +82,13 @@ describe('AuthController', () => {
       );
 
       // then
-      expect(
-        userResponseDto.equals(
-          UserResponseDto.create({
-            email: 'user@email.com',
-            nickname: 'nickname',
-            providerType: OauthProvider.LOCAL,
-          }),
-        ),
-      ).toBe(true);
+      expect(userResponseDto).toEqual(
+        UserResponseDto.create({
+          email: 'user@email.com',
+          nickname: 'nickname',
+          providerType: OauthProvider.LOCAL,
+        }),
+      );
     });
 
     it('이미 존재하는 이메일로 회원가입을 요청하면 ConflictException 반환', async () => {
@@ -266,15 +264,13 @@ describe('AuthController', () => {
       const userResponseDto = await authController.whoami(userPayloadDto);
 
       // then
-      expect(
-        userResponseDto.equals(
-          UserResponseDto.create({
-            email: EMAIL,
-            nickname: NICKNAME,
-            providerType: OauthProvider.LOCAL,
-          }),
-        ),
-      ).toBe(true);
+      expect(userResponseDto).toEqual(
+        UserResponseDto.create({
+          email: EMAIL,
+          nickname: NICKNAME,
+          providerType: OauthProvider.LOCAL,
+        }),
+      );
     });
   });
 });

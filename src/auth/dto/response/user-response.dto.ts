@@ -55,12 +55,4 @@ export class UserResponseDto {
   static fromUserPayload(userPayload: UserPayloadDto) {
     return UserResponseDto.create(userPayload);
   }
-
-  equals(userResponseDto: UserResponseDto) {
-    return (
-      this.email === userResponseDto.email &&
-      this.nickname === userResponseDto.nickname &&
-      this.providerType === userResponseDto.providerType
-    );
-  }
 }
