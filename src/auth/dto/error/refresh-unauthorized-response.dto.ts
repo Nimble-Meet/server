@@ -8,23 +8,17 @@ export class RefreshUnauthorizedResponseDto implements IErrorResponseBody {
     example: HttpStatus.UNAUTHORIZED,
     description: 'HTTP 상태 코드',
   })
-  statusCode: number;
+  statusCode!: number;
 
   @ApiProperty({
     example: AuthErrorMessage.EXPIRED_REFRESH_TOKEN,
     description: '에러 메시지',
   })
-  message: string;
+  message!: string;
 
   @ApiProperty({
     example: 'Unauthorized',
     description: '에러 종류',
   })
-  error: string;
-
-  constructor(statusCode: number, message: string, error: string) {
-    this.statusCode = statusCode;
-    this.message = message;
-    this.error = error;
-  }
+  error!: string;
 }
