@@ -137,7 +137,7 @@ describe('AuthController', () => {
 
     it('user payload로 로그인하면 jwt token 관련 정보를 반환', async () => {
       // given
-      const userPayloadDto = createUserPayloadDto();
+      const userPayloadDto = createUserPayloadDto({});
 
       // when
       const jwtSignResultDto = await authController.login(userPayloadDto);

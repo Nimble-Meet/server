@@ -15,4 +15,5 @@ export const createUser = ({
   nickname = NICKNAME,
   password = ENCRYPTED_PASSWORD.getPassword(),
   providerType = PROVIDER_TYPE,
-}) => User.create({ id, email, nickname, password, providerType });
+}: Partial<User>) =>
+  User.create({ id, email, nickname, password, providerType });
