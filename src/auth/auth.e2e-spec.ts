@@ -37,7 +37,7 @@ describe('AuthController (e2e)', () => {
   let accessToken: string;
   let cookie: string[];
 
-  function signup(email, password, nickname) {
+  function signup(email: string, password: string, nickname: string) {
     return request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({
@@ -47,7 +47,7 @@ describe('AuthController (e2e)', () => {
       });
   }
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     const loginResponse = await request(app.getHttpServer())
       .post('/api/auth/login/local')
       .send({

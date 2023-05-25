@@ -5,7 +5,7 @@ export class JwtPayloadDto {
   @IsNotEmpty()
   readonly userId: number;
 
-  private constructor(userId) {
+  private constructor(userId: number) {
     this.userId = userId;
   }
 
