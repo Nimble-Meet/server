@@ -7,11 +7,11 @@ export class WhoamiUnauthorizedResponseDto implements IErrorResponseBody {
     example: HttpStatus.UNAUTHORIZED,
     description: 'HTTP 상태 코드',
   })
-  statusCode: number;
+  statusCode!: number;
 
   @ApiProperty({
     example: 'Unauthorized',
     description: '에러 메시지',
   })
-  message: string;
+  message!: string;
 }

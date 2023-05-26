@@ -5,12 +5,12 @@ export class JwtTokenRepositoryStub implements IJwtTokenRepository {
   private readonly jwtTokenList: JwtToken[];
 
   constructor(jwtTokenList: readonly JwtToken[]) {
-    this.jwtTokenList = jwtTokenList.map((token) => JwtToken.clone(token));
+    this.jwtTokenList = jwtTokenList.map((token) => token.clone());
   }
 
-  async findTokenIdByUserId(userId: number): Promise<number> {
+  async findTokenIdByUserId(userId: number): Promise<number | null> {
     const isUserIdEquals = (token: JwtToken) => token.userId === userId;
-    return Promise.resolve(this.jwtTokenList.find(isUserIdEquals)?.id);
+    return Promise.resolve(this.jwtTokenList.find(isUserIdEquals)?.id || null);
   }
 
   async save(jwtToken: JwtToken): Promise<JwtToken> {
@@ -18,9 +18,11 @@ export class JwtTokenRepositoryStub implements IJwtTokenRepository {
     return Promise.resolve(jwtToken);
   }
 
-  async findOneByRefreshToken(refreshToken: string): Promise<JwtToken> {
+  async findOneByRefreshToken(refreshToken: string): Promise<JwtToken | null> {
     const isRefreshTokenEquals = (token: JwtToken) =>
       token.refreshToken === refreshToken;
-    return Promise.resolve(this.jwtTokenList.find(isRefreshTokenEquals));
+    return Promise.resolve(
+      this.jwtTokenList.find(isRefreshTokenEquals) || null,
+    );
   }
 }

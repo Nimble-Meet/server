@@ -16,7 +16,7 @@ export class IsBcryptEncryptedConstraint
   implements ValidatorConstraintInterface
 {
   validate(stringToTest: string) {
-    const regexExp = /^[a-zA-Z0-9\$\.\/]{60}$/gi;
+    const regexExp = /^[a-zA-Z0-9$.\/]{60}$/gi;
     return regexExp.test(stringToTest);
   }
 

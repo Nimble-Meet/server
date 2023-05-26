@@ -16,15 +16,15 @@ export class JwtTokenRepositoryImpl
     );
   }
 
-  async findOneByRefreshToken(refreshToken: string): Promise<JwtToken> {
+  async findOneByRefreshToken(refreshToken: string): Promise<JwtToken | null> {
     return await this.findOne({ where: { refreshToken } });
   }
 
-  async findTokenIdByUserId(userId: number): Promise<number> {
+  async findTokenIdByUserId(userId: number): Promise<number | null> {
     const findedToken = await this.findOne({
       where: { userId },
       select: ['id'],
     });
-    return findedToken?.id;
+    return findedToken?.id || null;
   }
 }

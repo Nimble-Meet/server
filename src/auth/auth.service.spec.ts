@@ -186,14 +186,7 @@ describe('AuthService', () => {
   });
 
   describe('jwtSign', () => {
-    const userList = Object.freeze([
-      User.create({
-        id: USER_ID,
-        email: EMAIL,
-        nickname: NICKNAME,
-        password: ENCRYPTED_PASSWORD.getPassword(),
-      }),
-    ]);
+    const userList = Object.freeze([createUser({})]);
     const JWT_TOKEN = Object.freeze(createJwtToken({}));
     const jwtTokenList = Object.freeze([JWT_TOKEN]);
 
@@ -285,14 +278,7 @@ describe('AuthService', () => {
   });
 
   describe('rotateRefreshToken', () => {
-    const userList = Object.freeze([
-      User.create({
-        id: USER_ID,
-        email: EMAIL,
-        nickname: NICKNAME,
-        password: ENCRYPTED_PASSWORD.getPassword(),
-      }),
-    ]);
+    const userList = Object.freeze([createUser({})]);
 
     let tokenService: TokenService;
     let configService: ConfigService;

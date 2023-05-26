@@ -20,13 +20,13 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id?: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @Column({ unique: true })
   @IsUserEmail()
@@ -45,23 +45,59 @@ export class User {
 
   @Column()
   @IsString()
-  providerId: string;
+  providerId?: string;
 
   @OneToOne(() => JwtToken, (jwtToken) => jwtToken.user)
   @JoinColumn()
-  jwtToken: JwtToken;
+  jwtToken?: JwtToken;
 
-  private constructor(partial: Partial<User>) {
-    Object.assign(this, partial);
+  private constructor(
+    email: string,
+    password: string,
+    nickname: string,
+    providerType: string,
+    id?: number,
+    providerId?: string,
+    createdAt?: Date,
+    updatedAt?: Date,
+  ) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+    this.nickname = nickname;
+    this.providerType = providerType;
+    this.providerId = providerId;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
-  static create(createUserInfo: {
+  static create({
+    id,
+    email,
+    password,
+    nickname,
+    providerType,
+    providerId,
+  }: {
     id?: number;
     email: string;
     password: string;
     nickname: string;
-    providerType?: string;
+    providerType: string;
     providerId?: string;
   }): User {
-    return new User(createUserInfo);
+    return new User(email, password, nickname, providerType, id, providerId);
+  }
+
+  clone(): User {
+    return new User(
+      this.email,
+      this.password,
+      this.nickname,
+      this.providerType,
+      this.id,
+      this.providerId,
+      this.createdAt,
+      this.updatedAt,
+    );
   }
 }

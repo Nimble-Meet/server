@@ -8,17 +8,17 @@ export class SignupConflictResponseDto implements IErrorResponseBody {
     example: HttpStatus.CONFLICT,
     description: 'HTTP 상태 코드',
   })
-  statusCode: number;
+  statusCode!: number;
 
   @ApiProperty({
     example: AuthErrorMessage.EMAIL_ALREADY_EXISTS,
     description: '에러 메시지',
   })
-  message: string;
+  message!: string;
 
   @ApiProperty({
     example: 'Conflict',
     description: '에러 종류',
   })
-  error: string;
+  error!: string;
 }

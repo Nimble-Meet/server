@@ -8,14 +8,14 @@ export class UserRepositoryStub implements IUserRepository {
     this.userList = userList.map((user) => User.create(user));
   }
 
-  async findOneById(id: number): Promise<User> {
+  async findOneById(id: number): Promise<User | null> {
     const isIdEquals = (user: User) => user.id === id;
-    return Promise.resolve(this.userList.find(isIdEquals));
+    return Promise.resolve(this.userList.find(isIdEquals) || null);
   }
 
-  async findOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<User | null> {
     const isEmailEquals = (user: User) => user.email === email;
-    return Promise.resolve(this.userList.find(isEmailEquals));
+    return Promise.resolve(this.userList.find(isEmailEquals) || null);
   }
 
   async existsByEmail(email: string): Promise<boolean> {
@@ -30,6 +30,6 @@ export class UserRepositoryStub implements IUserRepository {
 
   async save(user: User): Promise<User> {
     this.userList.push(user);
-    return Promise.resolve(User.create(user));
+    return Promise.resolve(user.clone());
   }
 }
