@@ -273,4 +273,33 @@ describe('AuthController', () => {
       );
     });
   });
+
+  describe('logout', () => {
+    let authController: AuthController;
+    const user = createUser({});
+    const jwtToken = createJwtToken({});
+    beforeEach(async () => {
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
+      authController = module.get<AuthController>(AuthController);
+    });
+
+    it('user paylod로 로그아웃을 요청하면 로그아웃된 유저 정보를 반환', async () => {
+      // given
+      const userPayloadDto = createUserPayloadDto({});
+
+      // when
+      const userResponseDto = await authController.logout(userPayloadDto);
+
+      // then
+      expect(userResponseDto).toEqual(
+        UserResponseDto.create({
+          email: EMAIL,
+          nickname: NICKNAME,
+          providerType: OauthProvider.LOCAL,
+        }),
+      );
+    });
+  });
 });

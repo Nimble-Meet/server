@@ -345,4 +345,108 @@ describe('AuthController (e2e)', () => {
       mockDateNow.mockRestore();
     });
   });
+
+  describe('/api/auth/whoami (GET)', () => {
+    beforeEach(async () => {
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
+    });
+
+    it('사용자 정보 확인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body.email).toEqual('user@google.com');
+          expect(res.body.nickname).toEqual('username');
+          expect(res.body.providerType).toEqual(OauthProvider.LOCAL);
+        });
+    });
+
+    it('사용자 정보 확인 - access token 누락 시 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 유효하지 않은 access token이면 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer invalid-token`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 만료된 access token이면 UNAUTHORIZED 에러', async () => {
+      const configService = app.get(ConfigService);
+      // 만료 시간이 지난 시점으로 설정
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      mockDateNow.mockRestore();
+    });
+  });
+
+  describe('/api/auth/logout (POST)', () => {
+    beforeEach(async () => {
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
+    });
+
+    it('로그아웃 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/logout')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          expect(res.headers?.['set-cookie']?.length).toBe(0);
+        });
+    });
+
+    it('사용자 정보 확인 - access token 누락 시 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 유효하지 않은 access token이면 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer invalid-token`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 만료된 access token이면 UNAUTHORIZED 에러', async () => {
+      const configService = app.get(ConfigService);
+      // 만료 시간이 지난 시점으로 설정
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      mockDateNow.mockRestore();
+    });
+  });
 });
