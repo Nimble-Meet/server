@@ -10,7 +10,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { RequestUser } from '../common/decorators/req-user.decorator';
 import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
 import { UserPayloadDto } from './dto/user-payload.dto';
@@ -26,6 +26,7 @@ import {
   BadRequestException,
   Get,
   Inject,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -158,6 +159,16 @@ export class AuthController {
   async whoami(
     @RequestUser() userPayload: UserPayloadDto,
   ): Promise<UserResponseDto> {
+    return UserResponseDto.fromUserPayload(userPayload);
+  }
+
+  @Post('logout')
+  @NeedLogin()
+  async logout(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<UserResponseDto> {
+    response.clearCookie('refresh_token');
     return UserResponseDto.fromUserPayload(userPayload);
   }
 }

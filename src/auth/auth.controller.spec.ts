@@ -13,17 +13,19 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthErrorMessage } from './auth.error-message';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import {
   imock,
   instance,
   MockPropertyPolicy,
+  verify,
   when,
 } from '@johanblumenberg/ts-mockito';
 import {
   createUser,
   EMAIL,
   NICKNAME,
+  PROVIDER_TYPE,
   USER_ID,
 } from '../test/dummies/user.dummy';
 import {
@@ -287,19 +289,27 @@ describe('AuthController', () => {
 
     it('user paylod로 로그아웃을 요청하면 로그아웃된 유저 정보를 반환', async () => {
       // given
+      const MockResponse: Response = imock(MockPropertyPolicy.StubAsProperty);
+      const response = instance(MockResponse);
+      when(MockResponse.clearCookie('refresh_token')).thenReturn(response);
+
       const userPayloadDto = createUserPayloadDto({});
 
       // when
-      const userResponseDto = await authController.logout(userPayloadDto);
+      const userResponseDto = await authController.logout(
+        userPayloadDto,
+        response,
+      );
 
       // then
       expect(userResponseDto).toEqual(
         UserResponseDto.create({
           email: EMAIL,
           nickname: NICKNAME,
-          providerType: OauthProvider.LOCAL,
+          providerType: PROVIDER_TYPE,
         }),
       );
+      verify(MockResponse.clearCookie('refresh_token')).once();
     });
   });
 });
