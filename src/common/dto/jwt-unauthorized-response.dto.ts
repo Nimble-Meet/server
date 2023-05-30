@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IErrorResponseBody } from 'src/common/interface/error-response-body.interface';
 
-export class WhoamiUnauthorizedResponseDto implements IErrorResponseBody {
+export class JwtUnauthorizedResponseDto implements IErrorResponseBody {
   @ApiProperty({
     example: HttpStatus.UNAUTHORIZED,
     description: 'HTTP 상태 코드',

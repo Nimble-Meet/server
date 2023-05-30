@@ -40,10 +40,10 @@ import { SignupConflictResponseDto } from './dto/error/signup-conflict-response.
 import { LoginUnauthorizedResponseDto } from './dto/error/login-unauthorized-response.dto';
 import { RefreshBadrequestResponseDto } from './dto/error/refresh-badrequest-response.dto';
 import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized-response.dto';
-import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
+import { JwtUnauthorizedResponseDto } from '../common/dto/jwt-unauthorized-response.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -153,7 +153,7 @@ export class AuthController {
   })
   @ApiUnauthorizedResponse({
     description: '인증 실패',
-    type: WhoamiUnauthorizedResponseDto,
+    type: JwtUnauthorizedResponseDto,
   })
   @NeedLogin()
   async whoami(
@@ -163,6 +163,17 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiOperation({
+    description: '쿠키에 담겨있는 refresh token을 삭제하여 로그아웃 처리',
+  })
+  @ApiCreatedResponse({
+    description: '로그아웃 성공',
+    type: UserResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 실패',
+    type: JwtUnauthorizedResponseDto,
+  })
   @NeedLogin()
   async logout(
     @RequestUser() userPayload: UserPayloadDto,
