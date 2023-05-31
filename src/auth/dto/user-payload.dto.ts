@@ -1,4 +1,5 @@
 import { User } from 'src/user/entities/user.entity';
+import * as t from 'typed-assert';
 
 export class UserPayloadDto {
   private constructor(
@@ -23,11 +24,7 @@ export class UserPayloadDto {
   }
 
   static from(user: User) {
-    if (!user.id) {
-      throw new TypeError(
-        'user id가 falsy 합니다. UserPayloadDto 생성을 위해서는 user id가 정의되어 있어야 합니다.',
-      );
-    }
+    t.isNumber(user.id);
     return UserPayloadDto.create({
       id: user.id,
       email: user.email,
