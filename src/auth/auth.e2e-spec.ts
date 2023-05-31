@@ -164,7 +164,28 @@ describe('AuthController (e2e)', () => {
       await signup('user@google.com', 'password', 'username');
     });
 
-    it('로컬 로그인 - 정상 호출', async () => {
+    it('로컬 로그인 - 로그인 전적 없는 유저로 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/login/local')
+        .send({
+          email: 'user@google.com',
+          password: encryptPasswordInSha256('password'),
+        })
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          expect(res.body.userId).toBeDefined();
+          expect(res.body.accessToken).toBeDefined();
+        });
+    });
+
+    it('로컬 로그인 - 로그인 전적 있는 유저로 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/login/local')
+        .send({
+          email: 'user@google.com',
+          password: encryptPasswordInSha256('password'),
+        });
+
       await request(app.getHttpServer())
         .post('/api/auth/login/local')
         .send({
