@@ -44,6 +44,8 @@ import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-respo
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 import { JwtUnauthorizedResponseDto } from '../common/dto/jwt-unauthorized-response.dto';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -181,5 +183,23 @@ export class AuthController {
   ): Promise<UserResponseDto> {
     response.clearCookie('refresh_token');
     return UserResponseDto.fromUserPayload(userPayload);
+  }
+
+  @Get('login/google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin(): Promise<void> {
+    return;
+  }
+
+  @Get('login/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleLoginCallback(
+    @RequestUser() oauthPayload: OauthPayloadDto,
+  ): Promise<JwtSignResultDto> {
+    const userPayload: UserPayloadDto = await this.authService.oauthLogin(
+      oauthPayload,
+    );
+    const jwtToken = await this.authService.jwtSign(userPayload);
+    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }
