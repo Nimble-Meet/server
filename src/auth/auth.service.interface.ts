@@ -9,14 +9,14 @@ export interface IAuthService {
 
   validateLocalUser(email: string, password: string): Promise<User>;
 
+  validateOrSignupOauthUser(oauthPayload: OauthPayloadDto): Promise<User>;
+
   jwtSign(userPayload: UserPayloadDto): Promise<JwtToken>;
 
   rotateRefreshToken(
     prevRefreshToken: string,
     prevAccessToken: string,
   ): Promise<JwtToken>;
-
-  oauthLogin(oauthPayload: OauthPayloadDto): Promise<UserPayloadDto>;
 }
 
 export const IAuthService = Symbol('IAuthService');

@@ -34,14 +34,14 @@ export class User {
 
   @Column()
   @IsBcryptEncrypted()
-  password: string;
+  password?: string;
 
   @Column({ unique: true })
   @IsUserNickname()
   nickname: string;
 
   @Column({ type: 'enum', enum: OauthProvider, default: OauthProvider.LOCAL })
-  providerType: string;
+  providerType: OauthProvider;
 
   @Column()
   @IsString()
@@ -53,10 +53,10 @@ export class User {
 
   private constructor(
     email: string,
-    password: string,
     nickname: string,
-    providerType: string,
+    providerType: OauthProvider,
     id?: number,
+    password?: string,
     providerId?: string,
     createdAt?: Date,
     updatedAt?: Date,
@@ -80,21 +80,21 @@ export class User {
   }: {
     id?: number;
     email: string;
-    password: string;
+    password?: string;
     nickname: string;
-    providerType: string;
+    providerType: OauthProvider;
     providerId?: string;
   }): User {
-    return new User(email, password, nickname, providerType, id, providerId);
+    return new User(email, nickname, providerType, id, password, providerId);
   }
 
   clone(): User {
     return new User(
       this.email,
-      this.password,
       this.nickname,
       this.providerType,
       this.id,
+      this.password,
       this.providerId,
       this.createdAt,
       this.updatedAt,

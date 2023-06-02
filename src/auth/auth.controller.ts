@@ -103,6 +103,22 @@ export class AuthController {
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
+  @Get('login/google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin(): Promise<void> {
+    return;
+  }
+
+  @Get('login/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleLoginCallback(
+    @RequestUser() oauthPayload: OauthPayloadDto,
+  ): Promise<JwtSignResultDto> {
+    const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
+    const jwtToken = await this.authService.jwtSign(UserPayloadDto.from(user));
+    return JwtSignResultDto.fromJwtToken(jwtToken);
+  }
+
   @Post('refresh')
   @ApiOperation({
     description:
@@ -183,23 +199,5 @@ export class AuthController {
   ): Promise<UserResponseDto> {
     response.clearCookie('refresh_token');
     return UserResponseDto.fromUserPayload(userPayload);
-  }
-
-  @Get('login/google')
-  @UseGuards(GoogleAuthGuard)
-  async googleLogin(): Promise<void> {
-    return;
-  }
-
-  @Get('login/google/callback')
-  @UseGuards(GoogleAuthGuard)
-  async googleLoginCallback(
-    @RequestUser() oauthPayload: OauthPayloadDto,
-  ): Promise<JwtSignResultDto> {
-    const userPayload: UserPayloadDto = await this.authService.oauthLogin(
-      oauthPayload,
-    );
-    const jwtToken = await this.authService.jwtSign(userPayload);
-    return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }
