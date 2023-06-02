@@ -10,7 +10,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalLoginRequestDto } from './dto/request/local-login-request.dto';
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { RequestUser } from '../common/decorators/req-user.decorator';
 import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
 import { UserPayloadDto } from './dto/user-payload.dto';
@@ -26,6 +26,7 @@ import {
   BadRequestException,
   Get,
   Inject,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -39,10 +40,10 @@ import { SignupConflictResponseDto } from './dto/error/signup-conflict-response.
 import { LoginUnauthorizedResponseDto } from './dto/error/login-unauthorized-response.dto';
 import { RefreshBadrequestResponseDto } from './dto/error/refresh-badrequest-response.dto';
 import { RefreshUnauthorizedResponseDto } from './dto/error/refresh-unauthorized-response.dto';
-import { WhoamiUnauthorizedResponseDto } from './dto/error/whoami-unauthorized-response.dto';
 import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-response.dto';
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
+import { JwtUnauthorizedResponseDto } from '../common/dto/jwt-unauthorized-response.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -152,12 +153,33 @@ export class AuthController {
   })
   @ApiUnauthorizedResponse({
     description: '인증 실패',
-    type: WhoamiUnauthorizedResponseDto,
+    type: JwtUnauthorizedResponseDto,
   })
   @NeedLogin()
   async whoami(
     @RequestUser() userPayload: UserPayloadDto,
   ): Promise<UserResponseDto> {
+    return UserResponseDto.fromUserPayload(userPayload);
+  }
+
+  @Post('logout')
+  @ApiOperation({
+    description: '쿠키에 담겨있는 refresh token을 삭제하여 로그아웃 처리',
+  })
+  @ApiCreatedResponse({
+    description: '로그아웃 성공',
+    type: UserResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: '인증 실패',
+    type: JwtUnauthorizedResponseDto,
+  })
+  @NeedLogin()
+  async logout(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<UserResponseDto> {
+    response.clearCookie('refresh_token');
     return UserResponseDto.fromUserPayload(userPayload);
   }
 }

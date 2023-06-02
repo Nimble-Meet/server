@@ -8,6 +8,8 @@ import * as crypto from 'crypto';
 import { AppModule } from '../app.module';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
 import { AuthErrorMessage } from './auth.error-message';
+import { parse } from 'cookie';
+import * as t from 'typed-assert';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -162,7 +164,28 @@ describe('AuthController (e2e)', () => {
       await signup('user@google.com', 'password', 'username');
     });
 
-    it('로컬 로그인 - 정상 호출', async () => {
+    it('로컬 로그인 - 로그인 전적 없는 유저로 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/login/local')
+        .send({
+          email: 'user@google.com',
+          password: encryptPasswordInSha256('password'),
+        })
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          expect(res.body.userId).toBeDefined();
+          expect(res.body.accessToken).toBeDefined();
+        });
+    });
+
+    it('로컬 로그인 - 로그인 전적 있는 유저로 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/login/local')
+        .send({
+          email: 'user@google.com',
+          password: encryptPasswordInSha256('password'),
+        });
+
       await request(app.getHttpServer())
         .post('/api/auth/login/local')
         .send({
@@ -343,6 +366,84 @@ describe('AuthController (e2e)', () => {
         .expect(HttpStatus.UNAUTHORIZED);
 
       mockDateNow.mockRestore();
+    });
+  });
+
+  describe('/api/auth/whoami (GET)', () => {
+    beforeEach(async () => {
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
+    });
+
+    it('사용자 정보 확인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body.email).toEqual('user@google.com');
+          expect(res.body.nickname).toEqual('username');
+          expect(res.body.providerType).toEqual(OauthProvider.LOCAL);
+        });
+    });
+
+    it('사용자 정보 확인 - access token 누락 시 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 유효하지 않은 access token이면 UNAUTHORIZED 에러', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer invalid-token`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('사용자 정보 확인 - 만료된 access token이면 UNAUTHORIZED 에러', async () => {
+      const configService = app.get(ConfigService);
+      // 만료 시간이 지난 시점으로 설정
+      const mockDateNow = jest
+        .spyOn(Date, 'now')
+        .mockImplementation(() =>
+          new Date(
+            new Date().getTime() +
+              configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000 +
+              1000,
+          ).valueOf(),
+        );
+
+      await request(app.getHttpServer())
+        .get('/api/auth/whoami')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      mockDateNow.mockRestore();
+    });
+  });
+
+  describe('/api/auth/logout (POST)', () => {
+    beforeEach(async () => {
+      await signup('user@google.com', 'password', 'username');
+      await login('user@google.com', 'password');
+    });
+
+    it('로그아웃 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .post('/api/auth/logout')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          const cookies: string[] = res.headers['set-cookie'];
+          const refreshTokenCookie = cookies
+            .map((cookie) => parse(cookie))
+            .find((cookie) => Object.keys(cookie).includes('refresh_token'));
+          t.isNotUndefined(refreshTokenCookie);
+          t.isString(refreshTokenCookie.Expires);
+          expect(new Date(refreshTokenCookie.Expires).getTime()).toBeLessThan(
+            new Date().getTime(),
+          );
+        });
     });
   });
 });
