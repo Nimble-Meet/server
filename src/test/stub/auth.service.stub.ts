@@ -8,6 +8,7 @@ import { User } from '../../user/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from '../../auth/auth.error-message';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
+import { OauthPayloadDto } from '../../auth/dto/oauth-payload.dto';
 
 export class AuthServiceStub implements IAuthService {
   private readonly existingUser: User;
@@ -77,6 +78,24 @@ export class AuthServiceStub implements IAuthService {
         refreshToken: 'newRefreshToken',
         expiresAt: new Date(new Date().getTime() + 1000),
         userId: this.existingJwtToken.userId,
+      }),
+    );
+  }
+
+  validateOrSignupOauthUser(oauthPayload: OauthPayloadDto): Promise<User> {
+    if (this.existingUser.email === oauthPayload.email) {
+      if (this.existingUser.providerType !== oauthPayload.providerType) {
+        throw new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[oauthPayload.providerType],
+        );
+      }
+      return Promise.resolve(this.existingUser);
+    }
+
+    return Promise.resolve(
+      User.create({
+        id: 9999,
+        ...oauthPayload,
       }),
     );
   }

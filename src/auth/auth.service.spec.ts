@@ -9,12 +9,13 @@ import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtToken } from './entity/jwt-token.entity';
 import { UserRepositoryStub } from 'src/test/stub/user.repository.stub';
 import {
+  createOauthUser,
+  createUser,
   EMAIL,
-  ENCRYPTED_PASSWORD,
   NICKNAME,
+  PROVIDER_ID,
   PASSWORD,
   USER_ID,
-  createUser,
 } from 'src/test/dummies/user.dummy';
 import { JwtTokenRepositoryStub } from 'src/test/stub/jwt-token.repository.stub';
 import {
@@ -30,6 +31,7 @@ import { IJwtTokenRepository } from './repository/jwt-token.repository.interface
 import { IAuthService } from './auth.service.interface';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { AuthErrorMessage } from './auth.error-message';
+import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 describe('AuthService', () => {
   const getTestingModule = (
@@ -130,8 +132,7 @@ describe('AuthService', () => {
   });
 
   describe('validateLocalUser', () => {
-    const RESULT_USER = Object.freeze(createUser({}));
-    const userList = Object.freeze([RESULT_USER]);
+    const userList = Object.freeze([createUser({})]);
     const jwtTokenList = Object.freeze([createJwtToken({})]);
 
     let authService: IAuthService;
@@ -144,7 +145,7 @@ describe('AuthService', () => {
       authService = module.get<IAuthService>(IAuthService);
     });
 
-    it('유효한 이메일과 비밀번호로 사용자 인증을 요청하면 user를 반환', async () => {
+    it('유효한 이메일과 비밀번호로 사용자 인증을 요청하면 해당 사용자를 반환', async () => {
       // given
       const email = EMAIL;
       const password = PASSWORD;
@@ -153,7 +154,7 @@ describe('AuthService', () => {
       const user = await authService.validateLocalUser(email, password);
 
       // then
-      expect(user).toEqual(RESULT_USER);
+      expect(user).toEqual(createUser({}));
     });
 
     it('존재하지 않는 이메일이면 UnauthorizedException 발생', async () => {
@@ -181,6 +182,88 @@ describe('AuthService', () => {
         authService.validateLocalUser(email, password),
       ).rejects.toThrow(
         new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
+      );
+    });
+  });
+
+  describe('validateOrSignupOauthUser', () => {
+    const userList = Object.freeze([
+      createOauthUser({
+        providerType: OauthProvider.GOOGLE,
+      }),
+    ]);
+    const jwtTokenList = Object.freeze([createJwtToken({})]);
+
+    let authService: IAuthService;
+
+    beforeEach(async () => {
+      const module = await getTestingModule(
+        new UserRepositoryStub(userList),
+        new JwtTokenRepositoryStub(jwtTokenList),
+      );
+      authService = module.get<IAuthService>(IAuthService);
+    });
+
+    it('이미 존재하는 사용자이고 oauth provider type이 적절하다면 해당 유저를 반환', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: EMAIL,
+        nickname: NICKNAME,
+        providerType: OauthProvider.GOOGLE,
+        providerId: PROVIDER_ID,
+      });
+
+      // when
+      const user = await authService.validateOrSignupOauthUser(oauthPayload);
+
+      // then
+      expect(user).toEqual(
+        createOauthUser({
+          providerType: OauthProvider.GOOGLE,
+        }),
+      );
+    });
+
+    it('새로 가입하는 사용자이면 새로운 유저를 생성하여 반환', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: 'new@email.com',
+        nickname: 'new-nickname',
+        providerType: OauthProvider.GOOGLE,
+        providerId: 'new-oauth1234',
+      });
+
+      // when
+      const user = await authService.validateOrSignupOauthUser(oauthPayload);
+
+      // then
+      expect(user).toEqual(
+        User.create({
+          email: 'new@email.com',
+          nickname: 'new-nickname',
+          providerType: OauthProvider.GOOGLE,
+          providerId: 'new-oauth1234',
+        }),
+      );
+    });
+
+    it('이미 존재하는 사용자일 때 oauth provider type이 다르다면 UnauthorizedException 발생', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: EMAIL,
+        nickname: NICKNAME,
+        providerType: OauthProvider.LOCAL,
+        providerId: PROVIDER_ID,
+      });
+
+      // when
+      // then
+      await expect(
+        authService.validateOrSignupOauthUser(oauthPayload),
+      ).rejects.toThrow(
+        new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.GOOGLE],
+        ),
       );
     });
   });
