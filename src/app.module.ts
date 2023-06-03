@@ -9,7 +9,6 @@ import { APP_PIPE } from '@nestjs/core';
 
 import { createTypeOrmOptions } from './config/typeorm.config';
 import { loggerOptions } from './config/logger.config';
-import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -26,7 +25,6 @@ import { AuthController } from './auth/auth.controller';
     }),
     AuthModule,
   ],
-  controllers: [AuthController],
   providers: [
     {
       provide: APP_PIPE,

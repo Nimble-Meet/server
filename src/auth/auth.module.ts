@@ -15,6 +15,8 @@ import { TokenService } from './token.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { IAuthService } from './auth.service.interface';
 import { GoogleStrategy } from './strategy/google.strategy';
+import { AuthController } from './auth.controller';
+import { OauthController } from './oauth.controller';
 
 @Module({
   imports: [
@@ -46,5 +48,6 @@ import { GoogleStrategy } from './strategy/google.strategy';
       useClass: AuthServiceImpl,
     },
   ],
+  controllers: [AuthController, OauthController],
 })
 export class AuthModule {}

@@ -103,21 +103,6 @@ export class AuthController {
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
-  @Get('login/google')
-  @UseGuards(GoogleAuthGuard)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async googleLogin(): Promise<void> {}
-
-  @Get('login/google/callback')
-  @UseGuards(GoogleAuthGuard)
-  async googleLoginCallback(
-    @RequestUser() oauthPayload: OauthPayloadDto,
-  ): Promise<JwtSignResultDto> {
-    const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
-    const jwtToken = await this.authService.jwtSign(UserPayloadDto.from(user));
-    return JwtSignResultDto.fromJwtToken(jwtToken);
-  }
-
   @Post('refresh')
   @ApiOperation({
     description:
