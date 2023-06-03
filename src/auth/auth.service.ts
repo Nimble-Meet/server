@@ -82,6 +82,11 @@ export class AuthServiceImpl implements IAuthService {
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[findUser.providerType],
         );
       }
+      if (findUser.providerId !== oauthPayload.providerId) {
+        throw new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_ID_UNMATCHED,
+        );
+      }
       return findUser;
     }
 

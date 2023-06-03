@@ -278,6 +278,24 @@ describe('AuthService', () => {
         ),
       );
     });
+
+    it('이미 존재하는 사용자일 때 provider id가 다르다면 UnauthorizedException 발생', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: EMAIL,
+        nickname: NICKNAME,
+        providerType: OauthProvider.GOOGLE,
+        providerId: 'unmatched-provider-id',
+      });
+
+      // when
+      // then
+      await expect(
+        authService.validateOrSignupOauthUser(oauthPayload),
+      ).rejects.toThrow(
+        new UnauthorizedException(AuthErrorMessage.OAUTH_PROVIDER_ID_UNMATCHED),
+      );
+    });
   });
 
   describe('jwtSign', () => {

@@ -8,6 +8,7 @@ export const AuthErrorMessage = {
     [OauthProvider.LOCAL]: '일반 로그인으로 가입한 유저입니다.',
     [OauthProvider.GOOGLE]: '구글 로그인으로 가입한 유저입니다.',
   } as { [key in OauthProvider]: string },
+  OAUTH_PROVIDER_ID_UNMATCHED: 'provider id가 일치하지 않습니다.',
 
   REFRESH_TOKEN_DOES_NOT_EXIST: '리프레시 토큰이 존재하지 않습니다.',
   ACCESS_TOKEN_DOES_NOT_EXIST: '엑세스 토큰이 존재하지 않습니다.',
