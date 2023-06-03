@@ -2,7 +2,6 @@ import { OauthProvider } from '../common/enums/oauth-provider.enum';
 
 export const AuthErrorMessage = {
   EMAIL_ALREADY_EXISTS: '이미 존재하는 이메일입니다.',
-  NICKNAME_ALREADY_EXISTS: '이미 존재하는 닉네임입니다.',
 
   LOGIN_FAILED: '이메일 또는 비밀번호가 일치하지 않습니다.',
   OAUTH_PROVIDER_UNMATCHED: {

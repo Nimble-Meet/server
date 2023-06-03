@@ -23,9 +23,6 @@ export class AuthServiceStub implements IAuthService {
     if (this.existingUser.email === localSignupDto.email) {
       throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
     }
-    if (this.existingUser.nickname === localSignupDto.nickname) {
-      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
-    }
 
     return Promise.resolve(
       User.create({

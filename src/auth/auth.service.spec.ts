@@ -114,21 +114,6 @@ describe('AuthService', () => {
         new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS),
       );
     });
-
-    it('이미 존재하는 닉네임이면 ConflictException 발생', async () => {
-      // given
-      const localSignupDto = {
-        email: 'new-email@test.com',
-        nickname: NICKNAME,
-        password: PASSWORD,
-      };
-
-      // when
-      // then
-      await expect(authService.signup(localSignupDto)).rejects.toThrow(
-        new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS),
-      );
-    });
   });
 
   describe('validateLocalUser', () => {

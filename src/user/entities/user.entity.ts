@@ -36,7 +36,7 @@ export class User {
   @IsBcryptEncrypted()
   password?: string;
 
-  @Column({ unique: true })
+  @Column()
   @IsUserNickname()
   nickname: string;
 

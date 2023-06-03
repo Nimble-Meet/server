@@ -133,30 +133,6 @@ describe('AuthController (e2e)', () => {
           );
         });
     });
-
-    it('회원 가입 - 이미 존재하는 닉네임이면 Conflict 에러', async () => {
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user@gmail.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        });
-
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user2@gmail.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        })
-        .expect(HttpStatus.CONFLICT)
-        .expect((res) => {
-          expect(res.body.message).toEqual(
-            AuthErrorMessage.NICKNAME_ALREADY_EXISTS,
-          );
-        });
-    });
   });
 
   describe('/api/auth/login/local (POST)', () => {

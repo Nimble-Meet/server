@@ -38,13 +38,6 @@ export class AuthServiceImpl implements IAuthService {
       throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
     }
 
-    const isNicknameAlreadyExists = await this.userRepository.existsByNickname(
-      localSignupDto.nickname,
-    );
-    if (isNicknameAlreadyExists) {
-      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
-    }
-
     const encryptedPassword = EncryptedPassword.encryptFrom(
       localSignupDto.password,
     );

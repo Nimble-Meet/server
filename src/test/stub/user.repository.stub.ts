@@ -23,11 +23,6 @@ export class UserRepositoryStub implements IUserRepository {
     return Promise.resolve(this.userList.some(isEmailEquals));
   }
 
-  async existsByNickname(nickname: string): Promise<boolean> {
-    const isNicknameEquals = (user: User) => user.nickname === nickname;
-    return Promise.resolve(this.userList.some(isNicknameEquals));
-  }
-
   async save(user: User): Promise<User> {
     this.userList.push(user);
     return Promise.resolve(user.clone());
