@@ -17,6 +17,7 @@ import { IAuthService } from './auth.service.interface';
 import { GoogleStrategy } from './strategy/google.strategy';
 import { AuthController } from './auth.controller';
 import { OauthController } from './oauth.controller';
+import { NaverStrategy } from './strategy/naver.strategy';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { OauthController } from './oauth.controller';
     },
     LocalStrategy,
     GoogleStrategy,
+    NaverStrategy,
     JwtStrategy,
     {
       provide: IJwtTokenRepository,
