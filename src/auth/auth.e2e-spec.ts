@@ -316,6 +316,17 @@ describe('AuthController (e2e)', () => {
     });
   });
 
+  describe('/api/auth/login/google (GET)', () => {
+    it('구글 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/google')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('accounts.google.com');
+        });
+    });
+  });
+
   describe('/api/auth/whoami (GET)', () => {
     beforeEach(async () => {
       await signup('user@google.com', 'password', 'username');

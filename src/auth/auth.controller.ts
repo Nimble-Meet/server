@@ -105,9 +105,8 @@ export class AuthController {
 
   @Get('login/google')
   @UseGuards(GoogleAuthGuard)
-  async googleLogin(): Promise<void> {
-    return;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async googleLogin(): Promise<void> {}
 
   @Get('login/google/callback')
   @UseGuards(GoogleAuthGuard)
