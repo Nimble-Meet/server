@@ -4,10 +4,12 @@ import { ConfigModule } from '@nestjs/config';
 import { IAuthService } from '../auth.service.interface';
 import { AuthServiceStub } from '../../test/stub/auth.service.stub';
 import {
+  createOauthUser,
   createUser,
   EMAIL,
   ENCRYPTED_PASSWORD,
   NICKNAME,
+  PASSWORD,
   USER_ID,
 } from '../../test/dummies/user.dummy';
 import { UserPayloadDto } from '../dto/user-payload.dto';
@@ -20,8 +22,9 @@ describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
   const user = createUser({});
   const jwtToken = createJwtToken({});
-  beforeEach(async () => {
-    const module = await Test.createTestingModule({
+
+  const getTestingModuleWith = (authServiceStub: AuthServiceStub) =>
+    Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           envFilePath: '.env.test',
@@ -30,11 +33,16 @@ describe('LocalStrategy', () => {
       providers: [
         {
           provide: IAuthService,
-          useValue: new AuthServiceStub(user, jwtToken),
+          useValue: authServiceStub,
         },
         LocalStrategy,
       ],
     }).compile();
+
+  beforeEach(async () => {
+    const module = await getTestingModuleWith(
+      new AuthServiceStub(user, jwtToken),
+    );
     localStrategy = module.get(LocalStrategy);
   });
 
@@ -79,6 +87,28 @@ describe('LocalStrategy', () => {
       // then
       await expect(localStrategy.validate(email, password)).rejects.toThrow(
         new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
+      );
+    });
+
+    it('oauth 방식으로 가입했던 유저이면 UnauthorizedException 발생', async () => {
+      const oauthUser = createOauthUser({
+        providerType: OauthProvider.GOOGLE,
+      });
+      const module = await getTestingModuleWith(
+        new AuthServiceStub(oauthUser, jwtToken),
+      );
+      localStrategy = module.get(LocalStrategy);
+
+      // given
+      const email = EMAIL;
+      const password = PASSWORD;
+
+      // when
+      // then
+      await expect(localStrategy.validate(email, password)).rejects.toThrow(
+        new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.GOOGLE],
+        ),
       );
     });
   });

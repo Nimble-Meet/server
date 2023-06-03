@@ -184,6 +184,33 @@ describe('AuthService', () => {
         new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED),
       );
     });
+
+    it('oauth provider type이 맞지 않으면 UnauthorizedException 발생', async () => {
+      const userList = Object.freeze([
+        createOauthUser({
+          providerType: OauthProvider.GOOGLE,
+        }),
+      ]);
+      const module = await getTestingModule(
+        new UserRepositoryStub(userList),
+        new JwtTokenRepositoryStub(jwtTokenList),
+      );
+      authService = module.get<IAuthService>(IAuthService);
+
+      // given
+      const email = EMAIL;
+      const password = 'invalid password';
+
+      // when
+      // then
+      await expect(
+        authService.validateLocalUser(email, password),
+      ).rejects.toThrow(
+        new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.GOOGLE],
+        ),
+      );
+    });
   });
 
   describe('validateOrSignupOauthUser', () => {

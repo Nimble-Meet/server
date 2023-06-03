@@ -36,12 +36,21 @@ export class AuthServiceStub implements IAuthService {
   }
 
   validateLocalUser(email: string, password: string): Promise<User> {
-    if (
-      this.existingUser.email !== email ||
-      this.existingUser.password !== password
-    ) {
+    if (this.existingUser.email !== email) {
       throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
+    if (this.existingUser.providerType !== OauthProvider.LOCAL) {
+      throw new UnauthorizedException(
+        AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[
+          this.existingUser.providerType
+        ],
+      );
+    }
+    if (this.existingUser.password !== password) {
+      throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
+    }
+
+    this.existingUser.password !== password;
 
     return Promise.resolve(
       User.create({ ...this.existingUser, providerType: OauthProvider.LOCAL }),
