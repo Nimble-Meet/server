@@ -92,7 +92,9 @@ export class AuthServiceStub implements IAuthService {
     if (this.existingUser.email === oauthPayload.email) {
       if (this.existingUser.providerType !== oauthPayload.providerType) {
         throw new UnauthorizedException(
-          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[oauthPayload.providerType],
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[
+            this.existingUser.providerType
+          ],
         );
       }
       return Promise.resolve(this.existingUser);

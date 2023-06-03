@@ -303,6 +303,17 @@ describe('AuthController (e2e)', () => {
     });
   });
 
+  describe('/api/auth/login/naver (GET)', () => {
+    it('네이버 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/naver')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('nid.naver.com');
+        });
+    });
+  });
+
   describe('/api/auth/whoami (GET)', () => {
     beforeEach(async () => {
       await signup('user@google.com', 'password', 'username');

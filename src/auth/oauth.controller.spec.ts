@@ -8,6 +8,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from './auth.error-message';
 import {
   createOauthUser,
+  createUser,
   EMAIL,
   NICKNAME,
   PROVIDER_ID,
@@ -87,10 +88,15 @@ describe('AuthController', () => {
 
     it('다른 로그인 방식으로 가입한 유저이면 UnauthorizedException 발생', async () => {
       // given
+      const localLoginUser = createUser({});
+      const module = await getTestingModule(
+        new AuthServiceStub(localLoginUser, jwtToken),
+      );
+      oauthController = module.get<OauthController>(OauthController);
       const oauthPayload = OauthPayloadDto.create({
         email: EMAIL,
         nickname: NICKNAME,
-        providerType: OauthProvider.LOCAL,
+        providerType: OauthProvider.GOOGLE,
         providerId: PROVIDER_ID,
       });
 
@@ -100,7 +106,85 @@ describe('AuthController', () => {
         oauthController.googleLoginCallback(oauthPayload),
       ).rejects.toThrow(
         new UnauthorizedException(
-          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[oauthPayload.providerType],
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
+        ),
+      );
+    });
+  });
+
+  describe('naverLoginCallback', () => {
+    let oauthController: OauthController;
+    const user = createOauthUser({ providerType: OauthProvider.NAVER });
+    const jwtToken = createJwtToken({});
+    beforeEach(async () => {
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
+      oauthController = module.get<OauthController>(OauthController);
+    });
+
+    it('기존에 가입한 유저인 경우 해당 유저 객체를 반환', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: EMAIL,
+        nickname: NICKNAME,
+        providerType: OauthProvider.NAVER,
+        providerId: PROVIDER_ID,
+      });
+
+      // when
+      const jwtSignResultDto = await oauthController.naverLoginCallback(
+        oauthPayload,
+      );
+
+      // then
+      expect(jwtSignResultDto.userId).toBe(USER_ID);
+      expect(jwtSignResultDto.accessToken).toBeTruthy();
+      expect(jwtSignResultDto.refreshToken).toBeTruthy();
+    });
+
+    it('신규 사용자인 경우 새로운 유저를 생성하여 일부 정보를 반환', async () => {
+      // given
+      const oauthPayload = OauthPayloadDto.create({
+        email: 'new@email.com',
+        nickname: 'new_nickname',
+        providerType: OauthProvider.NAVER,
+        providerId: 'new_oauth123',
+      });
+
+      // when
+      const jwtSignResultDto = await oauthController.googleLoginCallback(
+        oauthPayload,
+      );
+
+      // then
+      expect(jwtSignResultDto.userId).toBeTruthy();
+      expect(jwtSignResultDto.accessToken).toBeTruthy();
+      expect(jwtSignResultDto.refreshToken).toBeTruthy();
+    });
+
+    it('다른 로그인 방식으로 가입한 유저이면 UnauthorizedException 발생', async () => {
+      // given
+      const localLoginUser = createUser({});
+      const module = await getTestingModule(
+        new AuthServiceStub(localLoginUser, jwtToken),
+      );
+      oauthController = module.get<OauthController>(OauthController);
+
+      const oauthPayload = OauthPayloadDto.create({
+        email: EMAIL,
+        nickname: NICKNAME,
+        providerType: OauthProvider.NAVER,
+        providerId: PROVIDER_ID,
+      });
+
+      // when
+      // then
+      await expect(
+        oauthController.googleLoginCallback(oauthPayload),
+      ).rejects.toThrow(
+        new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
         ),
       );
     });
