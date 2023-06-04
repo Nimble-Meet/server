@@ -13,8 +13,7 @@
     "**/*.(t|j)s",
     "!./main.ts",
     "!./app.module.ts",
-    "!./config/logger.config.ts",
-    "!./auth/oauth.controller.ts"
+    "!./config/logger.config.ts"
   ],
   "coverageDirectory": "../coverage",
   "testEnvironment": "node",

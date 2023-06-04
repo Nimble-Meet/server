@@ -35,6 +35,24 @@ describe('AuthController', () => {
       ],
     }).compile();
 
+  describe('googleLogin', () => {
+    let oauthController: OauthController;
+    const user = createUser({});
+    const jwtToken = createJwtToken({});
+    beforeEach(async () => {
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
+      oauthController = module.get<OauthController>(OauthController);
+    });
+
+    it('googleLogin 오류 없이 실행', async () => {
+      expect(() => {
+        oauthController.googleLogin();
+      }).not.toThrow();
+    });
+  });
+
   describe('googleLoginCallback', () => {
     let oauthController: OauthController;
     const user = createOauthUser({ providerType: OauthProvider.GOOGLE });
@@ -109,6 +127,24 @@ describe('AuthController', () => {
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
         ),
       );
+    });
+  });
+
+  describe('naverLogin', () => {
+    let oauthController: OauthController;
+    const user = createUser({});
+    const jwtToken = createJwtToken({});
+    beforeEach(async () => {
+      const module = await getTestingModule(
+        new AuthServiceStub(user, jwtToken),
+      );
+      oauthController = module.get<OauthController>(OauthController);
+    });
+
+    it('naverLogin 오류 없이 실행', async () => {
+      expect(() => {
+        oauthController.naverLogin();
+      }).not.toThrow();
     });
   });
 
