@@ -18,6 +18,7 @@ import { IJwtTokenRepository } from './repository/jwt-token.repository.interface
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
+import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 @Injectable()
 export class AuthServiceImpl implements IAuthService {
@@ -35,13 +36,6 @@ export class AuthServiceImpl implements IAuthService {
     );
     if (isEmailAlreadyExists) {
       throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
-    }
-
-    const isNicknameAlreadyExists = await this.userRepository.existsByNickname(
-      localSignupDto.nickname,
-    );
-    if (isNicknameAlreadyExists) {
-      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
     }
 
     const encryptedPassword = EncryptedPassword.encryptFrom(
@@ -62,6 +56,11 @@ export class AuthServiceImpl implements IAuthService {
     if (!user) {
       throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
+    if (user.providerType !== OauthProvider.LOCAL || !user.password) {
+      throw new UnauthorizedException(
+        AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[user.providerType],
+      );
+    }
 
     const encryptedPassword = EncryptedPassword.from(user.password);
     if (!encryptedPassword.equals(password)) {
@@ -69,6 +68,30 @@ export class AuthServiceImpl implements IAuthService {
     }
 
     return user;
+  }
+
+  async validateOrSignupOauthUser(
+    oauthPayload: OauthPayloadDto,
+  ): Promise<User> {
+    const findUser = await this.userRepository.findOneByEmail(
+      oauthPayload.email,
+    );
+    if (findUser) {
+      if (findUser.providerType !== oauthPayload.providerType) {
+        throw new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[findUser.providerType],
+        );
+      }
+      if (findUser.providerId !== oauthPayload.providerId) {
+        throw new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_ID_UNMATCHED,
+        );
+      }
+      return findUser;
+    }
+
+    const user = User.create(oauthPayload);
+    return await this.userRepository.save(user);
   }
 
   async jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {

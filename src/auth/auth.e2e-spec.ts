@@ -133,30 +133,6 @@ describe('AuthController (e2e)', () => {
           );
         });
     });
-
-    it('회원 가입 - 이미 존재하는 닉네임이면 Conflict 에러', async () => {
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user@gmail.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        });
-
-      await request(app.getHttpServer())
-        .post('/api/auth/signup')
-        .send({
-          email: 'user2@gmail.com',
-          password: encryptPasswordInSha256('password'),
-          nickname: 'username',
-        })
-        .expect(HttpStatus.CONFLICT)
-        .expect((res) => {
-          expect(res.body.message).toEqual(
-            AuthErrorMessage.NICKNAME_ALREADY_EXISTS,
-          );
-        });
-    });
   });
 
   describe('/api/auth/login/local (POST)', () => {
@@ -313,6 +289,28 @@ describe('AuthController (e2e)', () => {
         });
 
       mockDateNow.mockRestore();
+    });
+  });
+
+  describe('/api/auth/login/google (GET)', () => {
+    it('구글 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/google')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('accounts.google.com');
+        });
+    });
+  });
+
+  describe('/api/auth/login/naver (GET)', () => {
+    it('네이버 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/naver')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('nid.naver.com');
+        });
     });
   });
 

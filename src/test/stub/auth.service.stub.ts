@@ -8,6 +8,7 @@ import { User } from '../../user/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from '../../auth/auth.error-message';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
+import { OauthPayloadDto } from '../../auth/dto/oauth-payload.dto';
 
 export class AuthServiceStub implements IAuthService {
   private readonly existingUser: User;
@@ -22,9 +23,6 @@ export class AuthServiceStub implements IAuthService {
     if (this.existingUser.email === localSignupDto.email) {
       throw new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS);
     }
-    if (this.existingUser.nickname === localSignupDto.nickname) {
-      throw new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS);
-    }
 
     return Promise.resolve(
       User.create({
@@ -35,12 +33,21 @@ export class AuthServiceStub implements IAuthService {
   }
 
   validateLocalUser(email: string, password: string): Promise<User> {
-    if (
-      this.existingUser.email !== email ||
-      this.existingUser.password !== password
-    ) {
+    if (this.existingUser.email !== email) {
       throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
     }
+    if (this.existingUser.providerType !== OauthProvider.LOCAL) {
+      throw new UnauthorizedException(
+        AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[
+          this.existingUser.providerType
+        ],
+      );
+    }
+    if (this.existingUser.password !== password) {
+      throw new UnauthorizedException(AuthErrorMessage.LOGIN_FAILED);
+    }
+
+    this.existingUser.password !== password;
 
     return Promise.resolve(
       User.create({ ...this.existingUser, providerType: OauthProvider.LOCAL }),
@@ -77,6 +84,26 @@ export class AuthServiceStub implements IAuthService {
         refreshToken: 'newRefreshToken',
         expiresAt: new Date(new Date().getTime() + 1000),
         userId: this.existingJwtToken.userId,
+      }),
+    );
+  }
+
+  validateOrSignupOauthUser(oauthPayload: OauthPayloadDto): Promise<User> {
+    if (this.existingUser.email === oauthPayload.email) {
+      if (this.existingUser.providerType !== oauthPayload.providerType) {
+        throw new UnauthorizedException(
+          AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[
+            this.existingUser.providerType
+          ],
+        );
+      }
+      return Promise.resolve(this.existingUser);
+    }
+
+    return Promise.resolve(
+      User.create({
+        id: 9999,
+        ...oauthPayload,
       }),
     );
   }

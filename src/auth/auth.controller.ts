@@ -44,6 +44,8 @@ import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-respo
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 import { JwtUnauthorizedResponseDto } from '../common/dto/jwt-unauthorized-response.dto';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 @ApiTags('auth')
 @Controller('api/auth')

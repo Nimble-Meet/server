@@ -14,6 +14,10 @@ import { IJwtTokenRepository } from './repository/jwt-token.repository.interface
 import { TokenService } from './token.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { IAuthService } from './auth.service.interface';
+import { GoogleStrategy } from './strategy/google.strategy';
+import { AuthController } from './auth.controller';
+import { OauthController } from './oauth.controller';
+import { NaverStrategy } from './strategy/naver.strategy';
 
 @Module({
   imports: [
@@ -31,6 +35,8 @@ import { IAuthService } from './auth.service.interface';
       useClass: AuthServiceImpl,
     },
     LocalStrategy,
+    GoogleStrategy,
+    NaverStrategy,
     JwtStrategy,
     {
       provide: IJwtTokenRepository,
@@ -44,5 +50,6 @@ import { IAuthService } from './auth.service.interface';
       useClass: AuthServiceImpl,
     },
   ],
+  controllers: [AuthController, OauthController],
 })
 export class AuthModule {}

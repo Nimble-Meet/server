@@ -22,9 +22,11 @@ import {
   when,
 } from '@johanblumenberg/ts-mockito';
 import {
+  createOauthUser,
   createUser,
   EMAIL,
   NICKNAME,
+  PROVIDER_ID,
   PROVIDER_TYPE,
   USER_ID,
 } from '../test/dummies/user.dummy';
@@ -34,6 +36,7 @@ import {
   REFRESH_TOKEN,
 } from '../test/dummies/jwt-token.dummy';
 import { createUserPayloadDto } from '../test/dummies/user-payload.dummy';
+import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 describe('AuthController', () => {
   const getTestingModule = (userService: IAuthService) =>
@@ -107,23 +110,6 @@ describe('AuthController', () => {
         authController.signup(localSignupRequestDto),
       ).rejects.toThrow(
         new ConflictException(AuthErrorMessage.EMAIL_ALREADY_EXISTS),
-      );
-    });
-
-    it('이미 존재하는 닉네임으로 회원가입을 요청하면 ConflictException 반환', async () => {
-      // given
-      const localSignupRequestDto = LocalSignupRequestDto.create({
-        email: 'user@email.com',
-        password: encryptPassword('password'),
-        nickname: 'existing_user',
-      });
-
-      // when
-      // then
-      await expect(
-        authController.signup(localSignupRequestDto),
-      ).rejects.toThrow(
-        new ConflictException(AuthErrorMessage.NICKNAME_ALREADY_EXISTS),
       );
     });
   });
