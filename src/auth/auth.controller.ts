@@ -44,8 +44,7 @@ import { SignupBadrequestResponseDto } from './dto/error/signup-badrequest-respo
 import { AuthErrorMessage } from './auth.error-message';
 import { IAuthService } from './auth.service.interface';
 import { JwtUnauthorizedResponseDto } from '../common/dto/jwt-unauthorized-response.dto';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { OauthPayloadDto } from './dto/oauth-payload.dto';
+import { User } from '../user/entities/user.entity';
 
 @ApiTags('auth')
 @Controller('api/auth')
@@ -96,10 +95,8 @@ export class AuthController {
   })
   @UseGuards(LocalAuthGuard)
   @UseInterceptors(SetRTCookieInterceptor)
-  async login(
-    @RequestUser() userPayload: UserPayloadDto,
-  ): Promise<JwtSignResultDto> {
-    const jwtToken = await this.authService.jwtSign(userPayload);
+  async login(@RequestUser() user: User): Promise<JwtSignResultDto> {
+    const jwtToken = await this.authService.jwtSign(user);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
