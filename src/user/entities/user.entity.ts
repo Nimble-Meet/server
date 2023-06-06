@@ -1,5 +1,4 @@
 import { IsString } from 'class-validator';
-import { JwtToken } from '../../auth/entity/jwt-token.entity';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 import {
   Entity,
@@ -7,8 +6,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
 } from 'typeorm';
 
 import {
@@ -20,7 +17,7 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id!: number;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -47,10 +44,6 @@ export class User {
   @IsString()
   providerId?: string;
 
-  @OneToOne(() => JwtToken, (jwtToken) => jwtToken.user)
-  @JoinColumn()
-  jwtToken?: JwtToken;
-
   private constructor(
     email: string,
     nickname: string,
@@ -61,7 +54,9 @@ export class User {
     createdAt?: Date,
     updatedAt?: Date,
   ) {
-    this.id = id;
+    if (id) {
+      this.id = id;
+    }
     this.email = email;
     this.password = password;
     this.nickname = nickname;
