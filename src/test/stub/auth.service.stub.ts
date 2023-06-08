@@ -1,8 +1,6 @@
-// implements IAuthService
+import { JwtToken } from 'src/auth/entity/jwt-token.entity';
 
 import { IAuthService } from '../../auth/auth.service.interface';
-import { UserPayloadDto } from '../../auth/dto/user-payload.dto';
-import { JwtToken } from '../../auth/entity/jwt-token.entity';
 import { LocalSignupRequestDto } from '../../auth/dto/request/local-signup-request.dto';
 import { User } from '../../user/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
@@ -54,13 +52,13 @@ export class AuthServiceStub implements IAuthService {
     );
   }
 
-  jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
+  jwtSign(user: User): Promise<JwtToken> {
     return Promise.resolve(
       JwtToken.create({
         accessToken: 'accessToken',
         refreshToken: 'refreshToken',
         expiresAt: new Date(new Date().getTime() + 1000),
-        userId: userPayload.id,
+        user,
       }),
     );
   }
@@ -83,7 +81,7 @@ export class AuthServiceStub implements IAuthService {
         accessToken: 'newAccessToken',
         refreshToken: 'newRefreshToken',
         expiresAt: new Date(new Date().getTime() + 1000),
-        userId: this.existingJwtToken.userId,
+        user: this.existingJwtToken.user,
       }),
     );
   }

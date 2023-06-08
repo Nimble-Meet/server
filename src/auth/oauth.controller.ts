@@ -62,7 +62,7 @@ export class OauthController {
     @RequestUser() oauthPayload: OauthPayloadDto,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
-    const jwtToken = await this.authService.jwtSign(UserPayloadDto.from(user));
+    const jwtToken = await this.authService.jwtSign(user);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
@@ -94,7 +94,7 @@ export class OauthController {
     @RequestUser() oauthPayload: OauthPayloadDto,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
-    const jwtToken = await this.authService.jwtSign(UserPayloadDto.from(user));
+    const jwtToken = await this.authService.jwtSign(user);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }

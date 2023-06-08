@@ -12,11 +12,11 @@ import {
   PASSWORD,
   USER_ID,
 } from '../../test/dummies/user.dummy';
-import { UserPayloadDto } from '../dto/user-payload.dto';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from '../auth.error-message';
 import { createJwtToken } from '../../test/dummies/jwt-token.dummy';
+import { User } from '../../user/entities/user.entity';
 
 describe('LocalStrategy', () => {
   let localStrategy: LocalStrategy;
@@ -57,9 +57,10 @@ describe('LocalStrategy', () => {
 
       // then
       expect(result).toEqual(
-        UserPayloadDto.create({
+        User.create({
           id: USER_ID,
           email: EMAIL,
+          password: ENCRYPTED_PASSWORD.getPassword(),
           nickname: NICKNAME,
           providerType: OauthProvider.LOCAL,
         }),
