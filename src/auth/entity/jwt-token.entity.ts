@@ -14,15 +14,15 @@ export class JwtToken {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true })
   @IsNotEmpty()
   accessToken: string;
 
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true })
   @IsNotEmpty()
   refreshToken: string;
 
-  @Column({ type: 'datetime', nullable: false })
+  @Column({ type: 'datetime' })
   @IsNotEmpty()
   expiresAt: Date;
 
@@ -31,7 +31,7 @@ export class JwtToken {
     nullable: false,
   })
   @JoinColumn()
-  user!: User;
+  user: User;
 
   @Column({ nullable: false })
   @IsNumber()
@@ -45,13 +45,14 @@ export class JwtToken {
     user: User,
     id?: number,
   ) {
+    if (id) {
+      this.id = id;
+    }
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.expiresAt = expiresAt;
     this.user = user;
-    if (id) {
-      this.id = id;
-    }
+    this.userId = user?.id;
   }
 
   static create({

@@ -29,7 +29,7 @@ export class User {
   @IsUserEmail()
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsBcryptEncrypted()
   password?: string;
 
@@ -40,7 +40,7 @@ export class User {
   @Column({ type: 'enum', enum: OauthProvider, default: OauthProvider.LOCAL })
   providerType: OauthProvider;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   providerId?: string;
 
