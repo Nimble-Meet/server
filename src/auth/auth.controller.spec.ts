@@ -22,11 +22,9 @@ import {
   when,
 } from '@johanblumenberg/ts-mockito';
 import {
-  createOauthUser,
   createUser,
   EMAIL,
   NICKNAME,
-  PROVIDER_ID,
   PROVIDER_TYPE,
   USER_ID,
 } from '../test/dummies/user.dummy';
@@ -36,7 +34,6 @@ import {
   REFRESH_TOKEN,
 } from '../test/dummies/jwt-token.dummy';
 import { createUserPayloadDto } from '../test/dummies/user-payload.dummy';
-import { OauthPayloadDto } from './dto/oauth-payload.dto';
 
 describe('AuthController', () => {
   const getTestingModule = (userService: IAuthService) =>
@@ -125,12 +122,12 @@ describe('AuthController', () => {
       authController = module.get<AuthController>(AuthController);
     });
 
-    it('user payload로 로그인하면 jwt token 관련 정보를 반환', async () => {
+    it('user로 로그인하면 jwt token 관련 정보를 반환', async () => {
       // given
-      const userPayloadDto = createUserPayloadDto({});
+      const user = createUser({});
 
       // when
-      const jwtSignResultDto = await authController.login(userPayloadDto);
+      const jwtSignResultDto = await authController.login(user);
 
       // then
       expect(jwtSignResultDto.userId).toEqual(USER_ID);

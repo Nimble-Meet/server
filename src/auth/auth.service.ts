@@ -11,7 +11,6 @@ import {
 import { User } from 'src/user/entities/user.entity';
 
 import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
-import { UserPayloadDto } from './dto/user-payload.dto';
 import { TokenService } from './token.service';
 import { IUserRepository } from 'src/user/repository/user.repository.interface';
 import { IJwtTokenRepository } from './repository/jwt-token.repository.interface';
@@ -94,8 +93,8 @@ export class AuthServiceImpl implements IAuthService {
     return await this.userRepository.save(user);
   }
 
-  async jwtSign(userPayload: UserPayloadDto): Promise<JwtToken> {
-    const userId = userPayload.id;
+  async jwtSign(user: User): Promise<JwtToken> {
+    const userId = user.id;
 
     const accessToken = this.tokenService.generateAccessToken(userId);
     const refreshToken = this.tokenService.generateRefreshToken(userId);
@@ -105,7 +104,7 @@ export class AuthServiceImpl implements IAuthService {
 
     const newToken = JwtToken.create({
       ...(existsToken && { id: tokenId }),
-      userId,
+      user,
       accessToken,
       refreshToken,
       expiresAt: this.tokenService.getRefreshTokenExpiresAt(),

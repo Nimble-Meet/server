@@ -5,7 +5,6 @@ import { User } from 'src/user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { createJwtOptions } from './auth.config';
-import { UserPayloadDto } from './dto/user-payload.dto';
 import { JwtToken } from './entity/jwt-token.entity';
 import { UserRepositoryStub } from 'src/test/stub/user.repository.stub';
 import {
@@ -322,7 +321,7 @@ describe('AuthService', () => {
       const nickname = NICKNAME;
       const providerType = OauthProvider.LOCAL;
 
-      const userPayload = UserPayloadDto.create({
+      const user = User.create({
         id: userId,
         email,
         nickname,
@@ -330,7 +329,7 @@ describe('AuthService', () => {
       });
 
       // when
-      const jwtToken = await authService.jwtSign(userPayload);
+      const jwtToken = await authService.jwtSign(user);
 
       // then
       expect(jwtToken).toBeInstanceOf(JwtToken);
@@ -359,7 +358,7 @@ describe('AuthService', () => {
       const nickname = NICKNAME;
       const providerType = OauthProvider.LOCAL;
 
-      const userPayload = UserPayloadDto.create({
+      const user = User.create({
         id: userId,
         email,
         nickname,
@@ -367,7 +366,7 @@ describe('AuthService', () => {
       });
 
       // when
-      const jwtToken = await authService.jwtSign(userPayload);
+      const jwtToken = await authService.jwtSign(user);
 
       // then
       expect(jwtToken).toBeInstanceOf(JwtToken);

@@ -6,48 +6,53 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  RelationId,
 } from 'typeorm';
 
 @Entity()
 export class JwtToken {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id!: number;
 
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true })
   @IsNotEmpty()
   accessToken: string;
 
-  @Column({ unique: true, nullable: false })
+  @Column({ unique: true })
   @IsNotEmpty()
   refreshToken: string;
 
-  @Column({ type: 'datetime', nullable: false })
+  @Column({ type: 'datetime' })
   @IsNotEmpty()
   expiresAt: Date;
 
-  @OneToOne(() => User, (user) => user.jwtToken, {
+  @OneToOne(() => User, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn()
-  user?: User;
+  user: User;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: false })
   @IsNumber()
-  userId: number;
+  @RelationId((jwtToken: JwtToken) => jwtToken.user)
+  userId!: number;
 
   private constructor(
     accessToken: string,
     refreshToken: string,
     expiresAt: Date,
-    userId: number,
+    user: User,
     id?: number,
   ) {
-    this.id = id;
+    if (id) {
+      this.id = id;
+    }
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.expiresAt = expiresAt;
-    this.userId = userId;
+    this.user = user;
+    this.userId = user?.id;
   }
 
   static create({
@@ -55,15 +60,15 @@ export class JwtToken {
     accessToken,
     refreshToken,
     expiresAt,
-    userId,
+    user,
   }: {
     id?: number;
     accessToken: string;
     refreshToken: string;
     expiresAt: Date;
-    userId: number;
+    user: User;
   }): JwtToken {
-    return new JwtToken(accessToken, refreshToken, expiresAt, userId, id);
+    return new JwtToken(accessToken, refreshToken, expiresAt, user, id);
   }
 
   clone(): JwtToken {
@@ -71,7 +76,7 @@ export class JwtToken {
       this.accessToken,
       this.refreshToken,
       this.expiresAt,
-      this.userId,
+      this.user,
       this.id,
     );
   }

@@ -1,19 +1,7 @@
-import { JwtToken } from './jwt-token.entity';
+import { createJwtToken } from '../../test/dummies/jwt-token.dummy';
 
 describe('JwtToken', () => {
   describe('equalsAccessToken', () => {
-    const createJwtToken = ({
-      accessToken = '',
-      refreshToken = '',
-      expiresAt = new Date(),
-      userId = 1,
-    }) =>
-      JwtToken.create({
-        accessToken,
-        refreshToken,
-        expiresAt,
-        userId,
-      });
     it('동일한 access token으로 호출하면 true를 반환', () => {
       // given
       const accessToken = 'valid access token';

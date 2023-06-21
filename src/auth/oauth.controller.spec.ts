@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { IAuthService } from './auth.service.interface';
 import { AuthServiceStub } from '../test/stub/auth.service.stub';
-import { AuthController } from './auth.controller';
 import { OauthProvider } from '../common/enums/oauth-provider.enum';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthErrorMessage } from './auth.error-message';
@@ -18,7 +17,7 @@ import { createJwtToken } from '../test/dummies/jwt-token.dummy';
 import { OauthPayloadDto } from './dto/oauth-payload.dto';
 import { OauthController } from './oauth.controller';
 
-describe('AuthController', () => {
+describe('OauthController', () => {
   const getTestingModule = (userService: IAuthService) =>
     Test.createTestingModule({
       imports: [
