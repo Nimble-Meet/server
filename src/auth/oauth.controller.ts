@@ -1,8 +1,7 @@
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 
 import { RequestUser } from '../common/decorators/req-user.decorator';
-import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
-import { UserPayloadDto } from './dto/user-payload.dto';
+import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie-interceptor.service';
 
 import {
   Controller,
@@ -10,6 +9,7 @@ import {
   Get,
   Inject,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -25,6 +25,8 @@ import { LoginResponseDto } from './dto/response/login-response.dto';
 import { GoogleLoginUnauthorizedResponseDto } from './dto/error/google-login-unauthorized-response.dto';
 import { NaverAuthGuard } from './guards/naver-auth.guard';
 import { NaverLoginUnauthorizedResponseDto } from './dto/error/naver-login-unauthorized-response.dto';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('oauth')
 @Controller('api/auth/login')
@@ -32,6 +34,7 @@ export class OauthController {
   constructor(
     @Inject(IAuthService)
     private readonly authService: IAuthService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get('google')
@@ -57,12 +60,15 @@ export class OauthController {
     type: GoogleLoginUnauthorizedResponseDto,
   })
   @UseGuards(GoogleAuthGuard)
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(SetJWTTokenCookieInterceptor)
   async googleLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
+
+    response.redirect(`${this.configService.get('FRONTEND_DOMAIN')}/main`);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
@@ -89,12 +95,15 @@ export class OauthController {
     type: NaverLoginUnauthorizedResponseDto,
   })
   @UseGuards(NaverAuthGuard)
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(SetJWTTokenCookieInterceptor)
   async naverLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
+
+    response.redirect(`${this.configService.get('FRONTEND_DOMAIN')}/main`);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }

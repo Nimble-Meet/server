@@ -12,7 +12,7 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
 import { Request, Response } from 'express';
 import { RequestUser } from '../common/decorators/req-user.decorator';
-import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
+import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie-interceptor.service';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 
@@ -94,7 +94,7 @@ export class AuthController {
     type: LoginUnauthorizedResponseDto,
   })
   @UseGuards(LocalAuthGuard)
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(SetJWTTokenCookieInterceptor)
   async login(@RequestUser() user: User): Promise<JwtSignResultDto> {
     const jwtToken = await this.authService.jwtSign(user);
     return JwtSignResultDto.fromJwtToken(jwtToken);
@@ -117,7 +117,7 @@ export class AuthController {
     description: '적절하지 않은 access token/refresh token',
     type: RefreshUnauthorizedResponseDto,
   })
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(SetJWTTokenCookieInterceptor)
   @ApiBearerAuth('access-token')
   async rotateToken(@Req() req: Request): Promise<JwtSignResultDto> {
     const prevRefreshToken = req.cookies['refresh_token'];

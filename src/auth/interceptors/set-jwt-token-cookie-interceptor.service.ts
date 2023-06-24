@@ -14,7 +14,7 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class SetRTCookieInterceptor implements NestInterceptor {
+export class SetJWTTokenCookieInterceptor implements NestInterceptor {
   constructor(private readonly configService: ConfigService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -25,6 +25,10 @@ export class SetRTCookieInterceptor implements NestInterceptor {
         res.cookie('refresh_token', jwtSignResult.refreshToken, {
           httpOnly: true,
           maxAge: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+        });
+        res.cookie('access_token', jwtSignResult.accessToken, {
+          httpOnly: true,
+          maxAge: +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
         });
         return loginResponse;
       }),
