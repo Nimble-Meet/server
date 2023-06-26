@@ -179,6 +179,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<UserResponseDto> {
     response.clearCookie('refresh_token');
+    response.clearCookie('access_token');
     return UserResponseDto.fromUserPayload(userPayload);
   }
 }
