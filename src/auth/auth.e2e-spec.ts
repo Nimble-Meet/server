@@ -425,6 +425,8 @@ describe('AuthController (e2e)', () => {
       await signup('user@google.com', 'password', 'username');
       await login('user@google.com', 'password');
     });
+    const searchCookie = (cookies: Record<string, string>[], key: string) =>
+      cookies.find((cookie) => Object.keys(cookie).includes(key));
 
     it('로그아웃 - 정상 호출', async () => {
       await request(app.getHttpServer())
@@ -432,13 +434,19 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(HttpStatus.CREATED)
         .expect((res) => {
-          const cookies: string[] = res.headers['set-cookie'];
-          const refreshTokenCookie = cookies
-            .map((cookie) => parse(cookie))
-            .find((cookie) => Object.keys(cookie).includes('refresh_token'));
+          const cookies: Record<string, string>[] = res.headers[
+            'set-cookie'
+          ].map((cookie: string) => parse(cookie));
+          const refreshTokenCookie = searchCookie(cookies, 'refresh_token');
           t.isNotUndefined(refreshTokenCookie);
           t.isString(refreshTokenCookie.Expires);
           expect(new Date(refreshTokenCookie.Expires).getTime()).toBeLessThan(
+            new Date().getTime(),
+          );
+          const accessTokenCookie = searchCookie(cookies, 'access_token');
+          t.isNotUndefined(accessTokenCookie);
+          t.isString(accessTokenCookie.Expires);
+          expect(new Date(accessTokenCookie.Expires).getTime()).toBeLessThan(
             new Date().getTime(),
           );
         });
