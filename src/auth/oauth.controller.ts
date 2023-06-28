@@ -1,7 +1,7 @@
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 
 import { RequestUser } from '../common/decorators/req-user.decorator';
-import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie-interceptor.service';
+import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie.interceptor';
 
 import {
   Controller,

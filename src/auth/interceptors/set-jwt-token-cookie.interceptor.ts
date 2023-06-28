@@ -1,6 +1,6 @@
 import { JwtSignResultDto } from './../dto/jwt-sign-result.dto';
 import { LoginResponseDto } from './../dto/response/login-response.dto';
-// interceptor that set cookie with refresh token
+
 import {
   Injectable,
   NestInterceptor,

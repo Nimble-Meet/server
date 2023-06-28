@@ -12,7 +12,7 @@ import { LocalSignupRequestDto } from './dto/request/local-signup-request.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
 import { Request, Response } from 'express';
 import { RequestUser } from '../common/decorators/req-user.decorator';
-import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie-interceptor.service';
+import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie.interceptor';
 import { UserPayloadDto } from './dto/user-payload.dto';
 import { UserResponseDto } from './dto/response/user-response.dto';
 
