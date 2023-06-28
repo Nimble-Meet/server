@@ -36,6 +36,24 @@ describe('AuthController (e2e)', () => {
   const encryptPasswordInSha256 = (password: string): string =>
     crypto.createHash('sha256').update(password).digest('hex');
 
+  const getCookiesFrom = (res: request.Response): Record<string, string>[] =>
+    res.headers['set-cookie'].map((cookie: string) => parse(cookie));
+
+  const searchCookie = (cookies: Record<string, string>[], key: string) =>
+    cookies.find((cookie) => Object.keys(cookie).includes(key));
+
+  const expectCookieExpires = (cookie: Record<string, string>) => {
+    expect(new Date(cookie.Expires).getTime()).toBeLessThanOrEqual(
+      new Date().getTime(),
+    );
+  };
+
+  const expectCookieNotExpires = (cookie: Record<string, string>) => {
+    expect(new Date(cookie.Expires).getTime()).toBeGreaterThan(
+      new Date().getTime(),
+    );
+  };
+
   let accessToken: string;
   let cookie: string[];
 
@@ -149,6 +167,16 @@ describe('AuthController (e2e)', () => {
         })
         .expect(HttpStatus.CREATED)
         .expect((res) => {
+          const cookies = getCookiesFrom(res);
+
+          const accessTokenCookie = searchCookie(cookies, 'access_token');
+          t.isNotUndefined(accessTokenCookie);
+          expectCookieNotExpires(accessTokenCookie);
+
+          const refreshTokenCookie = searchCookie(cookies, 'refresh_token');
+          t.isNotUndefined(refreshTokenCookie);
+          expectCookieNotExpires(refreshTokenCookie);
+
           expect(res.body.userId).toBeDefined();
           expect(res.body.accessToken).toBeDefined();
         });
@@ -170,6 +198,16 @@ describe('AuthController (e2e)', () => {
         })
         .expect(HttpStatus.CREATED)
         .expect((res) => {
+          const cookies = getCookiesFrom(res);
+
+          const accessTokenCookie = searchCookie(cookies, 'access_token');
+          t.isNotUndefined(accessTokenCookie);
+          expectCookieNotExpires(accessTokenCookie);
+
+          const refreshTokenCookie = searchCookie(cookies, 'refresh_token');
+          t.isNotUndefined(refreshTokenCookie);
+          expectCookieNotExpires(refreshTokenCookie);
+
           expect(res.body.userId).toBeDefined();
           expect(res.body.accessToken).toBeDefined();
         });
@@ -215,8 +253,17 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(HttpStatus.CREATED)
         .expect((res) => {
+          const cookies = getCookiesFrom(res);
+
+          const accessTokenCookie = searchCookie(cookies, 'access_token');
+          t.isNotUndefined(accessTokenCookie);
+          expectCookieNotExpires(accessTokenCookie);
+
+          const refreshTokenCookie = searchCookie(cookies, 'refresh_token');
+          t.isNotUndefined(refreshTokenCookie);
+          expectCookieNotExpires(refreshTokenCookie);
+
           expect(res.body.accessToken).toBeDefined();
-          expect(res.get('Set-Cookie')).toBeDefined();
         });
     });
 
@@ -289,28 +336,6 @@ describe('AuthController (e2e)', () => {
         });
 
       mockDateNow.mockRestore();
-    });
-  });
-
-  describe('/api/auth/login/google (GET)', () => {
-    it('구글 로그인 - 정상 호출', async () => {
-      await request(app.getHttpServer())
-        .get('/api/auth/login/google')
-        .expect(HttpStatus.FOUND)
-        .expect((res) => {
-          expect(res.headers.location).toContain('accounts.google.com');
-        });
-    });
-  });
-
-  describe('/api/auth/login/naver (GET)', () => {
-    it('네이버 로그인 - 정상 호출', async () => {
-      await request(app.getHttpServer())
-        .get('/api/auth/login/naver')
-        .expect(HttpStatus.FOUND)
-        .expect((res) => {
-          expect(res.headers.location).toContain('nid.naver.com');
-        });
     });
   });
 
@@ -425,8 +450,6 @@ describe('AuthController (e2e)', () => {
       await signup('user@google.com', 'password', 'username');
       await login('user@google.com', 'password');
     });
-    const searchCookie = (cookies: Record<string, string>[], key: string) =>
-      cookies.find((cookie) => Object.keys(cookie).includes(key));
 
     it('로그아웃 - 정상 호출', async () => {
       await request(app.getHttpServer())
@@ -434,21 +457,37 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(HttpStatus.CREATED)
         .expect((res) => {
-          const cookies: Record<string, string>[] = res.headers[
-            'set-cookie'
-          ].map((cookie: string) => parse(cookie));
+          const cookies = getCookiesFrom(res);
+
           const refreshTokenCookie = searchCookie(cookies, 'refresh_token');
           t.isNotUndefined(refreshTokenCookie);
-          t.isString(refreshTokenCookie.Expires);
-          expect(new Date(refreshTokenCookie.Expires).getTime()).toBeLessThan(
-            new Date().getTime(),
-          );
+          expectCookieExpires(refreshTokenCookie);
+
           const accessTokenCookie = searchCookie(cookies, 'access_token');
           t.isNotUndefined(accessTokenCookie);
-          t.isString(accessTokenCookie.Expires);
-          expect(new Date(accessTokenCookie.Expires).getTime()).toBeLessThan(
-            new Date().getTime(),
-          );
+          expectCookieExpires(accessTokenCookie);
+        });
+    });
+  });
+
+  describe('/api/auth/login/google (GET)', () => {
+    it('구글 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/google')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('accounts.google.com');
+        });
+    });
+  });
+
+  describe('/api/auth/login/naver (GET)', () => {
+    it('네이버 로그인 - 정상 호출', async () => {
+      await request(app.getHttpServer())
+        .get('/api/auth/login/naver')
+        .expect(HttpStatus.FOUND)
+        .expect((res) => {
+          expect(res.headers.location).toContain('nid.naver.com');
         });
     });
   });
