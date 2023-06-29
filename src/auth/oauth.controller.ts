@@ -27,6 +27,7 @@ import { NaverAuthGuard } from './guards/naver-auth.guard';
 import { NaverLoginUnauthorizedResponseDto } from './dto/error/naver-login-unauthorized-response.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { OauthRedirectInterceptor } from './interceptors/oauth-redirect-interceptor';
 
 @ApiTags('oauth')
 @Controller('api/auth/login')
@@ -60,7 +61,7 @@ export class OauthController {
     type: GoogleLoginUnauthorizedResponseDto,
   })
   @UseGuards(GoogleAuthGuard)
-  @UseInterceptors(SetJWTTokenCookieInterceptor)
+  @UseInterceptors(OauthRedirectInterceptor, SetJWTTokenCookieInterceptor)
   async googleLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
     @Res({ passthrough: true }) response: Response,
@@ -68,7 +69,6 @@ export class OauthController {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
 
-    response.redirect(`${this.configService.get('FRONTEND_DOMAIN')}/main`);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
@@ -95,7 +95,7 @@ export class OauthController {
     type: NaverLoginUnauthorizedResponseDto,
   })
   @UseGuards(NaverAuthGuard)
-  @UseInterceptors(SetJWTTokenCookieInterceptor)
+  @UseInterceptors(OauthRedirectInterceptor, SetJWTTokenCookieInterceptor)
   async naverLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
     @Res({ passthrough: true }) response: Response,
@@ -103,7 +103,6 @@ export class OauthController {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
 
-    response.redirect(`${this.configService.get('FRONTEND_DOMAIN')}/main`);
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }
