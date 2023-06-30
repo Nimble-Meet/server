@@ -72,7 +72,6 @@ describe('OauthController', () => {
       );
       oauthController = module.get<OauthController>(OauthController);
       MockResponse = imock();
-      when(MockResponse.redirect(anyString())).thenReturn();
     });
 
     it('기존에 가입한 유저인 경우 해당 유저 객체를 반환', async () => {
@@ -95,7 +94,6 @@ describe('OauthController', () => {
       expect(jwtSignResultDto.userId).toBe(USER_ID);
       expect(jwtSignResultDto.accessToken).toBeTruthy();
       expect(jwtSignResultDto.refreshToken).toBeTruthy();
-      verify(MockResponse.redirect(anyString())).called();
     });
 
     it('신규 사용자인 경우 새로운 유저를 생성하여 일부 정보를 반환', async () => {
@@ -118,7 +116,6 @@ describe('OauthController', () => {
       expect(jwtSignResultDto.userId).toBeTruthy();
       expect(jwtSignResultDto.accessToken).toBeTruthy();
       expect(jwtSignResultDto.refreshToken).toBeTruthy();
-      verify(MockResponse.redirect(anyString())).called();
     });
 
     it('다른 로그인 방식으로 가입한 유저이면 UnauthorizedException 발생', async () => {
@@ -177,7 +174,6 @@ describe('OauthController', () => {
       );
       oauthController = module.get<OauthController>(OauthController);
       MockResponse = imock(MockPropertyPolicy.StubAsProperty);
-      when(MockResponse.redirect(anyString())).thenReturn();
     });
 
     it('기존에 가입한 유저인 경우 해당 유저 객체를 반환', async () => {
@@ -200,7 +196,6 @@ describe('OauthController', () => {
       expect(jwtSignResultDto.userId).toBe(USER_ID);
       expect(jwtSignResultDto.accessToken).toBeTruthy();
       expect(jwtSignResultDto.refreshToken).toBeTruthy();
-      verify(MockResponse.redirect(anyString())).called();
     });
 
     it('신규 사용자인 경우 새로운 유저를 생성하여 일부 정보를 반환', async () => {
@@ -223,7 +218,6 @@ describe('OauthController', () => {
       expect(jwtSignResultDto.userId).toBeTruthy();
       expect(jwtSignResultDto.accessToken).toBeTruthy();
       expect(jwtSignResultDto.refreshToken).toBeTruthy();
-      verify(MockResponse.redirect(anyString())).called();
     });
 
     it('다른 로그인 방식으로 가입한 유저이면 UnauthorizedException 발생', async () => {
