@@ -16,6 +16,15 @@ import {
 import { createJwtToken } from '../test/dummies/jwt-token.dummy';
 import { OauthPayloadDto } from './dto/oauth-payload.dto';
 import { OauthController } from './oauth.controller';
+import {
+  anyString,
+  imock,
+  instance,
+  MockPropertyPolicy,
+  verify,
+  when,
+} from '@johanblumenberg/ts-mockito';
+import { Response } from 'express';
 
 describe('OauthController', () => {
   const getTestingModule = (userService: IAuthService) =>
@@ -54,6 +63,7 @@ describe('OauthController', () => {
 
   describe('googleLoginCallback', () => {
     let oauthController: OauthController;
+    let MockResponse: Response;
     const user = createOauthUser({ providerType: OauthProvider.GOOGLE });
     const jwtToken = createJwtToken({});
     beforeEach(async () => {
@@ -61,6 +71,7 @@ describe('OauthController', () => {
         new AuthServiceStub(user, jwtToken),
       );
       oauthController = module.get<OauthController>(OauthController);
+      MockResponse = imock();
     });
 
     it('기존에 가입한 유저인 경우 해당 유저 객체를 반환', async () => {
@@ -71,10 +82,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.GOOGLE,
         providerId: PROVIDER_ID,
       });
+      const response = instance(MockResponse);
 
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
+        response,
       );
 
       // then
@@ -91,10 +104,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.GOOGLE,
         providerId: 'new_oauth123',
       });
+      const response = instance(MockResponse);
 
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
+        response,
       );
 
       // then
@@ -116,11 +131,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.GOOGLE,
         providerId: PROVIDER_ID,
       });
+      const response = instance(MockResponse);
 
       // when
       // then
       await expect(
-        oauthController.googleLoginCallback(oauthPayload),
+        oauthController.googleLoginCallback(oauthPayload, response),
       ).rejects.toThrow(
         new UnauthorizedException(
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
@@ -149,6 +165,7 @@ describe('OauthController', () => {
 
   describe('naverLoginCallback', () => {
     let oauthController: OauthController;
+    let MockResponse: Response;
     const user = createOauthUser({ providerType: OauthProvider.NAVER });
     const jwtToken = createJwtToken({});
     beforeEach(async () => {
@@ -156,6 +173,7 @@ describe('OauthController', () => {
         new AuthServiceStub(user, jwtToken),
       );
       oauthController = module.get<OauthController>(OauthController);
+      MockResponse = imock(MockPropertyPolicy.StubAsProperty);
     });
 
     it('기존에 가입한 유저인 경우 해당 유저 객체를 반환', async () => {
@@ -166,10 +184,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.NAVER,
         providerId: PROVIDER_ID,
       });
+      const response = instance(MockResponse);
 
       // when
       const jwtSignResultDto = await oauthController.naverLoginCallback(
         oauthPayload,
+        response,
       );
 
       // then
@@ -186,10 +206,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.NAVER,
         providerId: 'new_oauth123',
       });
+      const response = instance(MockResponse);
 
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
+        response,
       );
 
       // then
@@ -212,11 +234,12 @@ describe('OauthController', () => {
         providerType: OauthProvider.NAVER,
         providerId: PROVIDER_ID,
       });
+      const response = instance(MockResponse);
 
       // when
       // then
       await expect(
-        oauthController.googleLoginCallback(oauthPayload),
+        oauthController.googleLoginCallback(oauthPayload, response),
       ).rejects.toThrow(
         new UnauthorizedException(
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],

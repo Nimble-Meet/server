@@ -1,8 +1,7 @@
 import { JwtSignResultDto } from './dto/jwt-sign-result.dto';
 
 import { RequestUser } from '../common/decorators/req-user.decorator';
-import { SetRTCookieInterceptor } from './interceptors/set-rt-cookie.interceptor';
-import { UserPayloadDto } from './dto/user-payload.dto';
+import { SetJWTTokenCookieInterceptor } from './interceptors/set-jwt-token-cookie.interceptor';
 
 import {
   Controller,
@@ -25,6 +24,7 @@ import { LoginResponseDto } from './dto/response/login-response.dto';
 import { GoogleLoginUnauthorizedResponseDto } from './dto/error/google-login-unauthorized-response.dto';
 import { NaverAuthGuard } from './guards/naver-auth.guard';
 import { NaverLoginUnauthorizedResponseDto } from './dto/error/naver-login-unauthorized-response.dto';
+import { OauthRedirectInterceptor } from './interceptors/oauth-redirect-interceptor';
 
 @ApiTags('oauth')
 @Controller('api/auth/login')
@@ -57,12 +57,13 @@ export class OauthController {
     type: GoogleLoginUnauthorizedResponseDto,
   })
   @UseGuards(GoogleAuthGuard)
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(OauthRedirectInterceptor, SetJWTTokenCookieInterceptor)
   async googleLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
+
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 
@@ -89,12 +90,13 @@ export class OauthController {
     type: NaverLoginUnauthorizedResponseDto,
   })
   @UseGuards(NaverAuthGuard)
-  @UseInterceptors(SetRTCookieInterceptor)
+  @UseInterceptors(OauthRedirectInterceptor, SetJWTTokenCookieInterceptor)
   async naverLoginCallback(
     @RequestUser() oauthPayload: OauthPayloadDto,
   ): Promise<JwtSignResultDto> {
     const user = await this.authService.validateOrSignupOauthUser(oauthPayload);
     const jwtToken = await this.authService.jwtSign(user);
+
     return JwtSignResultDto.fromJwtToken(jwtToken);
   }
 }
