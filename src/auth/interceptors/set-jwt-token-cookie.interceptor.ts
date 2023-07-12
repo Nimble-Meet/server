@@ -24,11 +24,13 @@ export class SetJWTTokenCookieInterceptor implements NestInterceptor {
         const loginResponse = LoginResponseDto.fromJwtSignResult(jwtSignResult);
         res.cookie('refresh_token', jwtSignResult.refreshToken, {
           httpOnly: true,
-          maxAge: +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+          maxAge:
+            +this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME') * 1000,
         });
         res.cookie('access_token', jwtSignResult.accessToken, {
           httpOnly: true,
-          maxAge: +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+          maxAge:
+            +this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME') * 1000,
         });
         return loginResponse;
       }),
