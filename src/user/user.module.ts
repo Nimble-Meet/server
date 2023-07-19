@@ -4,6 +4,9 @@ import { Module } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UserRepositoryImpl } from './repository/user.repository';
 import { IUserRepository } from './repository/user.repository.interface';
+import { UserController } from './user.controller';
+import { UserServiceImpl } from './user.service';
+import { IUserService } from './user.service.interface';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
@@ -12,6 +15,10 @@ import { IUserRepository } from './repository/user.repository.interface';
       provide: IUserRepository,
       useClass: UserRepositoryImpl,
     },
+    {
+      provide: IUserService,
+      useClass: UserServiceImpl,
+    },
   ],
   exports: [
     {
@@ -19,5 +26,6 @@ import { IUserRepository } from './repository/user.repository.interface';
       useClass: UserRepositoryImpl,
     },
   ],
+  controllers: [UserController],
 })
 export class UserModule {}
