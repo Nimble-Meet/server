@@ -87,7 +87,6 @@ describe('OauthController', () => {
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
-        response,
       );
 
       // then
@@ -109,7 +108,6 @@ describe('OauthController', () => {
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
-        response,
       );
 
       // then
@@ -136,7 +134,7 @@ describe('OauthController', () => {
       // when
       // then
       await expect(
-        oauthController.googleLoginCallback(oauthPayload, response),
+        oauthController.googleLoginCallback(oauthPayload),
       ).rejects.toThrow(
         new UnauthorizedException(
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
@@ -189,7 +187,6 @@ describe('OauthController', () => {
       // when
       const jwtSignResultDto = await oauthController.naverLoginCallback(
         oauthPayload,
-        response,
       );
 
       // then
@@ -211,7 +208,6 @@ describe('OauthController', () => {
       // when
       const jwtSignResultDto = await oauthController.googleLoginCallback(
         oauthPayload,
-        response,
       );
 
       // then
@@ -239,7 +235,7 @@ describe('OauthController', () => {
       // when
       // then
       await expect(
-        oauthController.googleLoginCallback(oauthPayload, response),
+        oauthController.googleLoginCallback(oauthPayload),
       ).rejects.toThrow(
         new UnauthorizedException(
           AuthErrorMessage.OAUTH_PROVIDER_UNMATCHED[OauthProvider.LOCAL],
