@@ -14,9 +14,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SimpleUserResponseDto } from './dto/response/simple-user-response.dto';
-import { NotFoundResponseDto } from '../common/dto/not-found.response.dto';
 import { NeedLogin } from '../auth/decorators/need-login.decorator';
 import { GetByEmailRequestDto } from './dto/request/get-by-email-request.dto';
+import { UserErrorMessage } from './user.error-message';
+import { GetByEmailBadrequestResponseDto } from './dto/error/get-by-email-badrequest-response.dto';
+import { GetByEmailNotfoundResponseDto } from './dto/error/get-by-email-notfound-response.dto';
 
 @ApiTags('user')
 @Controller('api/user')
@@ -34,11 +36,11 @@ export class UserController {
   })
   @ApiBadRequestResponse({
     description: 'email 형식이 잘못됨',
-    type: NotFoundResponseDto,
+    type: GetByEmailBadrequestResponseDto,
   })
   @ApiNotFoundResponse({
     description: '이메일에 해당하는 사용자가 존재하지 않음',
-    type: NotFoundResponseDto,
+    type: GetByEmailNotfoundResponseDto,
   })
   @NeedLogin()
   async getUserByEmail(
@@ -48,7 +50,7 @@ export class UserController {
       getUserByEmailRequestDto.email,
     );
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException(UserErrorMessage.USER_NOT_FOUND_BY_EMAIL);
     }
     return SimpleUserResponseDto.fromUser(user);
   }

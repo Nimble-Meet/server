@@ -12,4 +12,8 @@ export class GetByEmailRequestDto {
   protected constructor(email: string) {
     this.email = email;
   }
+
+  static create = ({ email }: { email: string }) => {
+    return new GetByEmailRequestDto(email);
+  };
 }
