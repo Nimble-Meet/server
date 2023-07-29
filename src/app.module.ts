@@ -9,6 +9,7 @@ import { APP_PIPE } from '@nestjs/core';
 
 import { createTypeOrmOptions } from './config/typeorm.config';
 import { loggerOptions } from './config/logger.config';
+import { MeetModule } from './meet/meet.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { loggerOptions } from './config/logger.config';
       inject: [ConfigService],
     }),
     AuthModule,
+    MeetModule,
   ],
   providers: [
     {

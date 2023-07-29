@@ -1,14 +1,14 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsMeetName } from '../meet.validator';
+import { IsMeetDescription, IsMeetName } from '../meet.validator';
 import { MeetMember } from './meet-member.entity';
 import { User } from '../../user/entities/user.entity';
 
@@ -18,13 +18,16 @@ export class Meet {
   id!: number;
 
   @CreateDateColumn()
-  createdAt?: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
   updatedAt?: Date;
 
   @IsMeetName()
   meetName: string;
+
+  @IsMeetDescription()
+  description?: string;
 
   @ManyToOne(() => User, {
     nullable: false,
@@ -33,14 +36,23 @@ export class Meet {
   host: User;
 
   @OneToMany(() => MeetMember, (meetMember) => meetMember.member)
-  members?: User[];
+  members!: User[];
 
-  private constructor(meetName: string, host: User) {
+  private constructor(meetName: string, host: User, description?: string) {
     this.meetName = meetName;
     this.host = host;
+    this.description = description;
   }
 
-  static create({ meetName, host }: { meetName: string; host: User }) {
-    return new Meet(meetName, host);
+  static create({
+    meetName,
+    host,
+    description,
+  }: {
+    meetName: string;
+    host: User;
+    description?: string;
+  }) {
+    return new Meet(meetName, host, description);
   }
 }
