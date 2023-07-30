@@ -79,7 +79,9 @@ export class MeetResponseDto {
       meet.meetName,
       meet.createdAt,
       SimpleUserResponseDto.fromUser(meet.host),
-      meet.members.map((member) => SimpleUserResponseDto.fromUser(member)),
+      meet.meetToMembers.map((meetToMember) =>
+        SimpleUserResponseDto.fromUser(meetToMember.member),
+      ),
       meet.description,
     );
   }

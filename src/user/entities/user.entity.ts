@@ -14,8 +14,7 @@ import {
   IsUserNickname,
   IsBcryptEncrypted,
 } from '../user.validator';
-import { MeetMember } from '../../meet/entities/meet-member.entity';
-import { Meet } from '../../meet/entities/meet.entity';
+import { MeetToMember } from '../../meet/entities/meet-to-member.entity';
 
 @Entity()
 export class User {
@@ -47,8 +46,8 @@ export class User {
   @IsString()
   providerId?: string;
 
-  @OneToMany(() => MeetMember, (meetMember) => meetMember.meet)
-  joinedMeets?: Meet[];
+  @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.member)
+  meetToMembers?: MeetToMember[];
 
   private constructor(
     email: string,

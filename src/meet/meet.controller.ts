@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Inject, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -11,13 +11,18 @@ import { MeetCreateRequestDto } from './dto/request/meet-create-request.dto';
 import { MeetInviteRequestDto } from './dto/request/meet-invite-request.dto';
 import { MeetResponseDto } from './dto/response/meet-response.dto';
 import { MeetNotFoundResponseDto } from './dto/error/meet-not-found-response.dto';
+import { RequestUser } from '../common/decorators/req-user.decorator';
+import { UserPayloadDto } from '../auth/dto/user-payload.dto';
+import { IMeetService } from './meet.service.interface';
+import { NeedLogin } from '../auth/decorators/need-login.decorator';
 
 @ApiTags('meet')
 @Controller('api/meet')
 export class MeetController {
-  constructor() {
-    return;
-  }
+  constructor(
+    @Inject(IMeetService)
+    private readonly meetService: IMeetService,
+  ) {}
 
   @Get()
   @ApiOperation({ description: '생성하거나 참여한 미팅 목록 조회' })
@@ -26,8 +31,14 @@ export class MeetController {
     type: MeetResponseDto,
     isArray: true,
   })
-  async getMeets() {
-    return;
+  @NeedLogin()
+  async getMeets(
+    @RequestUser() userPayload: UserPayloadDto,
+  ): Promise<MeetResponseDto[]> {
+    const meets = await this.meetService.getHostedOrInvitedMeets(
+      userPayload.id,
+    );
+    return meets.map((meet) => MeetResponseDto.fromMeet(meet));
   }
 
   @Post()

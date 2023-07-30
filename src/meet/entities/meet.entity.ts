@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { IsMeetDescription, IsMeetName } from '../meet.validator';
-import { MeetMember } from './meet-member.entity';
+import { MeetToMember } from './meet-to-member.entity';
 import { User } from '../../user/entities/user.entity';
 
 @Entity()
@@ -23,9 +23,11 @@ export class Meet {
   @UpdateDateColumn()
   updatedAt?: Date;
 
+  @Column()
   @IsMeetName()
   meetName: string;
 
+  @Column({ nullable: true })
   @IsMeetDescription()
   description?: string;
 
@@ -35,8 +37,8 @@ export class Meet {
   @JoinColumn()
   host: User;
 
-  @OneToMany(() => MeetMember, (meetMember) => meetMember.member)
-  members!: User[];
+  @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.meet)
+  meetToMembers!: MeetToMember[];
 
   private constructor(meetName: string, host: User, description?: string) {
     this.meetName = meetName;
