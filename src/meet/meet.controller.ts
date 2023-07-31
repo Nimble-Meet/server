@@ -15,6 +15,7 @@ import { RequestUser } from '../common/decorators/req-user.decorator';
 import { UserPayloadDto } from '../auth/dto/user-payload.dto';
 import { IMeetService } from './meet.service.interface';
 import { NeedLogin } from '../auth/decorators/need-login.decorator';
+import { MeetKickOutRequestDto } from './dto/request/meet-kick-out-request.dto';
 
 @ApiTags('meet')
 @Controller('api/meet')
@@ -80,6 +81,20 @@ export class MeetController {
     type: MeetResponseDto,
   })
   async invite() {
+    return;
+  }
+
+  @Post(':meetId/kick-out')
+  @ApiOperation({ description: '미팅 강퇴' })
+  @ApiBody({
+    description: '강퇴할 사용자의 이메일',
+    type: MeetKickOutRequestDto,
+  })
+  @ApiCreatedResponse({
+    description: '미팅 강퇴 성공',
+    type: MeetResponseDto,
+  })
+  async kickOut() {
     return;
   }
 }
