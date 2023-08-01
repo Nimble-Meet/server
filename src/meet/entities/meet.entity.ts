@@ -1,4 +1,5 @@
 import {
+  AfterLoad,
   Column,
   CreateDateColumn,
   Entity,
@@ -38,23 +39,44 @@ export class Meet {
   host: User;
 
   @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.meet)
-  meetToMembers!: MeetToMember[];
+  meetToMembers?: MeetToMember[];
 
-  private constructor(meetName: string, host: User, description?: string) {
+  @AfterLoad()
+  async nullChecks() {
+    if (!this.meetToMembers) {
+      this.meetToMembers = [];
+    }
+  }
+
+  private constructor(
+    meetName: string,
+    host: User,
+    description?: string,
+    meetToMembers?: MeetToMember[],
+    id?: number,
+  ) {
     this.meetName = meetName;
     this.host = host;
     this.description = description;
+    this.meetToMembers = meetToMembers;
+    if (id) {
+      this.id = id;
+    }
   }
 
   static create({
+    id,
     meetName,
     host,
+    meetToMembers,
     description,
   }: {
+    id?: number;
     meetName: string;
     host: User;
+    meetToMembers?: MeetToMember[];
     description?: string;
   }) {
-    return new Meet(meetName, host, description);
+    return new Meet(meetName, host, description, meetToMembers, id);
   }
 }

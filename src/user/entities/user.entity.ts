@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
 
 import {
@@ -14,7 +13,6 @@ import {
   IsUserNickname,
   IsBcryptEncrypted,
 } from '../user.validator';
-import { MeetToMember } from '../../meet/entities/meet-to-member.entity';
 
 @Entity()
 export class User {
@@ -45,9 +43,6 @@ export class User {
   @Column({ nullable: true })
   @IsString()
   providerId?: string;
-
-  @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.member)
-  meetToMembers?: MeetToMember[];
 
   private constructor(
     email: string,
