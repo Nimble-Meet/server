@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -52,8 +52,16 @@ export class MeetController {
     description: '미팅 생성 성공',
     type: MeetResponseDto,
   })
-  async createMeet() {
-    return;
+  @NeedLogin()
+  async createMeet(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Body() meetCreateRequestDto: MeetCreateRequestDto,
+  ) {
+    const meet = await this.meetService.createMeet(
+      userPayload.id,
+      meetCreateRequestDto,
+    );
+    return MeetResponseDto.fromMeet(meet);
   }
 
   @Get(':meetId')

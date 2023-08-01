@@ -20,4 +20,14 @@ export class MeetCreateRequestDto {
     this.meetName = meetName;
     this.description = description;
   }
+
+  static create({
+    meetName,
+    description,
+  }: {
+    meetName: string;
+    description: string;
+  }): MeetCreateRequestDto {
+    return new MeetCreateRequestDto(meetName, description);
+  }
 }

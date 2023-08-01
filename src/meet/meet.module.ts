@@ -7,9 +7,10 @@ import { IMeetService } from './meet.service.interface';
 import { MeetServiceImpl } from './meet.service';
 import { IMeetRepository } from './repository/meet.repository.interface';
 import { MeetRepositoryImpl } from './repository/meet.repository';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Meet, MeetToMember])],
+  imports: [TypeOrmModule.forFeature([Meet, MeetToMember]), UserModule],
   providers: [
     {
       provide: IMeetService,
