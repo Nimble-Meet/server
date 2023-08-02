@@ -27,12 +27,10 @@ export class MeetServiceImpl implements IMeetService {
     const user = await this.userRepository.findOneById(userId);
     t.isNotNull(user);
 
-    const meet = await Meet.create({
-      meetName: meetCreateRequestDto.meetName,
-      host: user,
-      description: meetCreateRequestDto.description,
-    });
+    const { meetName, description } = meetCreateRequestDto;
 
-    return meet;
+    return await this.meetRepository.save(
+      Meet.create({ meetName, host: user, description }),
+    );
   }
 }
