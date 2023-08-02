@@ -23,4 +23,11 @@ export class MeetRepositoryStub implements IMeetRepository {
   save(meet: Meet): Promise<Meet> {
     return Promise.resolve(meet);
   }
+
+  findMeetByIdIfHostedOrInvited(
+    meetId: number,
+    userId: number,
+  ): Promise<Meet | null> {
+    return Promise.resolve(null);
+  }
 }

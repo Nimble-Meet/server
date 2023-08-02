@@ -10,7 +10,7 @@ export class MeetNotFoundResponseDto {
   statusCode!: number;
 
   @ApiProperty({
-    example: MeetErrorMessage.MEET_NOT_FOUND_BY_ID,
+    example: MeetErrorMessage.MEET_NOT_FOUND,
     description: '에러 메시지',
   })
   message!: string;

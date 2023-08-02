@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { MeetCreateRequestDto } from './dto/request/meet-create-request.dto';
@@ -16,6 +17,7 @@ import { UserPayloadDto } from '../auth/dto/user-payload.dto';
 import { IMeetService } from './meet.service.interface';
 import { NeedLogin } from '../auth/decorators/need-login.decorator';
 import { MeetKickOutRequestDto } from './dto/request/meet-kick-out-request.dto';
+import { GetMeetRequestDto } from './dto/request/get-meet-request.dto';
 
 @ApiTags('meet')
 @Controller('api/meet')
@@ -66,6 +68,11 @@ export class MeetController {
 
   @Get(':meetId')
   @ApiOperation({ description: '미팅 상세 정보 조회' })
+  @ApiParam({
+    description: '조회할 미팅의 id',
+    name: 'meetId',
+    type: Number,
+  })
   @ApiOkResponse({
     description: '미팅 상세 정보 조회 성공',
     type: MeetResponseDto,
@@ -74,8 +81,16 @@ export class MeetController {
     description: 'id에 해당하는 미팅을 찾을 수 없음',
     type: MeetNotFoundResponseDto,
   })
-  async getMeet() {
-    return;
+  @NeedLogin()
+  async getMeet(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Param() getMeetRequestDto: GetMeetRequestDto,
+  ) {
+    const meet = await this.meetService.getMeet(
+      userPayload.id,
+      getMeetRequestDto,
+    );
+    return MeetResponseDto.fromMeet(meet);
   }
 
   @Post(':meetId/invite')

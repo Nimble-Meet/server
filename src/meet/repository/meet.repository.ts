@@ -1,7 +1,7 @@
 import { IMeetRepository } from './meet.repository.interface';
 import { Meet } from '../entities/meet.entity';
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class MeetRepositoryImpl
@@ -28,7 +28,6 @@ export class MeetRepositoryImpl
       .addSelect('host.nickname')
 
       .addSelect('meet_to_member.id')
-      .addSelect('meet_to_member.meet')
       .addSelect('meet_to_member.member')
 
       .addSelect('member.email')
@@ -52,5 +51,43 @@ export class MeetRepositoryImpl
       .orderBy('meet.updatedAt', 'DESC')
       .getMany();
     return meets;
+  }
+
+  async findMeetByIdIfHostedOrInvited(
+    meetId: number,
+    userId: number,
+  ): Promise<Meet | null> {
+    const meet = await this.createQueryBuilder('meet')
+      .select('meet.id')
+      .addSelect('meet.meetName')
+      .addSelect('meet.description')
+      .addSelect('meet.createdAt')
+      .addSelect('meet.host')
+
+      .addSelect('host.email')
+      .addSelect('host.nickname')
+
+      .addSelect('meet_to_member.id')
+      .addSelect('meet_to_member.member')
+
+      .addSelect('member.email')
+      .addSelect('member.nickname')
+
+      .leftJoin('meet.host', 'host')
+      .leftJoin('meet.meetToMembers', 'meet_to_member')
+      .leftJoin('meet_to_member.member', 'member')
+
+      .where('meet.id = :meetId', { meetId })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('meet.hostId = :userId', {
+            userId,
+          }).orWhere('meet_to_member.memberId = :userId', {
+            userId,
+          });
+        }),
+      )
+      .getOne();
+    return meet;
   }
 }
