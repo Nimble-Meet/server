@@ -73,13 +73,13 @@ export class MeetResponseDto {
     this.description = description;
   }
 
-  public static fromMeet(meet: Meet) {
+  public static async fromMeet(meet: Meet) {
     return new MeetResponseDto(
       meet.id,
       meet.meetName,
       meet.createdAt,
-      SimpleUserResponseDto.fromUser(meet.host),
-      meet.meetToMembers?.map((meetToMember) =>
+      SimpleUserResponseDto.fromUser(await meet.host),
+      (await meet.meetToMembers).map((meetToMember) =>
         SimpleUserResponseDto.fromUser(meetToMember.member),
       ) || [],
       meet.description,

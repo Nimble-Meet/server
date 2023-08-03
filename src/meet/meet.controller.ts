@@ -41,7 +41,9 @@ export class MeetController {
     const meets = await this.meetService.getHostedOrInvitedMeets(
       userPayload.id,
     );
-    return meets.map((meet) => MeetResponseDto.fromMeet(meet));
+    return await Promise.all(
+      meets.map((meet) => MeetResponseDto.fromMeet(meet)),
+    );
   }
 
   @Post()
