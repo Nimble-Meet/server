@@ -54,7 +54,7 @@ describe('MeetServiceImpl', () => {
     });
     invitedMeet.meetToMembers = Promise.resolve([
       MeetToMember.create({
-        meet: invitedMeet,
+        meet: Promise.resolve(invitedMeet),
         member: Promise.resolve(user),
       }),
     ]);

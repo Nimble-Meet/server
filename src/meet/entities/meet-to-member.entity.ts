@@ -16,12 +16,12 @@ export class MeetToMember {
   createdAt?: Date;
 
   @ManyToOne(() => Meet, (meet) => meet.meetToMembers)
-  meet!: Meet;
+  meet!: Promise<Meet>;
 
   @ManyToOne(() => User)
   member!: Promise<User>;
 
-  private constructor(meet: Meet, member: Promise<User>) {
+  private constructor(meet: Promise<Meet>, member: Promise<User>) {
     this.meet = meet;
     this.member = member;
   }
@@ -30,7 +30,7 @@ export class MeetToMember {
     meet,
     member,
   }: {
-    meet: Meet;
+    meet: Promise<Meet>;
     member: Promise<User>;
   }): MeetToMember {
     return new MeetToMember(meet, member);

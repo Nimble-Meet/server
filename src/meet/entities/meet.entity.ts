@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -34,8 +33,10 @@ export class Meet {
   @ManyToOne(() => User, {
     nullable: false,
   })
-  @JoinColumn()
   host: Promise<User>;
+
+  @Column()
+  hostId!: number;
 
   @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.meet)
   meetToMembers: Promise<MeetToMember[]>;
