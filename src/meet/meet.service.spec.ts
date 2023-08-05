@@ -48,16 +48,16 @@ describe('MeetServiceImpl', () => {
       nickname: 'other',
     });
 
-    const hostedMeet = createMeet({ host: user });
+    const hostedMeet = createMeet({ host: Promise.resolve(user) });
     const invitedMeet = createMeet({
-      host: other,
+      host: Promise.resolve(other),
     });
-    invitedMeet.meetToMembers = [
+    invitedMeet.meetToMembers = Promise.resolve([
       MeetToMember.create({
         meet: invitedMeet,
-        member: user,
+        member: Promise.resolve(user),
       }),
-    ];
+    ]);
     const meetList = Object.freeze([hostedMeet, invitedMeet]);
 
     let meetService: IMeetService;
@@ -118,7 +118,7 @@ describe('MeetServiceImpl', () => {
 
       // then
       expect(meet).not.toBeNull();
-      expect(meet.host).toEqual(createUser({}));
+      expect(await meet.host).toEqual(createUser({}));
       expect(meet.meetName).toEqual(meetCreateRequestDto.meetName);
       expect(meet.description).toEqual(meetCreateRequestDto.description);
     });

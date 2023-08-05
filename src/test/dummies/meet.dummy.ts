@@ -10,7 +10,7 @@ export const createMeet = ({
   meetName = MEET_NAME,
   host,
   description = MEET_DESCRIPTION,
-}: Partial<Meet> & { host: User }) =>
+}: Partial<Meet> & { host: Promise<User> }) =>
   Meet.create({
     id,
     meetName,

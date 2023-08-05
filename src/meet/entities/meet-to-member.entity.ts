@@ -19,14 +19,20 @@ export class MeetToMember {
   meet!: Meet;
 
   @ManyToOne(() => User)
-  member!: User;
+  member!: Promise<User>;
 
-  private constructor(meet: Meet, member: User) {
+  private constructor(meet: Meet, member: Promise<User>) {
     this.meet = meet;
     this.member = member;
   }
 
-  static create({ meet, member }: { meet: Meet; member: User }): MeetToMember {
+  static create({
+    meet,
+    member,
+  }: {
+    meet: Meet;
+    member: Promise<User>;
+  }): MeetToMember {
     return new MeetToMember(meet, member);
   }
 }

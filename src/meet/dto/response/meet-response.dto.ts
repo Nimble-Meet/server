@@ -74,14 +74,20 @@ export class MeetResponseDto {
   }
 
   public static async fromMeet(meet: Meet) {
+    const [host, meetToMembers] = await Promise.all([
+      meet.host,
+      meet.meetToMembers,
+    ]);
+    const members = await Promise.all(
+      meetToMembers.map((meetToMember) => meetToMember.member),
+    );
+
     return new MeetResponseDto(
       meet.id,
       meet.meetName,
       meet.createdAt,
-      SimpleUserResponseDto.fromUser(await meet.host),
-      (await meet.meetToMembers).map((meetToMember) =>
-        SimpleUserResponseDto.fromUser(meetToMember.member),
-      ) || [],
+      SimpleUserResponseDto.fromUser(host),
+      members.map((member) => SimpleUserResponseDto.fromUser(member)),
       meet.description,
     );
   }
