@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -95,7 +103,7 @@ export class MeetController {
     return MeetResponseDto.fromMeet(meet);
   }
 
-  @Post(':meetId/invite')
+  @Post(':meetId/member')
   @ApiParam({
     description: '초대할 미팅의 id',
     name: 'meetId',
@@ -124,16 +132,23 @@ export class MeetController {
     return MeetResponseDto.fromMeet(meet);
   }
 
-  @Post(':meetId/kick-out')
-  @ApiOperation({ description: '미팅 강퇴' })
-  @ApiBody({
-    description: '강퇴할 사용자의 이메일',
-    type: MeetKickOutRequestDto,
+  @Delete(':meetId/member/:memberId')
+  @ApiParam({
+    description: '강퇴하는 미팅의 id',
+    name: 'meetId',
+    type: Number,
   })
-  @ApiCreatedResponse({
+  @ApiParam({
+    description: '강퇴되는 멤버의 id',
+    name: 'memberId',
+    type: Number,
+  })
+  @ApiOperation({ description: '미팅 강퇴' })
+  @ApiOkResponse({
     description: '미팅 강퇴 성공',
     type: MeetResponseDto,
   })
+  @NeedLogin()
   async kickOut() {
     return;
   }

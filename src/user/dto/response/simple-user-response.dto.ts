@@ -20,7 +20,7 @@ export class SimpleUserResponseDto {
   })
   private readonly nickname: string;
 
-  private constructor(email: string, nickname: string) {
+  protected constructor(email: string, nickname: string) {
     this.email = email;
     this.nickname = nickname;
   }

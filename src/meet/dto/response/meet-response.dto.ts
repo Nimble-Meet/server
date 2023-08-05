@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsMeetDescription, IsMeetName } from '../../meet.validator';
 import { Meet } from '../../entities/meet.entity';
 import { SimpleUserResponseDto } from '../../../user/dto/response/simple-user-response.dto';
+import { MemberResponseDto } from './member-response.dto';
 
 export class MeetResponseDto {
   @IsNumber()
@@ -44,11 +45,13 @@ export class MeetResponseDto {
 
   @ApiProperty({
     example: [
-      SimpleUserResponseDto.create({
+      MemberResponseDto.create({
+        id: 1,
         email: 'member1@email.com',
         nickname: 'member1',
       }),
-      SimpleUserResponseDto.create({
+      MemberResponseDto.create({
+        id: 2,
         email: 'member2@email.com',
         nickname: 'member2',
       }),
@@ -80,7 +83,7 @@ export class MeetResponseDto {
       meet.createdAt,
       SimpleUserResponseDto.fromUser(meet.host),
       meet.meetToMembers?.map((meetToMember) =>
-        SimpleUserResponseDto.fromUser(meetToMember.member),
+        MemberResponseDto.fromMeetToMember(meetToMember),
       ) || [],
       meet.description,
     );
