@@ -77,4 +77,16 @@ export class Meet {
   }) {
     return new Meet(meetName, host, meetToMembers, description, id);
   }
+
+  isHost(userId: number): boolean {
+    return this.host.id === userId;
+  }
+
+  findMember(meetToMemberId: number): MeetToMember | null {
+    return (
+      this.meetToMembers?.find(
+        (meetToMember) => meetToMember.id === meetToMemberId,
+      ) || null
+    );
+  }
 }

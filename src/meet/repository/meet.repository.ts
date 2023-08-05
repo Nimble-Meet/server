@@ -24,6 +24,7 @@ export class MeetRepositoryImpl
       .addSelect('meet.createdAt')
       .addSelect('meet.host')
 
+      .addSelect('host.id')
       .addSelect('host.email')
       .addSelect('host.nickname')
 

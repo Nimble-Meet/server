@@ -24,8 +24,9 @@ import { RequestUser } from '../common/decorators/req-user.decorator';
 import { UserPayloadDto } from '../auth/dto/user-payload.dto';
 import { IMeetService } from './meet.service.interface';
 import { NeedLogin } from '../auth/decorators/need-login.decorator';
-import { MeetKickOutRequestDto } from './dto/request/meet-kick-out-request.dto';
 import { MeetIdParamDto } from './dto/request/meet-id-param.dto';
+import { MeetMemberIdParamDto } from './dto/request/meet-member-id-param.dto';
+import { MemberResponseDto } from './dto/response/member-response.dto';
 
 @ApiTags('meet')
 @Controller('api/meet')
@@ -68,7 +69,7 @@ export class MeetController {
   async createMeet(
     @RequestUser() userPayload: UserPayloadDto,
     @Body() meetCreateRequestDto: MeetCreateRequestDto,
-  ) {
+  ): Promise<MeetResponseDto> {
     const meet = await this.meetService.createMeet(
       userPayload.id,
       meetCreateRequestDto,
@@ -95,7 +96,7 @@ export class MeetController {
   async getMeet(
     @RequestUser() userPayload: UserPayloadDto,
     @Param() getMeetRequestDto: MeetIdParamDto,
-  ) {
+  ): Promise<MeetResponseDto> {
     const meet = await this.meetService.getMeet(
       userPayload.id,
       getMeetRequestDto,
@@ -116,31 +117,31 @@ export class MeetController {
   })
   @ApiCreatedResponse({
     description: '미팅 초대 성공',
-    type: MeetResponseDto,
+    type: MemberResponseDto,
   })
   @NeedLogin()
   async invite(
     @RequestUser() userPayload: UserPayloadDto,
     @Param() meetIdParamDto: MeetIdParamDto,
     @Body() meetInviteRequestDto: MeetInviteRequestDto,
-  ) {
-    const meet = await this.meetService.invite(
+  ): Promise<MemberResponseDto> {
+    const meetToMember = await this.meetService.invite(
       userPayload,
       meetIdParamDto,
       meetInviteRequestDto,
     );
-    return MeetResponseDto.fromMeet(meet);
+    return MemberResponseDto.fromMeetToMember(meetToMember);
   }
 
   @Delete(':meetId/member/:memberId')
   @ApiParam({
-    description: '강퇴하는 미팅의 id',
-    name: 'meetId',
+    description: '강퇴할 멤버의 id',
+    name: 'memberId',
     type: Number,
   })
   @ApiParam({
-    description: '강퇴되는 멤버의 id',
-    name: 'memberId',
+    description: '강퇴할 미팅의 id',
+    name: 'meetId',
     type: Number,
   })
   @ApiOperation({ description: '미팅 강퇴' })
@@ -149,7 +150,14 @@ export class MeetController {
     type: MeetResponseDto,
   })
   @NeedLogin()
-  async kickOut() {
-    return;
+  async kickOut(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Param() meetMemberIdParamDto: MeetMemberIdParamDto,
+  ): Promise<MemberResponseDto> {
+    const meetToMember = await this.meetService.kickOut(
+      userPayload,
+      meetMemberIdParamDto,
+    );
+    return MemberResponseDto.fromMeetToMember(meetToMember);
   }
 }

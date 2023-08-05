@@ -15,4 +15,10 @@ export class MeetToMemberRepositoryImpl
       dataSource.createQueryRunner(),
     );
   }
+
+  async deleteById(id: number): Promise<void> {
+    await this.delete({
+      id,
+    });
+  }
 }

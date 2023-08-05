@@ -18,6 +18,7 @@ import { INVITE_LIMIT_NUMBER } from './meet.constant';
 import { MeetToMember } from './entities/meet-to-member.entity';
 import { UserPayloadDto } from '../auth/dto/user-payload.dto';
 import { IMeetToMemberRepository } from './repository/meet-to-member.repository.interface';
+import { MeetMemberIdParamDto } from './dto/request/meet-member-id-param.dto';
 
 @Injectable()
 export class MeetServiceImpl implements IMeetService {
@@ -69,14 +70,14 @@ export class MeetServiceImpl implements IMeetService {
     userPayloadDto: UserPayloadDto,
     meetIdParamDto: MeetIdParamDto,
     meetInviteRequestDto: MeetInviteRequestDto,
-  ): Promise<Meet> {
+  ): Promise<MeetToMember> {
     const { meetId } = meetIdParamDto;
     const meet = await this.meetRepository.findJoinedMeetById(meetId);
     if (!meet) {
       throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
     }
 
-    if (meet.host.email !== userPayloadDto.email) {
+    if (!meet.isHost(userPayloadDto.id)) {
       throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
     }
 
@@ -102,9 +103,35 @@ export class MeetServiceImpl implements IMeetService {
       meet: meet,
       member: userToInvite,
     });
-    this.meetToMemberRepository.save(meetToMember);
+    const savedMeetToMember = await this.meetToMemberRepository.save(
+      meetToMember,
+    );
 
-    meet.meetToMembers = [...meet.meetToMembers, meetToMember];
-    return meet;
+    return savedMeetToMember;
+  }
+
+  async kickOut(
+    userPayloadDto: UserPayloadDto,
+    meetMemberIdParamDto: MeetMemberIdParamDto,
+  ): Promise<MeetToMember> {
+    const meet = await this.meetRepository.findJoinedMeetById(
+      meetMemberIdParamDto.meetId,
+    );
+    if (!meet) {
+      throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
+    }
+
+    if (!meet.isHost(userPayloadDto.id)) {
+      throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
+    }
+
+    const findMeetToMember = meet.findMember(meetMemberIdParamDto.memberId);
+    if (!findMeetToMember) {
+      throw new NotFoundException(MeetErrorMessage.MEMBER_NOT_FOUND);
+    }
+
+    await this.meetToMemberRepository.deleteById(meetMemberIdParamDto.memberId);
+
+    return findMeetToMember;
   }
 }
