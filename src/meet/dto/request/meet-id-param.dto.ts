@@ -1,6 +1,6 @@
 import { IsNumber } from 'class-validator';
 
-export class GetMeetRequestDto {
+export class MeetIdParamDto {
   @IsNumber()
   meetId!: number;
 }

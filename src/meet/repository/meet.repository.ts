@@ -2,6 +2,7 @@ import { IMeetRepository } from './meet.repository.interface';
 import { Meet } from '../entities/meet.entity';
 import { Injectable } from '@nestjs/common';
 import { Brackets, DataSource, Repository } from 'typeorm';
+import { MeetToMember } from '../entities/meet-to-member.entity';
 
 @Injectable()
 export class MeetRepositoryImpl
@@ -16,8 +17,8 @@ export class MeetRepositoryImpl
     );
   }
 
-  async findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
-    const meets = await this.createQueryBuilder('meet')
+  private createSelectJoinedMeetQuery = () =>
+    this.createQueryBuilder('meet')
       .select('meet.id')
       .addSelect('meet.meetName')
       .addSelect('meet.description')
@@ -35,8 +36,10 @@ export class MeetRepositoryImpl
 
       .leftJoin('meet.host', 'host')
       .leftJoin('meet.meetToMembers', 'meet_to_member')
-      .leftJoin('meet_to_member.member', 'member')
+      .leftJoin('meet_to_member.member', 'member');
 
+  async findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
+    const meets = await this.createSelectJoinedMeetQuery()
       .where((qb) => {
         const subQuery = qb
           .subQuery()
@@ -57,26 +60,7 @@ export class MeetRepositoryImpl
     meetId: number,
     userId: number,
   ): Promise<Meet | null> {
-    const meet = await this.createQueryBuilder('meet')
-      .select('meet.id')
-      .addSelect('meet.meetName')
-      .addSelect('meet.description')
-      .addSelect('meet.createdAt')
-      .addSelect('meet.host')
-
-      .addSelect('host.email')
-      .addSelect('host.nickname')
-
-      .addSelect('meet_to_member.id')
-      .addSelect('meet_to_member.member')
-
-      .addSelect('member.email')
-      .addSelect('member.nickname')
-
-      .leftJoin('meet.host', 'host')
-      .leftJoin('meet.meetToMembers', 'meet_to_member')
-      .leftJoin('meet_to_member.member', 'member')
-
+    const meet = this.createSelectJoinedMeetQuery()
       .where('meet.id = :meetId', { meetId })
       .andWhere(
         new Brackets((qb) => {
@@ -89,5 +73,33 @@ export class MeetRepositoryImpl
       )
       .getOne();
     return meet;
+  }
+
+  async findJoinedMeetById(meetId: number): Promise<Meet | null> {
+    const meet = await this.createSelectJoinedMeetQuery()
+      .where('meet.id = :meetId', { meetId })
+      .getOne();
+    return meet;
+  }
+
+  async saveMeetToMemberAndMeet(
+    meetToMember: MeetToMember,
+    meet: Meet,
+  ): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await this.manager.save(meetToMember);
+      await this.save(meet);
+
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

@@ -17,7 +17,7 @@ import { UserPayloadDto } from '../auth/dto/user-payload.dto';
 import { IMeetService } from './meet.service.interface';
 import { NeedLogin } from '../auth/decorators/need-login.decorator';
 import { MeetKickOutRequestDto } from './dto/request/meet-kick-out-request.dto';
-import { GetMeetRequestDto } from './dto/request/get-meet-request.dto';
+import { MeetIdParamDto } from './dto/request/meet-id-param.dto';
 
 @ApiTags('meet')
 @Controller('api/meet')
@@ -86,7 +86,7 @@ export class MeetController {
   @NeedLogin()
   async getMeet(
     @RequestUser() userPayload: UserPayloadDto,
-    @Param() getMeetRequestDto: GetMeetRequestDto,
+    @Param() getMeetRequestDto: MeetIdParamDto,
   ) {
     const meet = await this.meetService.getMeet(
       userPayload.id,
@@ -96,6 +96,11 @@ export class MeetController {
   }
 
   @Post(':meetId/invite')
+  @ApiParam({
+    description: '초대할 미팅의 id',
+    name: 'meetId',
+    type: Number,
+  })
   @ApiOperation({ description: '미팅 초대' })
   @ApiBody({
     description: '초대할 사용자의 이메일',
@@ -105,8 +110,18 @@ export class MeetController {
     description: '미팅 초대 성공',
     type: MeetResponseDto,
   })
-  async invite() {
-    return;
+  @NeedLogin()
+  async invite(
+    @RequestUser() userPayload: UserPayloadDto,
+    @Param() meetIdParamDto: MeetIdParamDto,
+    @Body() meetInviteRequestDto: MeetInviteRequestDto,
+  ) {
+    const meet = await this.meetService.invite(
+      userPayload,
+      meetIdParamDto,
+      meetInviteRequestDto,
+    );
+    return MeetResponseDto.fromMeet(meet);
   }
 
   @Post(':meetId/kick-out')

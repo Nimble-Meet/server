@@ -1,5 +1,6 @@
 import { Meet } from '../../meet/entities/meet.entity';
 import { IMeetRepository } from '../../meet/repository/meet.repository.interface';
+import { MeetToMember } from '../../meet/entities/meet-to-member.entity';
 
 export class MeetRepositoryStub implements IMeetRepository {
   private readonly meetList: Meet[];
@@ -31,7 +32,14 @@ export class MeetRepositoryStub implements IMeetRepository {
     return Promise.resolve(null);
   }
 
-  findOneById(meetId: number): Promise<Meet | null> {
+  findJoinedMeetById(meetId: number): Promise<Meet | null> {
     return Promise.resolve(null);
+  }
+
+  saveMeetToMemberAndMeet(
+    meetToMember: MeetToMember,
+    meet: Meet,
+  ): Promise<void> {
+    return Promise.resolve(undefined);
   }
 }

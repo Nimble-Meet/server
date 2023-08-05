@@ -36,9 +36,6 @@ export class Meet {
   })
   host: User;
 
-  @Column()
-  hostId!: number;
-
   @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.meet)
   meetToMembers?: MeetToMember[];
 
