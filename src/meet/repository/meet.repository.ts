@@ -2,7 +2,6 @@ import { IMeetRepository } from './meet.repository.interface';
 import { Meet } from '../entities/meet.entity';
 import { Injectable } from '@nestjs/common';
 import { Brackets, DataSource, Repository } from 'typeorm';
-import { MeetToMember } from '../entities/meet-to-member.entity';
 
 @Injectable()
 export class MeetRepositoryImpl
@@ -80,26 +79,5 @@ export class MeetRepositoryImpl
       .where('meet.id = :meetId', { meetId })
       .getOne();
     return meet;
-  }
-
-  async saveMeetToMemberAndMeet(
-    meetToMember: MeetToMember,
-    meet: Meet,
-  ): Promise<void> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      await this.manager.save(meetToMember);
-      await this.save(meet);
-
-      await queryRunner.commitTransaction();
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-      throw e;
-    } finally {
-      await queryRunner.release();
-    }
   }
 }

@@ -8,6 +8,8 @@ import { MeetServiceImpl } from './meet.service';
 import { IMeetRepository } from './repository/meet.repository.interface';
 import { MeetRepositoryImpl } from './repository/meet.repository';
 import { UserModule } from '../user/user.module';
+import { MeetToMemberRepositoryImpl } from './repository/meet-to-member.repository';
+import { IMeetToMemberRepository } from './repository/meet-to-member.repository.interface';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Meet, MeetToMember]), UserModule],
@@ -19,6 +21,10 @@ import { UserModule } from '../user/user.module';
     {
       provide: IMeetRepository,
       useClass: MeetRepositoryImpl,
+    },
+    {
+      provide: IMeetToMemberRepository,
+      useClass: MeetToMemberRepositoryImpl,
     },
   ],
   controllers: [MeetController],

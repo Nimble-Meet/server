@@ -17,6 +17,7 @@ import { UserErrorMessage } from '../user/user.error-message';
 import { INVITE_LIMIT_NUMBER } from './meet.constant';
 import { MeetToMember } from './entities/meet-to-member.entity';
 import { UserPayloadDto } from '../auth/dto/user-payload.dto';
+import { IMeetToMemberRepository } from './repository/meet-to-member.repository.interface';
 
 @Injectable()
 export class MeetServiceImpl implements IMeetService {
@@ -24,7 +25,9 @@ export class MeetServiceImpl implements IMeetService {
     @Inject(IMeetRepository)
     private readonly meetRepository: IMeetRepository,
     @Inject(IUserRepository)
-    private readonly userRepository: IUserRepository, // @Inject(IMeetToMemberRepository) // private readonly meetToMemberRepository: IMeetToMemberRepository,
+    private readonly userRepository: IUserRepository,
+    @Inject(IMeetToMemberRepository)
+    private readonly meetToMemberRepository: IMeetToMemberRepository,
   ) {}
   async getHostedOrInvitedMeets(userId: number): Promise<Meet[]> {
     const meets = await this.meetRepository.findHostedOrInvitedMeetsByUserId(
@@ -99,10 +102,9 @@ export class MeetServiceImpl implements IMeetService {
       meet: meet,
       member: userToInvite,
     });
+    this.meetToMemberRepository.save(meetToMember);
+
     meet.meetToMembers = [...meet.meetToMembers, meetToMember];
-
-    await this.meetRepository.saveMeetToMemberAndMeet(meetToMember, meet);
-
     return meet;
   }
 }
