@@ -33,7 +33,7 @@ export class MeetServiceImpl implements IMeetService {
     const { meetName, description } = meetCreateRequestDto;
 
     return await this.meetRepository.save(
-      Meet.create({ meetName, host: Promise.resolve(user), description }),
+      Meet.create({ meetName, host: user, description }),
     );
   }
 

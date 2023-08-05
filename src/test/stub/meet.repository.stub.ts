@@ -8,25 +8,16 @@ export class MeetRepositoryStub implements IMeetRepository {
     this.meetList = meetList.map((meet) => Meet.create(meet));
   }
 
-  async findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
-    const isHostedMeet = async (meet: Meet) => (await meet.host).id === userId;
-    const isInvitedMeet = async (meet: Meet) => {
-      const meetToMembers = await meet.meetToMembers;
-      const members = await Promise.all(
-        meetToMembers.map((meetToMember) => meetToMember.member),
+  findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
+    const isHostedMeet = (meet: Meet) => meet.host.id === userId;
+    const isInvitedMeet = (meet: Meet) =>
+      !!meet.meetToMembers?.some(
+        (meetToMember) => meetToMember.member.id === userId,
       );
-      return members.some((member) => member.id === userId);
-    };
-
-    const isHostedOrInvited = await Promise.all(
-      this.meetList.map((meet) =>
-        Promise.all([isHostedMeet(meet), isInvitedMeet(meet)]).then(
-          ([isHosted, isInvited]) => isHosted || isInvited,
-        ),
-      ),
+    const hostedOrInvitedMeets = this.meetList.filter(
+      (meet) => isHostedMeet(meet) || isInvitedMeet(meet),
     );
-
-    return this.meetList.filter((_, index) => isHostedOrInvited[index]);
+    return Promise.resolve(hostedOrInvitedMeets);
   }
 
   save(meet: Meet): Promise<Meet> {

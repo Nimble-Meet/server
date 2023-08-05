@@ -48,16 +48,16 @@ describe('MeetServiceImpl', () => {
       nickname: 'other',
     });
 
-    const hostedMeet = createMeet({ host: Promise.resolve(user) });
+    const hostedMeet = createMeet({ host: user });
     const invitedMeet = createMeet({
-      host: Promise.resolve(other),
+      host: other,
     });
-    invitedMeet.meetToMembers = Promise.resolve([
+    invitedMeet.meetToMembers = [
       MeetToMember.create({
-        meet: Promise.resolve(invitedMeet),
-        member: Promise.resolve(user),
+        meet: invitedMeet,
+        member: user,
       }),
-    ]);
+    ];
     const meetList = Object.freeze([hostedMeet, invitedMeet]);
 
     let meetService: IMeetService;
