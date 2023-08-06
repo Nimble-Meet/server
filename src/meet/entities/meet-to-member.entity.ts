@@ -21,12 +21,23 @@ export class MeetToMember {
   @ManyToOne(() => User)
   member!: User;
 
-  private constructor(meet: Meet, member: User) {
+  private constructor(meet: Meet, member: User, id?: number) {
     this.meet = meet;
     this.member = member;
+    if (id) {
+      this.id = id;
+    }
   }
 
-  static create({ meet, member }: { meet: Meet; member: User }): MeetToMember {
-    return new MeetToMember(meet, member);
+  static create({
+    id,
+    meet,
+    member,
+  }: {
+    id?: number;
+    meet: Meet;
+    member: User;
+  }): MeetToMember {
+    return new MeetToMember(meet, member, id);
   }
 }

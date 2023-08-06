@@ -10,13 +10,8 @@ export class MeetRepositoryStub implements IMeetRepository {
   }
 
   findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
-    const isHostedMeet = (meet: Meet) => meet.host.id === userId;
-    const isInvitedMeet = (meet: Meet) =>
-      !!meet.meetToMembers?.some(
-        (meetToMember) => meetToMember.member.id === userId,
-      );
     const hostedOrInvitedMeets = this.meetList.filter(
-      (meet) => isHostedMeet(meet) || isInvitedMeet(meet),
+      (meet) => meet.isHost(userId) || meet.isInvited(userId),
     );
     return Promise.resolve(hostedOrInvitedMeets);
   }
@@ -29,17 +24,19 @@ export class MeetRepositoryStub implements IMeetRepository {
     meetId: number,
     userId: number,
   ): Promise<Meet | null> {
-    return Promise.resolve(null);
+    const findMeet = this.meetList.find((meet) => meet.id === meetId);
+    if (!findMeet) {
+      return Promise.resolve(null);
+    }
+    if (!findMeet.isHost(userId) && !findMeet.isInvited(userId)) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(findMeet);
   }
 
   findJoinedMeetById(meetId: number): Promise<Meet | null> {
-    return Promise.resolve(null);
-  }
-
-  saveMeetToMemberAndMeet(
-    meetToMember: MeetToMember,
-    meet: Meet,
-  ): Promise<void> {
-    return Promise.resolve(undefined);
+    return Promise.resolve(
+      this.meetList.find((meet) => meet.id === meetId) || null,
+    );
   }
 }

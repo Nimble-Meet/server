@@ -16,4 +16,5 @@ export const createMeet = ({
     meetName,
     host,
     description,
+    meetToMembers: [],
   });

@@ -82,6 +82,12 @@ export class Meet {
     return this.host.id === userId;
   }
 
+  isInvited(userId: number): boolean {
+    return !!this.meetToMembers?.some(
+      (meetToMember) => meetToMember.member.id === userId,
+    );
+  }
+
   findMember(meetToMemberId: number): MeetToMember | null {
     return (
       this.meetToMembers?.find(

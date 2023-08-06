@@ -12,4 +12,8 @@ export class MeetInviteRequestDto {
   protected constructor(email: string) {
     this.email = email;
   }
+
+  static create({ email }: { email: string }): MeetInviteRequestDto {
+    return new MeetInviteRequestDto(email);
+  }
 }
