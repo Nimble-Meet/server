@@ -13,6 +13,8 @@ import { MeetRepositoryStub } from '../test/stub/meet.repository.stub';
 import { MeetCreateRequestDto } from './dto/request/meet-create-request.dto';
 import { IUserRepository } from '../user/repository/user.repository.interface';
 import { UserRepositoryStub } from '../test/stub/user.repository.stub';
+import { MeetToMemberRepositoryStub } from '../test/stub/meet-to-member.repository.stub';
+import { IMeetToMemberRepository } from './repository/meet-to-member.repository.interface';
 
 describe('MeetServiceImpl', () => {
   const getTestingModule = (
@@ -28,6 +30,10 @@ describe('MeetServiceImpl', () => {
         {
           provide: IUserRepository,
           useValue: userRepository,
+        },
+        {
+          provide: IMeetToMemberRepository,
+          useValue: new MeetToMemberRepositoryStub(),
         },
         {
           provide: IMeetService,
