@@ -45,10 +45,10 @@ export class MeetController {
   })
   @NeedLogin()
   async getMeets(
-    @RequestUser() userPayload: UserPayloadDto,
+    @RequestUser() userPayloadDto: UserPayloadDto,
   ): Promise<MeetResponseDto[]> {
     const meets = await this.meetService.getHostedOrInvitedMeets(
-      userPayload.id,
+      userPayloadDto,
     );
     return await Promise.all(
       meets.map((meet) => MeetResponseDto.fromMeet(meet)),
@@ -67,11 +67,11 @@ export class MeetController {
   })
   @NeedLogin()
   async createMeet(
-    @RequestUser() userPayload: UserPayloadDto,
+    @RequestUser() userPayloadDto: UserPayloadDto,
     @Body() meetCreateRequestDto: MeetCreateRequestDto,
   ): Promise<MeetResponseDto> {
     const meet = await this.meetService.createMeet(
-      userPayload.id,
+      userPayloadDto,
       meetCreateRequestDto,
     );
     return MeetResponseDto.fromMeet(meet);
@@ -94,11 +94,11 @@ export class MeetController {
   })
   @NeedLogin()
   async getMeet(
-    @RequestUser() userPayload: UserPayloadDto,
+    @RequestUser() userPayloadDto: UserPayloadDto,
     @Param() getMeetRequestDto: MeetIdParamDto,
   ): Promise<MeetResponseDto> {
     const meet = await this.meetService.getMeet(
-      userPayload.id,
+      userPayloadDto,
       getMeetRequestDto,
     );
     return MeetResponseDto.fromMeet(meet);
@@ -121,12 +121,12 @@ export class MeetController {
   })
   @NeedLogin()
   async invite(
-    @RequestUser() userPayload: UserPayloadDto,
+    @RequestUser() userPayloadDto: UserPayloadDto,
     @Param() meetIdParamDto: MeetIdParamDto,
     @Body() meetInviteRequestDto: MeetInviteRequestDto,
   ): Promise<MemberResponseDto> {
     const meetToMember = await this.meetService.invite(
-      userPayload,
+      userPayloadDto,
       meetIdParamDto,
       meetInviteRequestDto,
     );
@@ -151,11 +151,11 @@ export class MeetController {
   })
   @NeedLogin()
   async kickOut(
-    @RequestUser() userPayload: UserPayloadDto,
+    @RequestUser() userPayloadDto: UserPayloadDto,
     @Param() meetMemberIdParamDto: MeetMemberIdParamDto,
   ): Promise<MemberResponseDto> {
     const meetToMember = await this.meetService.kickOut(
-      userPayload,
+      userPayloadDto,
       meetMemberIdParamDto,
     );
     return MemberResponseDto.fromMeetToMember(meetToMember);

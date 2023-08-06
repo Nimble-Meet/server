@@ -54,44 +54,45 @@ describe('MeetServiceImpl', () => {
   describe('getHostedOrInvitedMeets', () => {
     const OTHER_ID = 2;
 
-    const user = createUser({
+    const USER = createUser({
       id: USER_ID,
       email: 'user@email.com',
       nickname: 'user',
     });
-    const other = createUser({
+    const OTHER = createUser({
       id: OTHER_ID,
       email: 'other@email.com',
       nickname: 'other',
     });
 
-    const hostedMeet = createMeet({ host: user });
-    const invitedMeet = createMeet({
-      host: other,
+    const HOSTED_MEET = createMeet({ host: USER });
+    const INVITED_MEET = createMeet({
+      host: OTHER,
     });
-    invitedMeet.meetToMembers = [
+    INVITED_MEET.meetToMembers = [
       MeetToMember.create({
-        meet: invitedMeet,
-        member: user,
+        meet: INVITED_MEET,
+        member: USER,
       }),
     ];
-    const meetList = Object.freeze([hostedMeet, invitedMeet]);
+    const meetList = Object.freeze([HOSTED_MEET, INVITED_MEET]);
 
     let meetService: IMeetService;
     beforeEach(async () => {
       const module: TestingModule = await getTestingModule(
         new MeetRepositoryStub(meetList),
-        new UserRepositoryStub([user, other]),
+        new UserRepositoryStub([USER, OTHER]),
       );
       meetService = module.get<IMeetService>(IMeetService);
     });
 
     it('유저가 생성하거나 초대된 모임을 조회', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
+      const userPayloadDto = UserPayloadDto.from(user);
 
       // when
-      const meets = await meetService.getHostedOrInvitedMeets(userId);
+      const meets = await meetService.getHostedOrInvitedMeets(userPayloadDto);
 
       // then
       expect(meets).toBeInstanceOf(Array);
@@ -100,10 +101,13 @@ describe('MeetServiceImpl', () => {
 
     it('생성하거나 초대한 모임이 없는 경우 빈 배열 반환', async () => {
       // given
-      const userId = 999;
+      const user = createUser({
+        id: 999,
+      });
+      const userPayloadDto = UserPayloadDto.from(user);
 
       // when
-      const meets = await meetService.getHostedOrInvitedMeets(userId);
+      const meets = await meetService.getHostedOrInvitedMeets(userPayloadDto);
 
       // then
       expect(meets).toBeInstanceOf(Array);
@@ -112,26 +116,34 @@ describe('MeetServiceImpl', () => {
   });
 
   describe('createMeet', () => {
-    const user = createUser({});
+    const USER = createUser({});
+
     let meetService: IMeetService;
     beforeEach(async () => {
       const module: TestingModule = await getTestingModule(
         new MeetRepositoryStub([]),
-        new UserRepositoryStub([user]),
+        new UserRepositoryStub([USER]),
       );
       meetService = module.get<IMeetService>(IMeetService);
     });
 
     it('생성할 모임 정보로 요청하면 생성 후 모임 정보를 반환', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
+      const meetName = MEET_NAME;
+      const description = MEET_DESCRIPTION;
+
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetCreateRequestDto = MeetCreateRequestDto.create({
-        meetName: MEET_NAME,
-        description: MEET_DESCRIPTION,
+        meetName: meetName,
+        description: description,
       });
 
       // when
-      const meet = await meetService.createMeet(userId, meetCreateRequestDto);
+      const meet = await meetService.createMeet(
+        userPayloadDto,
+        meetCreateRequestDto,
+      );
 
       // then
       expect(meet).not.toBeNull();
@@ -142,7 +154,11 @@ describe('MeetServiceImpl', () => {
 
     it('존재하지 않는 userId로 요청할 경우 에러 발생', async () => {
       // given
-      const userId = 999;
+      const user = createUser({
+        id: 999,
+      });
+
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetCreateRequestDto = MeetCreateRequestDto.create({
         meetName: MEET_NAME,
         description: MEET_DESCRIPTION,
@@ -151,108 +167,117 @@ describe('MeetServiceImpl', () => {
       // when
       // then
       await expect(
-        meetService.createMeet(userId, meetCreateRequestDto),
+        meetService.createMeet(userPayloadDto, meetCreateRequestDto),
       ).rejects.toThrow();
     });
   });
 
   describe('getMeet', () => {
+    const OTHER_ID = 2;
+
     const INVITED_MEET_ID = 2;
     const OTHER_MEET_ID = 3;
 
-    const user = createUser({
-      id: 1,
+    const USER = createUser({
+      id: USER_ID,
       email: 'user@email.com',
       nickname: 'user',
     });
-    const other = createUser({
-      id: 2,
+    const OTHER = createUser({
+      id: OTHER_ID,
       email: 'other@email.com',
       nickname: 'other',
     });
 
-    const hostedMeet = createMeet({
+    const HOSTED_MEET = createMeet({
       id: MEET_ID,
-      host: user,
+      host: USER,
     });
-    const invitedMeet = createMeet({
+    const INVITED_MEET = createMeet({
       id: INVITED_MEET_ID,
-      host: other,
+      host: OTHER,
     });
-    const otherMeet = createMeet({
+    const OTHER_MEET = createMeet({
       id: OTHER_MEET_ID,
-      host: other,
+      host: OTHER,
     });
-    invitedMeet.meetToMembers = [
+    INVITED_MEET.meetToMembers = [
       MeetToMember.create({
-        meet: invitedMeet,
-        member: user,
+        meet: INVITED_MEET,
+        member: USER,
       }),
     ];
-    const meetList = Object.freeze([hostedMeet, invitedMeet, otherMeet]);
+    const meetList = Object.freeze([HOSTED_MEET, INVITED_MEET, OTHER_MEET]);
 
     let meetService: IMeetService;
     beforeEach(async () => {
       const module: TestingModule = await getTestingModule(
         new MeetRepositoryStub(meetList),
-        new UserRepositoryStub([user, other]),
+        new UserRepositoryStub([USER, OTHER]),
       );
       meetService = module.get<IMeetService>(IMeetService);
     });
 
     it('자신이 생성한 미팅을 미팅 id로 조회하면 모팅 정보를 반환', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
       const meetId = MEET_ID;
+
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetIdParamDto = MeetIdParamDto.create({ meetId });
 
       // when
-      const meet = await meetService.getMeet(userId, meetIdParamDto);
+      const meet = await meetService.getMeet(userPayloadDto, meetIdParamDto);
 
       // then
       expect(meet).not.toBeNull();
-      expect(meet).toEqual(hostedMeet);
+      expect(meet).toEqual(HOSTED_MEET);
     });
 
     it('초대 받은 미팅을 미팅 id로 조회하면 모팅 정보를 반환', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
       const meetId = INVITED_MEET_ID;
+
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetIdParamDto = MeetIdParamDto.create({ meetId });
 
       // when
-      const meet = await meetService.getMeet(userId, meetIdParamDto);
+      const meet = await meetService.getMeet(userPayloadDto, meetIdParamDto);
 
       // then
       expect(meet).not.toBeNull();
-      expect(meet).toEqual(invitedMeet);
+      expect(meet).toEqual(INVITED_MEET);
     });
 
     it('생성하거나 초대 받지 않은 미팅을 조회하면 MEET_NOT_FOUND 에러', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
       const meetId = OTHER_MEET_ID;
+
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetIdParamDto = MeetIdParamDto.create({ meetId });
 
       // when
       // then
-      await expect(meetService.getMeet(userId, meetIdParamDto)).rejects.toThrow(
-        new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND),
-      );
+      await expect(
+        meetService.getMeet(userPayloadDto, meetIdParamDto),
+      ).rejects.toThrow(new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND));
     });
 
     it('존재하지 않는 미팅 id로 요청하면 MEET_NOT_FOUND 에러', async () => {
       // given
-      const userId = USER_ID;
+      const user = USER;
       const meetId = 999;
 
+      const userPayloadDto = UserPayloadDto.from(user);
       const meetIdParamDto = MeetIdParamDto.create({ meetId });
 
       // when
       // then
-      await expect(meetService.getMeet(userId, meetIdParamDto)).rejects.toThrow(
-        new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND),
-      );
+      await expect(
+        meetService.getMeet(userPayloadDto, meetIdParamDto),
+      ).rejects.toThrow(new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND));
     });
   });
 

@@ -7,14 +7,17 @@ import { MeetToMember } from './entities/meet-to-member.entity';
 import { MeetMemberIdParamDto } from './dto/request/meet-member-id-param.dto';
 
 export interface IMeetService {
-  getHostedOrInvitedMeets(userId: number): Promise<Meet[]>;
+  getHostedOrInvitedMeets(userPayloadDto: UserPayloadDto): Promise<Meet[]>;
 
   createMeet(
-    userId: number,
+    userPayloadDto: UserPayloadDto,
     meetCreateRequestDto: MeetCreateRequestDto,
   ): Promise<Meet>;
 
-  getMeet(userId: number, getMeetRequestDto: MeetIdParamDto): Promise<Meet>;
+  getMeet(
+    userPayloadDto: UserPayloadDto,
+    getMeetRequestDto: MeetIdParamDto,
+  ): Promise<Meet>;
 
   invite(
     userPayloadDto: UserPayloadDto,
@@ -23,7 +26,7 @@ export interface IMeetService {
   ): Promise<MeetToMember>;
 
   kickOut(
-    userPayload: UserPayloadDto,
+    userPayloadDto: UserPayloadDto,
     meetMemberIdParamDto: MeetMemberIdParamDto,
   ): Promise<MeetToMember>;
 }

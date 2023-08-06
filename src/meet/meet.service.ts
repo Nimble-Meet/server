@@ -30,35 +30,38 @@ export class MeetServiceImpl implements IMeetService {
     @Inject(IMeetToMemberRepository)
     private readonly meetToMemberRepository: IMeetToMemberRepository,
   ) {}
-  async getHostedOrInvitedMeets(userId: number): Promise<Meet[]> {
+  async getHostedOrInvitedMeets(
+    userPayloadDto: UserPayloadDto,
+  ): Promise<Meet[]> {
     const meets = await this.meetRepository.findHostedOrInvitedMeetsByUserId(
-      userId,
+      userPayloadDto.id,
     );
     return meets;
   }
 
   async createMeet(
-    userId: number,
+    userPayloadDto: UserPayloadDto,
     meetCreateRequestDto: MeetCreateRequestDto,
   ): Promise<Meet> {
-    const user = await this.userRepository.findOneById(userId);
+    const user = await this.userRepository.findOneById(userPayloadDto.id);
     t.isNotNull(user);
 
-    const { meetName, description } = meetCreateRequestDto;
-
     return await this.meetRepository.save(
-      Meet.create({ meetName, host: user, description }),
+      Meet.create({
+        meetName: meetCreateRequestDto.meetName,
+        description: meetCreateRequestDto.description,
+        host: user,
+      }),
     );
   }
 
   async getMeet(
-    userId: number,
+    userPayloadDto: UserPayloadDto,
     getMeetRequestDto: MeetIdParamDto,
   ): Promise<Meet> {
-    const { meetId } = getMeetRequestDto;
     const meet = await this.meetRepository.findMeetByIdIfHostedOrInvited(
-      meetId,
-      userId,
+      getMeetRequestDto.meetId,
+      userPayloadDto.id,
     );
     if (!meet) {
       throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
@@ -71,8 +74,9 @@ export class MeetServiceImpl implements IMeetService {
     meetIdParamDto: MeetIdParamDto,
     meetInviteRequestDto: MeetInviteRequestDto,
   ): Promise<MeetToMember> {
-    const { meetId } = meetIdParamDto;
-    const meet = await this.meetRepository.findJoinedMeetById(meetId);
+    const meet = await this.meetRepository.findJoinedMeetById(
+      meetIdParamDto.meetId,
+    );
     if (!meet) {
       throw new NotFoundException(MeetErrorMessage.MEET_NOT_FOUND);
     }
