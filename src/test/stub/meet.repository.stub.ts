@@ -9,7 +9,7 @@ export class MeetRepositoryStub implements IMeetRepository {
     this.meetList = meetList.map((meet) => Meet.create(meet));
   }
 
-  findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
+  findHostedOrInvitedMeetsByUserId(userId: string): Promise<Meet[]> {
     const hostedOrInvitedMeets = this.meetList.filter(
       (meet) => meet.isHost(userId) || meet.isInvited(userId),
     );
@@ -21,8 +21,8 @@ export class MeetRepositoryStub implements IMeetRepository {
   }
 
   findMeetByIdIfHostedOrInvited(
-    meetId: number,
-    userId: number,
+    meetId: string,
+    userId: string,
   ): Promise<Meet | null> {
     const findMeet = this.meetList.find((meet) => meet.id === meetId);
     if (!findMeet) {
@@ -34,7 +34,7 @@ export class MeetRepositoryStub implements IMeetRepository {
     return Promise.resolve(findMeet);
   }
 
-  findJoinedMeetById(meetId: number): Promise<Meet | null> {
+  findJoinedMeetById(meetId: string): Promise<Meet | null> {
     return Promise.resolve(
       this.meetList.find((meet) => meet.id === meetId) || null,
     );

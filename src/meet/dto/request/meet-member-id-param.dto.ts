@@ -3,9 +3,9 @@ import { IsNumber } from 'class-validator';
 
 export class MeetMemberIdParamDto extends MeetIdParamDto {
   @IsNumber()
-  memberId!: number;
+  memberId!: string;
 
-  private constructor(meetId: number, memberId: number) {
+  private constructor(meetId: string, memberId: string) {
     super(meetId);
     this.memberId = memberId;
   }
@@ -14,8 +14,8 @@ export class MeetMemberIdParamDto extends MeetIdParamDto {
     meetId,
     memberId,
   }: {
-    meetId: number;
-    memberId: number;
+    meetId: string;
+    memberId: string;
   }): MeetMemberIdParamDto {
     return new MeetMemberIdParamDto(meetId, memberId);
   }

@@ -2,13 +2,13 @@ import { JwtToken } from '../entity/jwt-token.entity';
 
 export class JwtSignResultDto {
   private constructor(
-    readonly userId: number,
+    readonly userId: string,
     readonly accessToken: string,
     readonly refreshToken: string,
   ) {}
 
   static create(createInfo: {
-    userId: number;
+    userId: string;
     accessToken: string;
     refreshToken: string;
   }) {

@@ -129,7 +129,7 @@ export class AuthServiceImpl implements IAuthService {
       );
     }
 
-    let userId: number;
+    let userId: string;
     try {
       const jwtPayload = this.tokenService.verifyRefreshToken(prevRefreshToken);
       userId = jwtPayload.userId;

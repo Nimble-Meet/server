@@ -3,13 +3,13 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 export class JwtPayloadDto {
   @IsNumber()
   @IsNotEmpty()
-  readonly userId: number;
+  readonly userId: string;
 
-  private constructor(userId: number) {
+  private constructor(userId: string) {
     this.userId = userId;
   }
 
-  static create(createInfo: { userId: number }) {
+  static create(createInfo: { userId: string }) {
     return new JwtPayloadDto(createInfo.userId);
   }
 }

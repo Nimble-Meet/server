@@ -20,7 +20,7 @@ export class JwtTokenRepositoryImpl
     return await this.findOne({ where: { refreshToken } });
   }
 
-  async findTokenIdByUserId(userId: number): Promise<number | null> {
+  async findTokenIdByUserId(userId: string): Promise<string | null> {
     const findedToken = await this.findOne({
       where: { userId },
       select: ['id'],

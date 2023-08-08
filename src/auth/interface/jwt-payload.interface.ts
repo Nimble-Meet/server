@@ -1,3 +1,3 @@
 export interface IJwtPayload {
-  userId: number;
+  userId: string;
 }

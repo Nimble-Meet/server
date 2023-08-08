@@ -2,13 +2,13 @@ import { IsNumber } from 'class-validator';
 
 export class MeetIdParamDto {
   @IsNumber()
-  meetId!: number;
+  meetId!: string;
 
-  protected constructor(meetId: number) {
+  protected constructor(meetId: string) {
     this.meetId = meetId;
   }
 
-  static create({ meetId }: { meetId: number }): MeetIdParamDto {
+  static create({ meetId }: { meetId: string }): MeetIdParamDto {
     return new MeetIdParamDto(meetId);
   }
 }

@@ -15,7 +15,7 @@ import { User } from '../../user/entities/user.entity';
 @Entity()
 export class Meet {
   @PrimaryGeneratedColumn({ type: 'bigint'})
-  id!: number;
+  id!: string;
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -51,7 +51,7 @@ export class Meet {
     host: User,
     meetToMembers?: MeetToMember[],
     description?: string,
-    id?: number,
+    id?: string,
   ) {
     this.meetName = meetName;
     this.host = host;
@@ -69,7 +69,7 @@ export class Meet {
     meetToMembers,
     description,
   }: {
-    id?: number;
+    id?: string;
     meetName: string;
     host: User;
     meetToMembers?: MeetToMember[];
@@ -78,17 +78,17 @@ export class Meet {
     return new Meet(meetName, host, meetToMembers, description, id);
   }
 
-  isHost(userId: number): boolean {
+  isHost(userId: string): boolean {
     return this.host.id === userId;
   }
 
-  isInvited(userId: number): boolean {
+  isInvited(userId: string): boolean {
     return !!this.meetToMembers?.some(
       (meetToMember) => meetToMember.member.id === userId,
     );
   }
 
-  findMember(meetToMemberId: number): MeetToMember | null {
+  findMember(meetToMemberId: string): MeetToMember | null {
     return (
       this.meetToMembers?.find(
         (meetToMember) => meetToMember.id === meetToMemberId,

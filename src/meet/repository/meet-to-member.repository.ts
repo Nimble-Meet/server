@@ -16,7 +16,7 @@ export class MeetToMemberRepositoryImpl
     );
   }
 
-  async deleteById(id: number): Promise<void> {
+  async deleteById(id: string): Promise<void> {
     await this.delete({
       id,
     });

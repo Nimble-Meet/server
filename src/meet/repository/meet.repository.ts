@@ -38,7 +38,7 @@ export class MeetRepositoryImpl
       .leftJoin('meet.meetToMembers', 'meet_to_member')
       .leftJoin('meet_to_member.member', 'member');
 
-  async findHostedOrInvitedMeetsByUserId(userId: number): Promise<Meet[]> {
+  async findHostedOrInvitedMeetsByUserId(userId: string): Promise<Meet[]> {
     const meets = await this.createSelectJoinedMeetQuery()
       .where((qb) => {
         const subQuery = qb
@@ -57,8 +57,8 @@ export class MeetRepositoryImpl
   }
 
   async findMeetByIdIfHostedOrInvited(
-    meetId: number,
-    userId: number,
+    meetId: string,
+    userId: string,
   ): Promise<Meet | null> {
     const meet = this.createSelectJoinedMeetQuery()
       .where('meet.id = :meetId', { meetId })
@@ -75,7 +75,7 @@ export class MeetRepositoryImpl
     return meet;
   }
 
-  async findJoinedMeetById(meetId: number): Promise<Meet | null> {
+  async findJoinedMeetById(meetId: string): Promise<Meet | null> {
     const meet = await this.createSelectJoinedMeetQuery()
       .where('meet.id = :meetId', { meetId })
       .getOne();

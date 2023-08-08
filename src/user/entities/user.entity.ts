@@ -17,7 +17,7 @@ import {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id!: number;
+  id!: string;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -48,7 +48,7 @@ export class User {
     email: string,
     nickname: string,
     providerType: OauthProvider,
-    id?: number,
+    id?: string,
     password?: string,
     providerId?: string,
     createdAt?: Date,
@@ -73,7 +73,7 @@ export class User {
     providerType,
     providerId,
   }: {
-    id?: number;
+    id?: string;
     email: string;
     password?: string;
     nickname: string;

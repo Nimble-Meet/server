@@ -10,7 +10,7 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  generateAccessToken(userId: number): string {
+  generateAccessToken(userId: string): string {
     const payloadToSign: IJwtPayload = { userId };
     return this.jwtService.sign(payloadToSign, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
@@ -18,7 +18,7 @@ export class TokenService {
     });
   }
 
-  generateRefreshToken(userId: number): string {
+  generateRefreshToken(userId: string): string {
     const payloadToSign: IJwtPayload = { userId };
     return this.jwtService.sign(payloadToSign, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),

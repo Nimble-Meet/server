@@ -100,7 +100,7 @@ export class AuthServiceStub implements IAuthService {
 
     return Promise.resolve(
       User.create({
-        id: 9999,
+        id: '9999',
         ...oauthPayload,
       }),
     );

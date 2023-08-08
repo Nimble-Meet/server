@@ -8,7 +8,7 @@ export class UserRepositoryStub implements IUserRepository {
     this.userList = userList.map((user) => User.create(user));
   }
 
-  async findOneById(id: number): Promise<User | null> {
+  async findOneById(id: string): Promise<User | null> {
     const isIdEquals = (user: User) => user.id === id;
     return Promise.resolve(this.userList.find(isIdEquals) || null);
   }

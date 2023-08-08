@@ -2,7 +2,7 @@ import { IMeetToMemberRepository } from '../../meet/repository/meet-to-member.re
 import { MeetToMember } from '../../meet/entities/meet-to-member.entity';
 
 export class MeetToMemberRepositoryStub implements IMeetToMemberRepository {
-  deleteById(id: number): Promise<void> {
+  deleteById(id: string): Promise<void> {
     return Promise.resolve(undefined);
   }
 

@@ -8,10 +8,10 @@ import { MemberResponseDto } from './member-response.dto';
 export class MeetResponseDto {
   @IsNumber()
   @ApiProperty({
-    example: 1,
+    example: '1',
     description: '미팅의 unique id',
   })
-  private readonly id: number;
+  private readonly id: string;
 
   @IsMeetName()
   @ApiProperty({
@@ -46,12 +46,12 @@ export class MeetResponseDto {
   @ApiProperty({
     example: [
       MemberResponseDto.create({
-        id: 1,
+        id: '1',
         email: 'member1@email.com',
         nickname: 'member1',
       }),
       MemberResponseDto.create({
-        id: 2,
+        id: '2',
         email: 'member2@email.com',
         nickname: 'member2',
       }),
@@ -61,7 +61,7 @@ export class MeetResponseDto {
   private readonly members: SimpleUserResponseDto[];
 
   protected constructor(
-    id: number,
+    id: string,
     meetName: string,
     createdAt: Date,
     host: SimpleUserResponseDto,

@@ -12,7 +12,7 @@ import {
 @Entity()
 export class JwtToken {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id!: number;
+  id!: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -33,17 +33,17 @@ export class JwtToken {
   @JoinColumn()
   user: User;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: 'bigint' })
   @IsNumber()
   @RelationId((jwtToken: JwtToken) => jwtToken.user)
-  userId!: number;
+  userId!: string;
 
   private constructor(
     accessToken: string,
     refreshToken: string,
     expiresAt: Date,
     user: User,
-    id?: number,
+    id?: string,
   ) {
     if (id) {
       this.id = id;
@@ -62,7 +62,7 @@ export class JwtToken {
     expiresAt,
     user,
   }: {
-    id?: number;
+    id?: string;
     accessToken: string;
     refreshToken: string;
     expiresAt: Date;

@@ -2,7 +2,7 @@ import { EncryptedPassword } from 'src/auth/EncryptedPassword';
 import { User } from '../../user/entities/user.entity';
 import { OauthProvider } from '../../common/enums/oauth-provider.enum';
 
-export const USER_ID = 1;
+export const USER_ID = '1';
 export const EMAIL = 'test@example.com';
 export const NICKNAME = 'testuser';
 export const PASSWORD = 'test1234';
@@ -27,7 +27,7 @@ export const createOauthUser = ({
   providerType,
   providerId = PROVIDER_ID,
 }: {
-  id?: number;
+  id?: string;
   email?: string;
   nickname?: string;
   providerType: OauthProvider;

@@ -10,7 +10,7 @@ import { User } from '../../user/entities/user.entity';
 @Entity()
 export class MeetToMember {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id!: number;
+  id!: string;
 
   @CreateDateColumn()
   createdAt?: Date;
@@ -21,7 +21,7 @@ export class MeetToMember {
   @ManyToOne(() => User)
   member!: User;
 
-  private constructor(meet: Meet, member: User, id?: number) {
+  private constructor(meet: Meet, member: User, id?: string) {
     this.meet = meet;
     this.member = member;
     if (id) {
@@ -34,7 +34,7 @@ export class MeetToMember {
     meet,
     member,
   }: {
-    id?: number;
+    id?: string;
     meet: Meet;
     member: User;
   }): MeetToMember {
