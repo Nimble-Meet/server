@@ -9,7 +9,7 @@ import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class MeetToMember {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
   @CreateDateColumn()

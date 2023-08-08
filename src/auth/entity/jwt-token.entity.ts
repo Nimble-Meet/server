@@ -11,7 +11,7 @@ import {
 
 @Entity()
 export class JwtToken {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
   @Column({ unique: true })

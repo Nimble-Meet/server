@@ -16,7 +16,7 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
   @CreateDateColumn()
