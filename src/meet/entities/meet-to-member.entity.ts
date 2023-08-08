@@ -1,6 +1,7 @@
 import {
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,9 +17,11 @@ export class MeetToMember {
   createdAt?: Date;
 
   @ManyToOne(() => Meet, (meet) => meet.meetToMembers)
+  @JoinColumn({ name: 'meet_id' })
   meet!: Meet;
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'member_id' })
   member!: User;
 
   private constructor(meet: Meet, member: User, id?: string) {

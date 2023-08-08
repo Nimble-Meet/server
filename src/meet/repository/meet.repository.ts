@@ -46,8 +46,8 @@ export class MeetRepositoryImpl
           .select('meet.id')
           .from(Meet, 'meet')
           .leftJoin('meet.meetToMembers', 'meet_to_member')
-          .where('meet.hostId = :userId', { userId })
-          .orWhere('meet_to_member.memberId = :userId', { userId })
+          .where('meet.host_id = :userId', { userId })
+          .orWhere('meet_to_member.member_id = :userId', { userId })
           .getQuery();
         return 'meet.id IN ' + subQuery;
       })
@@ -64,9 +64,9 @@ export class MeetRepositoryImpl
       .where('meet.id = :meetId', { meetId })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('meet.hostId = :userId', {
+          qb.where('meet.host_id = :userId', {
             userId,
-          }).orWhere('meet_to_member.memberId = :userId', {
+          }).orWhere('meet_to_member.member_id = :userId', {
             userId,
           });
         }),

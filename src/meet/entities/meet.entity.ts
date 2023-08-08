@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -14,7 +15,7 @@ import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Meet {
-  @PrimaryGeneratedColumn({ type: 'bigint'})
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;
 
   @CreateDateColumn()
@@ -34,6 +35,7 @@ export class Meet {
   @ManyToOne(() => User, {
     nullable: false,
   })
+  @JoinColumn({ name: 'host_id' })
   host: User;
 
   @OneToMany(() => MeetToMember, (meetToMember) => meetToMember.meet)
